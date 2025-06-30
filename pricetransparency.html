@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Analysis: The UHG Surest Plan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Corporate Clarity -->
+    <!-- Application Structure Plan: The SPA is structured as a narrative journey to guide users from a high-level understanding to deep-dive analysis. It begins with a Hero section stating the core promise, followed by an interactive diagram comparing the "Old Way" vs. the "Surest Way" to clarify the value proposition. A "How It Works" section explains the core mechanics (value-based copays). The heart of the app is an interactive "Impact Dashboard" with toggles for "Member" and "Employer" views, centralizing all key data visualizations. This is followed by a dynamic "Competitive Landscape" table and a final "Verdict" section summarizing strengths and weaknesses. This thematic, story-driven structure was chosen over a direct report-to-page mapping to make the complex information more digestible, engaging, and user-friendly, allowing users to explore data based on their role (member vs. employer). -->
+    <!-- Visualization & Content Choices: 1. Headline Stats: Goal(Inform) -> Method(Large HTML Text) -> Justification(Immediate impact). 2. Old vs. New Way: Goal(Compare/Organize) -> Method(HTML/CSS Diagram) -> Justification(Visually clarifies the core concept without chart overhead). 3. Impact Dashboard Charts (Bar, Doughnut): Goal(Compare/Show Composition) -> Method(Chart.js) -> Justification(Best for visualizing quantitative comparisons and part-to-whole relationships like cost savings). 4. Competitive Table: Goal(Compare/Organize) -> Method(Interactive HTML Table) -> Interaction(JS-powered toggle/filter) -> Justification(Allows for dynamic, user-driven comparison of features across competitors, which is more engaging than a static table). 5. CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F3F4F6;
+            color: #111827;
+        }
+        .nav-link {
+            transition: color 0.3s;
+        }
+        .nav-link:hover {
+            color: #3B82F6;
+        }
+        .stat-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            padding: 1.5rem;
+            border: 1px solid #E5E7EB;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .tab-button {
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .tab-button.active {
+            background-color: #1E3A8A;
+            color: white;
+        }
+        .tab-button:not(.active) {
+            background-color: #E5E7EB;
+            color: #4B5563;
+        }
+        .feature-toggle.active {
+            background-color: #3B82F6;
+            color: white;
+            border-color: #3B82F6;
+        }
+        .competitor-row.dimmed {
+            opacity: 0.4;
+            transition: opacity 0.3s;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-[#1E3A8A]">Surest Plan Analysis</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#how-it-works" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">How It Works</a>
+                        <a href="#impact-dashboard" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Impact</a>
+                        <a href="#competition" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Competition</a>
+                        <a href="#verdict" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Verdict</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- Hero Section -->
+        <header class="text-center my-12">
+            <h2 class="text-4xl md:text-5xl font-extrabold text-[#1E3A8A] tracking-tight">Healthcare, Simplified. Costs, Certain.</h2>
+            <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">An interactive analysis of the UnitedHealthcare Surest plan, a no-deductible model reshaping health benefits through transparency and value.</p>
+        </header>
+
+        <!-- The Shift Section -->
+        <section id="how-it-works" class="my-16 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center mb-2">A Fundamental Shift in Benefits</h3>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-12">Surest addresses the core frustrations of traditional insurance—unpredictable costs and confusing bills—by completely redesigning the payment model. This section explains the plan's simple yet powerful mechanics.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="stat-card p-6 border-t-4 border-red-400">
+                    <h4 class="text-2xl font-bold text-center mb-4 text-red-700">The Old Way: Uncertainty</h4>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4 p-3 bg-red-50 rounded-lg">
+                            <span class="text-3xl">➡️</span>
+                            <div>
+                                <h5 class="font-semibold">Meet a High Deductible</h5>
+                                <p class="text-sm text-gray-600">Pay 100% of costs, often thousands, before the plan pays.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4 p-3 bg-red-50 rounded-lg">
+                            <span class="text-3xl">➡️</span>
+                            <div>
+                                <h5 class="font-semibold">Navigate Coinsurance</h5>
+                                <p class="text-sm text-gray-600">Pay a percentage of a large, unknown bill after the deductible.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4 p-3 bg-red-50 rounded-lg">
+                            <span class="text-3xl">➡️</span>
+                            <div>
+                                <h5 class="font-semibold">Face Surprise Bills</h5>
+                                <p class="text-sm text-gray-600">Receive confusing, unexpected charges weeks after care.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card p-6 border-t-4 border-[#3B82F6]">
+                    <h4 class="text-2xl font-bold text-center mb-4 text-[#1E3A8A]">The Surest Way: Certainty</h4>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4 p-3 bg-blue-50 rounded-lg">
+                             <span class="text-3xl">✅</span>
+                            <div>
+                                <h5 class="font-semibold">No Deductible. Ever.</h5>
+                                <p class="text-sm text-gray-600">Coverage starts from day one, with no spending threshold to meet.</p>
+                            </div>
+                        </div>
+                         <div class="flex items-center space-x-4 p-3 bg-blue-50 rounded-lg">
+                            <span class="text-3xl">✅</span>
+                            <div>
+                                <h5 class="font-semibold">Fixed, Upfront Copays</h5>
+                                <p class="text-sm text-gray-600">See the clear, all-inclusive price for a service before you book.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4 p-3 bg-blue-50 rounded-lg">
+                            <span class="text-3xl">✅</span>
+                            <div>
+                                <h5 class="font-semibold">Value-Based Pricing</h5>
+                                <p class="text-sm text-gray-600">Pay less for visiting higher-quality, more efficient providers.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Impact Dashboard Section -->
+        <section id="impact-dashboard" class="my-24 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center mb-2">The Surest Impact Dashboard</h3>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">The Surest model delivers quantifiable benefits for both individuals and organizations. Use the toggle below to explore the data-driven outcomes for members and employers.</p>
+            
+            <div class="flex justify-center mb-8">
+                <div class="flex space-x-1 p-1 bg-gray-200 rounded-full">
+                    <button id="show-member-view" class="tab-button px-4 py-2 text-sm font-semibold rounded-full active">For Members</button>
+                    <button id="show-employer-view" class="tab-button px-4 py-2 text-sm font-semibold rounded-full">For Employers</button>
+                </div>
+            </div>
+
+            <!-- Member View -->
+            <div id="member-view">
+                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="stat-card">
+                        <h4 class="font-bold text-xl mb-2 text-center">Lowering Out-of-Pocket Costs</h4>
+                        <p class="text-center text-sm text-gray-600 mb-4">Surest members see a dramatic reduction in what they pay for care compared to traditional plans, freeing up household income.</p>
+                        <div class="chart-container">
+                            <canvas id="oopChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h4 class="font-bold text-xl mb-2 text-center">Encouraging Healthier Habits</h4>
+                        <p class="text-center text-sm text-gray-600 mb-4">By removing cost barriers, the plan promotes proactive health screenings, leading to earlier detection and better outcomes.</p>
+                        <div class="chart-container">
+                            <canvas id="preventiveCareChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="stat-card lg:col-span-2">
+                        <h4 class="font-bold text-xl mb-2 text-center">Driving Smarter Care Choices</h4>
+                        <p class="text-center text-sm text-gray-600 mb-4">Members are guided toward more efficient care settings, reducing reliance on costly emergency services and embracing virtual care.</p>
+                        <div class="chart-container mx-auto">
+                            <canvas id="utilizationChart"></canvas>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+
+            <!-- Employer View -->
+            <div id="employer-view" class="hidden">
+                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="stat-card">
+                        <h4 class="font-bold text-xl mb-2 text-center">Reducing Total Medical Spend</h4>
+                        <p class="text-center text-sm text-gray-600 mb-4">Employers realize significant savings in total healthcare costs, making benefits more sustainable.</p>
+                        <div class="chart-container">
+                            <canvas id="employerCostChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h4 class="font-bold text-xl mb-2 text-center">Savings on High-Cost Conditions</h4>
+                        <p class="text-center text-sm text-gray-600 mb-4">The plan design yields targeted savings in key areas that typically drive the highest claims costs for employers.</p>
+                        <div class="chart-container">
+                            <canvas id="conditionSavingsChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="stat-card lg:col-span-2">
+                        <h4 class="font-bold text-xl mb-2 text-center">Rapid Growth & Broad Adoption</h4>
+                        <p class="text-center text-sm text-gray-600 mb-4">Surest is the fastest-growing plan in UHC's portfolio, demonstrating strong market demand and scalability.</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mt-8">
+                            <div>
+                                <p class="text-4xl font-extrabold text-[#1E3A8A]">~1M</p>
+                                <p class="text-sm text-gray-600 mt-1">Members Served</p>
+                            </div>
+                            <div>
+                                <p class="text-4xl font-extrabold text-[#1E3A8A]">49</p>
+                                <p class="text-sm text-gray-600 mt-1">States Available<br>(Fully Insured)</p>
+                            </div>
+                             <div>
+                                <p class="text-4xl font-extrabold text-[#1E3A8A]">1 in 6</p>
+                                <p class="text-sm text-gray-600 mt-1">UHC National Accounts Offer Surest</p>
+                            </div>
+                            <div>
+                                <p class="text-4xl font-extrabold text-[#1E3A8A]">100s</p>
+                                <p class="text-sm text-gray-600 mt-1">of Employers Have Adopted the Plan</p>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+        </section>
+
+        <!-- Competition Section -->
+        <section id="competition" class="my-24 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center mb-2">The Transparent Pricing Landscape</h3>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">Surest is a leader in a growing market of health plans focused on transparency. This table compares the key features of Surest and its main competitors. Use the toggles to highlight plans with specific attributes.</p>
+            
+            <div class="flex flex-wrap justify-center gap-2 mb-6">
+                <button class="feature-toggle px-3 py-1 text-sm font-medium border border-gray-300 rounded-full" data-feature="noDeductible">No Deductible</button>
+                <button class="feature-toggle px-3 py-1 text-sm font-medium border border-gray-300 rounded-full" data-feature="financing">Financing Option</button>
+                <button class="feature-toggle px-3 py-1 text-sm font-medium border border-gray-300 rounded-full" data-feature="virtualCare">Strong Virtual Care</button>
+                <button id="reset-features" class="px-3 py-1 text-sm font-medium border border-gray-300 rounded-full bg-gray-200">Reset</button>
+            </div>
+
+            <div class="overflow-x-auto stat-card p-0">
+                <table class="w-full text-sm text-left">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">Payer / Plan</th>
+                            <th scope="col" class="px-6 py-3">Core Model</th>
+                            <th scope="col" class="px-6 py-3">Unique Selling Proposition</th>
+                        </tr>
+                    </thead>
+                    <tbody id="competitor-table-body">
+                        <tr class="bg-white border-b competitor-row" data-features='["noDeductible", "virtualCare"]'>
+                            <th scope="row" class="px-6 py-4 font-bold text-lg text-[#1E3A8A] whitespace-nowrap">UHC Surest</th>
+                            <td class="px-6 py-4">No-deductible, value-based upfront copays.</td>
+                            <td class="px-6 py-4">Proven cost savings for members (54% OOP) & employers (11-15% total).</td>
+                        </tr>
+                        <tr class="bg-white border-b competitor-row" data-features='["noDeductible", "financing"]'>
+                            <td class="px-6 py-4 font-medium">SimplePay / Coupe Health</td>
+                            <td class="px-6 py-4">No payment at time of service, single monthly bill.</td>
+                            <td class="px-6 py-4">0% financing option on balances and "Health Valet" concierge.</td>
+                        </tr>
+                        <tr class="bg-white border-b competitor-row" data-features='["virtualCare"]'>
+                            <td class="px-6 py-4 font-medium">Oscar Health</td>
+                            <td class="px-6 py-4">Low/no-deductible plans with a digital-first approach.</td>
+                            <td class="px-6 py-4">$0 virtual care, dedicated Care Team, and low-cost prescriptions.</td>
+                        </tr>
+                        <tr class="bg-white border-b competitor-row" data-features='["noDeductible", "virtualCare"]'>
+                            <td class="px-6 py-4 font-medium">Cigna (Select Plans)</td>
+                            <td class="px-6 py-4">Select plans feature $0 deductible and $0 copays.</td>
+                            <td class="px-6 py-4">24/7 virtual care from $0 and member rewards programs.</td>
+                        </tr>
+                        <tr class="bg-white competitor-row" data-features='["virtualCare"]'>
+                            <td class="px-6 py-4 font-medium">Aetna (Select Plans)</td>
+                            <td class="px-6 py-4">Low average deductibles and $0 MinuteClinic visits.</td>
+                            <td class="px-6 py-4">Convenient access to care via CVS Health network.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Verdict Section -->
+        <section id="verdict" class="my-24 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center mb-2">The Verdict: A New Paradigm with Trade-Offs</h3>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-12">Surest represents a powerful shift towards consumer-centric healthcare. However, its innovative model comes with specific considerations for employers and members.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="stat-card p-6">
+                    <h4 class="text-2xl font-bold mb-4 flex items-center gap-3"><span class="text-3xl text-green-500">👍</span><span>Key Strengths</span></h4>
+                    <ul class="space-y-3 list-inside list-disc text-gray-700">
+                        <li><strong>Unmatched Predictability:</strong> Eliminating deductibles and coinsurance removes financial uncertainty and anxiety for members.</li>
+                        <li><strong>Proven Cost Savings:</strong> Delivers substantial, validated savings for both employee out-of-pocket costs and employer premiums.</li>
+                        <li><strong>Drives Healthy Behaviors:</strong> The model actively encourages preventive care and guides members to high-value providers.</li>
+                        <li><strong>High Member Satisfaction:</strong> Achieves superior Net Promoter Scores due to its simplicity and transparency.</li>
+                    </ul>
+                </div>
+                <div class="stat-card p-6">
+                    <h4 class="text-2xl font-bold mb-4 flex items-center gap-3"><span class="text-3xl text-yellow-500">🤔</span><span>Key Considerations</span></h4>
+                    <ul class="space-y-3 list-inside list-disc text-gray-700">
+                        <li><strong>No HSA Eligibility:</strong> The no-deductible structure is incompatible with Health Savings Accounts, a key feature for many benefits strategies.</li>
+                        <li><strong>Reliance on Digital Tools:</strong> The model's success hinges on member engagement with the app/website to find prices and providers.</li>
+                        <li><strong>Operational Execution:</strong> While broadly successful, isolated administrative issues (e.g., claims processing) highlight the complexity of execution.</li>
+                        <li><strong>Market Segmentation:</strong> Best fit for employers who prioritize upfront cost control and member experience over tax-advantaged savings accounts.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="bg-white border-t border-gray-200">
+        <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
+            <p>This interactive application is based on the "UnitedHealthcare Surest Plan: A Comprehensive Analysis" report.</p>
+            <p>&copy; 2024. All data is representational and for illustrative purposes.</p>
+        </div>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const chartTooltip = {
+        enabled: true,
+        backgroundColor: '#111827',
+        titleFont: { size: 14, weight: 'bold' },
+        bodyFont: { size: 12 },
+        padding: 12,
+        cornerRadius: 6,
+        callbacks: {
+            title: function(tooltipItems) {
+                const item = tooltipItems[0];
+                let label = item.chart.data.labels[item.dataIndex];
+                if (Array.isArray(label)) {
+                  return label.join(' ');
+                }
+                return label;
+            }
+        }
+    };
+
+    const wrapLabel = (label, len = 16) => {
+        if (typeof label !== 'string' || label.length <= len) return label;
+        const words = label.split(' ');
+        const lines = [];
+        let currentLine = '';
+        for (const word of words) {
+            if ((currentLine + word).length + 1 > len) {
+                lines.push(currentLine.trim());
+                currentLine = word;
+            } else {
+                currentLine = `${currentLine} ${word}`;
+            }
+        }
+        lines.push(currentLine.trim());
+        return lines.filter(Boolean);
+    };
+
+    // Chart Data
+    const oopData = {
+        labels: ['Traditional Plan', 'Surest Plan'],
+        datasets: [{
+            label: 'Average OOP Costs',
+            data: [100, 46], // Representing 54% reduction from baseline 100
+            backgroundColor: ['#93C5FD', '#1E3A8A'],
+        }]
+    };
+
+    const preventiveCareData = {
+        labels: ['Physical Exams', 'Mammograms', 'Colonoscopies'].map(l => wrapLabel(l)),
+        datasets: [{
+            label: 'Increase in Utilization',
+            data: [9, 15, 34],
+            backgroundColor: ['#93C5FD', '#3B82F6', '#1E3A8A'],
+        }]
+    };
+
+    const utilizationData = {
+        labels: ['ER Visits', 'Inpatient Stays', 'Virtual Visits'].map(l => wrapLabel(l)),
+        datasets: [{
+            label: 'Change in Utilization',
+            data: [-6, -13, 700], // 7x = 700% increase
+            backgroundColor: (context) => context.raw >= 0 ? '#3B82F6' : '#93C5FD',
+        }]
+    };
+    
+    const employerCostData = {
+        labels: ['Traditional Plan', 'Surest Plan'],
+        datasets: [{
+            label: 'Total Medical Cost',
+            data: [100, 89], // Representing 11% reduction from baseline 100
+            backgroundColor: ['#93C5FD', '#1E3A8A'],
+        }]
+    };
+
+    const conditionSavingsData = {
+        labels: ['Migraine (12%)', 'Mental Health (11%)', 'Anxiety (10%)', 'Back Pain (8%)', 'Diabetes (7%)'],
+        datasets: [{
+            label: 'Cost Reduction %',
+            data: [12, 11, 10, 8, 7],
+            backgroundColor: ['#1E3A8A', '#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE'],
+            borderWidth: 0,
+        }]
+    };
+
+    // Chart Instances
+    let oopChart, preventiveCareChart, utilizationChart, employerCostChart, conditionSavingsChart;
+
+    const chartOptions = (title) => ({
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            title: { display: false },
+            tooltip: chartTooltip
+        },
+        scales: {
+            y: { beginAtZero: true, ticks: { callback: (value) => value + '%', color: '#4B5563' } },
+            x: { ticks: { color: '#4B5563' } }
+        }
+    });
+
+    const createCharts = () => {
+        oopChart = new Chart(document.getElementById('oopChart'), {
+            type: 'bar', data: oopData, options: chartOptions('OOP Costs')
+        });
+        preventiveCareChart = new Chart(document.getElementById('preventiveCareChart'), {
+            type: 'bar', data: preventiveCareData, options: chartOptions('Preventive Care')
+        });
+        utilizationChart = new Chart(document.getElementById('utilizationChart'), {
+            type: 'bar', data: utilizationData, options: chartOptions('Utilization')
+        });
+        employerCostChart = new Chart(document.getElementById('employerCostChart'), {
+            type: 'bar', data: employerCostData, options: chartOptions('Employer Costs')
+        });
+        conditionSavingsChart = new Chart(document.getElementById('conditionSavingsChart'), {
+            type: 'doughnut', data: conditionSavingsData,
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#4B5563' } },
+                    tooltip: chartTooltip
+                }
+            }
+        });
+    };
+
+    // Tab Logic
+    const memberView = document.getElementById('member-view');
+    const employerView = document.getElementById('employer-view');
+    const showMemberBtn = document.getElementById('show-member-view');
+    const showEmployerBtn = document.getElementById('show-employer-view');
+
+    showMemberBtn.addEventListener('click', () => {
+        memberView.classList.remove('hidden');
+        employerView.classList.add('hidden');
+        showMemberBtn.classList.add('active');
+        showEmployerBtn.classList.remove('active');
+    });
+
+    showEmployerBtn.addEventListener('click', () => {
+        memberView.classList.add('hidden');
+        employerView.classList.remove('hidden');
+        showMemberBtn.classList.remove('active');
+        showEmployerBtn.classList.add('active');
+    });
+
+    // Competition Filter Logic
+    const featureToggles = document.querySelectorAll('.feature-toggle');
+    const competitorRows = document.querySelectorAll('.competitor-row');
+    const resetBtn = document.getElementById('reset-features');
+
+    let activeFeature = null;
+
+    featureToggles.forEach(button => {
+        button.addEventListener('click', () => {
+            const feature = button.dataset.feature;
+
+            if (activeFeature === feature) {
+                // Deselect if clicking the same button
+                activeFeature = null;
+                button.classList.remove('active');
+                competitorRows.forEach(row => row.classList.remove('dimmed'));
+            } else {
+                // Select a new feature
+                activeFeature = feature;
+                featureToggles.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                competitorRows.forEach(row => {
+                    const features = JSON.parse(row.dataset.features || '[]');
+                    if (features.includes(feature)) {
+                        row.classList.remove('dimmed');
+                    } else {
+                        row.classList.add('dimmed');
+                    }
+                });
+            }
+        });
+    });
+
+    resetBtn.addEventListener('click', () => {
+        activeFeature = null;
+        featureToggles.forEach(btn => btn.classList.remove('active'));
+        competitorRows.forEach(row => row.classList.remove('dimmed'));
+    });
+
+    createCharts();
+});
+</script>
+</body>
+</html>
