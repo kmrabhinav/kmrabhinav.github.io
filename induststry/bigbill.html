@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infographic: A Tale of Two Healthcare Bills</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            max-height: 450px;
+        }
+    </style>
+</head>
+<body class="bg-[#F9F9F9]">
+
+    <div class="container mx-auto p-4 md:p-8">
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-6xl font-black text-[#080357] uppercase tracking-wide">A Tale of Two Bills</h1>
+            <p class="text-xl md:text-2xl text-[#009F9D] mt-2 font-semibold">The House & Senate's Competing Visions for U.S. Healthcare</p>
+            <p class="max-w-4xl mx-auto text-gray-600 mt-4">The FY2025 reconciliation process has produced two starkly different legislative paths. The House bill (H.R. 1) proposes a sweeping overhaul of federal health programs, while the Senate-passed version remains silent on these changes. This infographic breaks down the key proposals in H.R. 1 and their potential impact on millions of Americans.</p>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <section id="medicaid" class="lg:col-span-3 bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                <h2 class="text-3xl font-bold text-[#080357] mb-4">Medicaid Under the Microscope</h2>
+                <p class="text-gray-600 mb-8">H.R. 1 proposes the most significant restructuring of Medicaid in decades, shifting it from an entitlement based on financial need to a conditional benefit. The bill focuses on tightening eligibility, increasing beneficiary costs, and restricting state financing options.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                    
+                    <div class="md:col-span-2 xl:col-span-1 bg-slate-50 rounded-xl p-6">
+                        <h3 class="font-bold text-xl text-[#080357]">New Eligibility Hurdles</h3>
+                        <p class="text-gray-600 text-sm mb-4">The bill introduces a nationwide "community engagement" requirement for many adults, mandating 80 hours of work or similar activities per month to maintain coverage.</p>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="w-10 h-10 rounded-full bg-[#9CFFFA] text-[#080357] flex-shrink-0 flex items-center justify-center font-bold text-lg mr-4">1</div>
+                                <div>
+                                    <h4 class="font-semibold">Beneficiary Action</h4>
+                                    <p class="text-sm text-gray-500">Must work, volunteer, or attend school for 80+ hours/month.</p>
+                                </div>
+                            </div>
+                            <div class="h-8 w-px bg-gray-300 ml-5"></div>
+                             <div class="flex items-start">
+                                <div class="w-10 h-10 rounded-full bg-[#9CFFFA] text-[#080357] flex-shrink-0 flex items-center justify-center font-bold text-lg mr-4">2</div>
+                                <div>
+                                    <h4 class="font-semibold">State Verification</h4>
+                                    <p class="text-sm text-gray-500">States must build costly systems to track and verify compliance.</p>
+                                </div>
+                            </div>
+                            <div class="h-8 w-px bg-gray-300 ml-5"></div>
+                             <div class="flex items-start">
+                                <div class="w-10 h-10 rounded-full bg-[#F64C72] text-white flex-shrink-0 flex items-center justify-center font-bold text-lg mr-4">!</div>
+                                <div>
+                                    <h4 class="font-semibold">Consequence of Non-Compliance</h4>
+                                    <p class="text-sm text-gray-500">Failure to document hours results in loss of health coverage.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 rounded-xl p-6">
+                        <h3 class="font-bold text-xl text-[#080357]">Tighter Administrative Rules</h3>
+                        <p class="text-gray-600 text-sm mb-4">H.R. 1 shortens key timeframes, increasing the risk of coverage gaps and uncompensated care for hospitals.</p>
+                        <div class="chart-container h-72 md:h-80">
+                            <canvas id="medicaidAdminChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 rounded-xl p-6">
+                        <h3 class="font-bold text-xl text-[#080357]">Constraining State Finances</h3>
+                        <p class="text-gray-600 text-sm mb-4">The bill restricts states' ability to fund their share of Medicaid costs by placing a moratorium on new provider taxes.</p>
+                        <div class="chart-container h-72 md:h-80">
+                            <canvas id="medicaidFinanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="medicare" class="lg:col-span-3 bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                <h2 class="text-3xl font-bold text-[#080357] mb-4">Reshaping Medicare</h2>
+                 <p class="text-gray-600 mb-8">The House bill introduces targeted changes to Medicare affecting beneficiary eligibility, provider payments, and prescription drug plan oversight, aiming to curb spending and increase accountability.</p>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-8">
+                    <div class="md:col-span-3 bg-slate-50 rounded-xl p-6">
+                        <h3 class="font-bold text-xl text-[#080357]">Physician Payment Squeeze</h3>
+                        <p class="text-gray-600 text-sm mb-4">The bill proposes updates to physician payments that fall far below the projected rate of medical inflation, potentially straining practices.</p>
+                        <div class="chart-container h-80">
+                            <canvas id="medicarePhysicianChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2 bg-slate-50 rounded-xl p-6">
+                        <h3 class="font-bold text-xl text-[#080357]">PBM Accountability Overhaul</h3>
+                        <p class="text-gray-600 text-sm mb-4">For Medicare Part D, H.R. 1 mandates a transparent, fee-based model for Pharmacy Benefit Managers (PBMs).</p>
+                        <ul class="space-y-4">
+                            <li class="flex items-center">
+                                <span class="text-2xl text-[#009F9D] mr-3">✓</span>
+                                <span>All drug rebates must be passed through to the plan.</span>
+                            </li>
+                             <li class="flex items-center">
+                                <span class="text-2xl text-[#009F9D] mr-3">✓</span>
+                                <span>PBM income is limited to flat, transparent service fees.</span>
+                            </li>
+                             <li class="flex items-center">
+                                <span class="text-2xl text-[#009F9D] mr-3">✓</span>
+                                <span>Mandatory annual reporting of all costs, fees, and rebates.</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-2xl text-[#009F9D] mr-3">✓</span>
+                                <span>Prohibits "spread pricing" models.</span>
+                            </li>
+                        </ul>
+                         <div class="mt-6 pt-6 border-t border-gray-200 text-center">
+                            <p class="text-gray-500 text-sm">AI in Program Integrity</p>
+                            <p class="text-4xl font-black text-[#080357]">$25M</p>
+                            <p class="text-gray-600">appropriated to use Artificial Intelligence to detect and recoup improper payments.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="commercial" class="lg:col-span-3 bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                <h2 class="text-3xl font-bold text-[#080357] mb-4">Commercial Market & The Rise of HSAs</h2>
+                <p class="text-gray-600 mb-8">H.R. 1 aims to reshape the commercial insurance landscape by tightening ACA marketplace rules while simultaneously promoting Health Savings Accounts (HSAs) as a primary vehicle for coverage.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                     <div class="bg-slate-50 rounded-xl p-6">
+                        <h3 class="font-bold text-xl text-[#080357]">Expanding HSA Eligibility</h3>
+                        <p class="text-gray-600 text-sm mb-4">The bill makes HSAs accessible to millions more Americans, including Medicare beneficiaries and those in high-deductible plans.</p>
+                         <div class="chart-container h-80">
+                            <canvas id="hsaEligibilityChart"></canvas>
+                        </div>
+                    </div>
+                     <div class="bg-slate-50 rounded-xl p-6">
+                        <h3 class="font-bold text-xl text-[#080357]">Boosting HSA Contributions</h3>
+                        <p class="text-gray-600 text-sm mb-4">Contribution limits for Health Savings Accounts would be substantially increased to encourage savings.</p>
+                         <div class="chart-container h-80">
+                            <canvas id="hsaContributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="impact" class="lg:col-span-3 bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                 <h2 class="text-3xl font-bold text-[#080357] mb-4 text-center">Stakeholder Impact Summary</h2>
+                 <p class="text-gray-600 mb-8 max-w-3xl mx-auto text-center">The House bill, if enacted, would create distinct winners and losers across the healthcare landscape, fundamentally altering financial incentives and access to care.</p>
+                 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+                    <div class="bg-slate-50 rounded-xl p-6 text-center">
+                        <p class="text-5xl mb-3">👥</p>
+                        <h3 class="font-bold text-xl text-[#080357]">Patients</h3>
+                        <ul class="text-left mt-4 space-y-2 text-sm">
+                            <li class="flex"><span class="text-red-500 font-bold mr-2">-</span><span>New barriers to Medicaid coverage.</span></li>
+                            <li class="flex"><span class="text-red-500 font-bold mr-2">-</span><span>Higher cost-sharing for some.</span></li>
+                            <li class="flex"><span class="text-green-600 font-bold mr-2">+</span><span>Greater HSA flexibility and tax benefits.</span></li>
+                        </ul>
+                    </div>
+                     <div class="bg-slate-50 rounded-xl p-6 text-center">
+                        <p class="text-5xl mb-3">🏥</p>
+                        <h3 class="font-bold text-xl text-[#080357]">Providers</h3>
+                        <ul class="text-left mt-4 space-y-2 text-sm">
+                            <li class="flex"><span class="text-red-500 font-bold mr-2">-</span><span>Risk of rising uncompensated care.</span></li>
+                            <li class="flex"><span class="text-red-500 font-bold mr-2">-</span><span>Lower Medicare physician payment rates.</span></li>
+                            <li class="flex"><span class="text-green-600 font-bold mr-2">+</span><span>Temporary delay in DSH payment cuts.</span></li>
+                        </ul>
+                    </div>
+                     <div class="bg-slate-50 rounded-xl p-6 text-center">
+                        <p class="text-5xl mb-3">🏢</p>
+                        <h3 class="font-bold text-xl text-[#080357]">Insurers</h3>
+                        <ul class="text-left mt-4 space-y-2 text-sm">
+                            <li class="flex"><span class="text-green-600 font-bold mr-2">+</span><span>Opportunity in consumer-directed health plans.</span></li>
+                            <li class="flex"><span class="text-red-500 font-bold mr-2">-</span><span>Stricter rules for ACA marketplace plans.</span></li>
+                            <li class="flex"><span class="text-red-500 font-bold mr-2">-</span><span>PBMs face total business model disruption.</span></li>
+                        </ul>
+                    </div>
+                     <div class="bg-slate-50 rounded-xl p-6 text-center">
+                        <p class="text-5xl mb-3">🏛️</p>
+                        <h3 class="font-bold text-xl text-[#080357]">States</h3>
+                        <ul class="text-left mt-4 space-y-2 text-sm">
+                            <li class="flex"><span class="text-red-500 font-bold mr-2">-</span><span>High administrative costs for new mandates.</span></li>
+                            <li class="flex"><span class="text-red-500 font-bold mr-2">-</span><span>Restrictions on financing mechanisms.</span></li>
+                            <li class="flex"><span class="text-green-600 font-bold mr-2">+</span><span>Potential for lower state Medicaid spending.</span></li>
+                        </ul>
+                    </div>
+                 </div>
+            </section>
+
+        </main>
+        
+        <footer class="text-center mt-12 text-gray-500 text-sm">
+            <p>Source: Analysis of H.R. 1 as reported by the House Committee on the Budget and the reconciliation bill as passed by the Senate, FY2025.</p>
+            <p>This infographic is for informational purposes only and does not constitute legal or financial advice. All data points are based on proposals and are subject to change.</p>
+        </footer>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const palette = {
+        darkBlue: '#080357',
+        teal: '#009F9D',
+        lightCyan: '#9CFFFA',
+        pinkRed: '#F64C72',
+        offWhite: '#F9F9F9',
+        gray: '#6b7280'
+    };
+
+    const wrapLabel = (str, maxWidth) => {
+        if (str.length <= maxWidth) {
+            return str;
+        }
+        const words = str.split(' ');
+        const lines = [];
+        let currentLine = '';
+        words.forEach(word => {
+            if ((currentLine + word).length > maxWidth) {
+                lines.push(currentLine.trim());
+                currentLine = '';
+            }
+            currentLine += word + ' ';
+        });
+        lines.push(currentLine.trim());
+        return lines;
+    };
+
+    const tooltipTitleCallback = (tooltipItems) => {
+        const item = tooltipItems[0];
+        let label = item.chart.data.labels[item.dataIndex];
+        if (Array.isArray(label)) {
+            return label.join(' ');
+        }
+        return label;
+    };
+
+    const defaultChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    color: palette.gray,
+                    boxWidth: 15,
+                    padding: 20
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    title: tooltipTitleCallback
+                },
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                titleFont: { size: 14, weight: 'bold' },
+                bodyFont: { size: 12 },
+                padding: 10,
+                cornerRadius: 4
+            }
+        },
+        scales: {
+            y: {
+                ticks: { color: palette.gray },
+                grid: { color: 'rgba(0,0,0,0.05)' }
+            },
+            x: {
+                ticks: { color: palette.gray },
+                grid: { display: false }
+            }
+        }
+    };
+
+    const medicaidAdminCtx = document.getElementById('medicaidAdminChart');
+    if (medicaidAdminCtx) {
+        new Chart(medicaidAdminCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Eligibility Redeterminations', 'Retroactive Coverage'],
+                datasets: [{
+                    label: 'Current Law (Months)',
+                    data: [12, 3],
+                    backgroundColor: palette.teal,
+                    borderColor: palette.teal,
+                    borderWidth: 1
+                }, {
+                    label: 'H.R. 1 Proposal (Months)',
+                    data: [6, 1],
+                    backgroundColor: palette.pinkRed,
+                    borderColor: palette.pinkRed,
+                    borderWidth: 1
+                }]
+            },
+            options: { ...defaultChartOptions }
+        });
+    }
+
+    const medicaidFinanceCtx = document.getElementById('medicaidFinanceChart');
+    if (medicaidFinanceCtx) {
+        new Chart(medicaidFinanceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Federal Match', 'State General Funds', 'Provider Taxes (Restricted)'],
+                datasets: [{
+                    label: 'State Funding Sources',
+                    data: [60, 25, 15],
+                    backgroundColor: [palette.teal, palette.darkBlue, palette.pinkRed],
+                    hoverOffset: 4
+                }]
+            },
+            options: { ...defaultChartOptions, cutout: '60%' }
+        });
+    }
+    
+    const medicarePhysicianCtx = document.getElementById('medicarePhysicianChart');
+    if (medicarePhysicianCtx) {
+        new Chart(medicarePhysicianCtx, {
+            type: 'line',
+            data: {
+                labels: ['2025', '2026', '2027', '2028', '2029'],
+                datasets: [{
+                    label: 'Projected Medical Inflation (MEI)',
+                    data: [2.8, 3.0, 3.1, 3.2, 3.3],
+                    borderColor: palette.teal,
+                    backgroundColor: 'rgba(0, 159, 157, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }, {
+                    label: 'H.R. 1 Proposed Update',
+                    data: [2.8, 2.25, 0.31, 0.32, 0.33],
+                    borderColor: palette.pinkRed,
+                    backgroundColor: 'rgba(246, 76, 114, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: { ...defaultChartOptions }
+        });
+    }
+
+    const hsaEligibilityCtx = document.getElementById('hsaEligibilityChart');
+    if (hsaEligibilityCtx) {
+        new Chart(hsaEligibilityCtx, {
+            type: 'bar',
+            data: {
+                labels: [
+                    wrapLabel('Medicare Part A Beneficiaries', 16),
+                    wrapLabel('Bronze/Catastrophic Plan Holders', 16),
+                    wrapLabel('Direct Primary Care Patients', 16)
+                ],
+                datasets: [{
+                    label: 'Currently Ineligible for HSA',
+                    data: [100, 100, 100],
+                    backgroundColor: palette.pinkRed,
+                    stack: 'Stack 0',
+                }, {
+                    label: 'Proposed as HSA-Eligible',
+                    data: [100, 100, 100],
+                    backgroundColor: palette.teal,
+                    stack: 'Stack 1',
+                }]
+            },
+            options: {
+                ...defaultChartOptions,
+                plugins: {
+                     ...defaultChartOptions.plugins,
+                     legend: { display: false },
+                     tooltip: { ...defaultChartOptions.plugins.tooltip, enabled: false }
+                },
+                scales: {
+                    x: { stacked: true, ticks: { color: palette.gray } },
+                    y: { stacked: true, display: false }
+                },
+                indexAxis: 'y',
+            }
+        });
+    }
+
+    const hsaContributionCtx = document.getElementById('hsaContributionChart');
+    if (hsaContributionCtx) {
+        new Chart(hsaContributionCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Individual', 'Family'],
+                datasets: [{
+                    label: 'Current Limit',
+                    data: [4300, 8750],
+                    backgroundColor: palette.teal,
+                }, {
+                    label: 'Proposed Limit',
+                    data: [6000, 12000],
+                    backgroundColor: palette.darkBlue,
+                }]
+            },
+            options: { 
+                ...defaultChartOptions,
+                scales: {
+                     ...defaultChartOptions.scales,
+                     y: {
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value / 1000 + 'k';
+                            },
+                            color: palette.gray
+                        },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                     }
+                }
+            }
+        });
+    }
+});
+</script>
+</body>
+</html>
