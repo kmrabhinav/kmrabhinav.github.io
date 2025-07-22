@@ -1,10 +1,12 @@
 ---
-layout: page
-title: Cloud
+layout: single
+title: "Cloud"
+permalink: /tech/cloud/
+author_profile: true
+header:
+  image: "/assets/images/cloud.jpg"
 ---
-
-# Cloud
 
 Insights into cloud computing, DevOps, and scalable infrastructure.
 
-![Cloud](../assets/images/cloud.jpg)
+![Cloud](/assets/images/cloud.jpg)

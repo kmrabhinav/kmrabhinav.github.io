@@ -1,17 +1,91 @@
 title: "Abhinav's Personal Blog"
 description: "Exploring Tech, Mathematics, Music, Travel, and Carpentry"
-baseurl: "" # for user/username.github.io repo, else "/repo-name"
+baseurl: "" # "" for user.github.io, or "/repo-name" for project site
 url: "https://kmrabhinav.github.io"
-theme: minima
-permalink: /:categories/:title/
+theme: "minimal-mistakes-jekyll"
+plugins:
+  - jekyll-include-cache
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-archives
+minimal_mistakes_skin: "air" # Or "default", "dark", "mint", "neon", etc.
+paginate: 5
+paginate_path: "/page:num/"
 collections:
   tech:
     output: true
+    permalink: /tech/:path/
   mathematics:
     output: true
+    permalink: /mathematics/:path/
   music:
     output: true
+    permalink: /music/:path/
   travel:
     output: true
+    permalink: /travel/:path/
   carpentry:
     output: true
+    permalink: /carpentry/:path/
+defaults:
+  - scope:
+      path: ""
+      type: tech
+    values:
+      layout: single
+      author_profile: true
+      sidebar:
+        nav: "tech"
+  - scope:
+      path: ""
+      type: mathematics
+    values:
+      layout: single
+      author_profile: true
+      sidebar:
+        nav: "mathematics"
+  - scope:
+      path: ""
+      type: music
+    values:
+      layout: single
+      author_profile: true
+      sidebar:
+        nav: "music"
+  - scope:
+      path: ""
+      type: travel
+    values:
+      layout: single
+      author_profile: true
+      sidebar:
+        nav: "travel"
+  - scope:
+      path: ""
+      type: carpentry
+    values:
+      layout: single
+      author_profile: true
+      sidebar:
+        nav: "carpentry"
+author:
+  name: "Abhinav"
+  avatar: "/assets/images/avatar.jpg"
+  bio: "Tech enthusiast, math lover, musician, traveler, woodworker. Sharing my journey and insights."
+  location: "India"
+  email: "your@email.com"
+  links:
+    - label: "GitHub"
+      icon: "fab fa-github"
+      url: "https://github.com/kmrabhinav"
+    - label: "Twitter"
+      icon: "fab fa-twitter"
+      url: "https://twitter.com/"
+    - label: "LinkedIn"
+      icon: "fab fa-linkedin"
+      url: "https://linkedin.com/"
+# Social sharing and SEO
+twitter:
+  username: ""
+logo: "/assets/images/blog-banner.jpg"

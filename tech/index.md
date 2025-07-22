@@ -1,6 +1,10 @@
 ---
-layout: page
-title: Tech
+layout: archive
+title: "Tech"
+permalink: /tech/
+author_profile: true
+header:
+  image: "/assets/images/tech.jpg"
 ---
 
 # Tech
@@ -11,4 +15,4 @@ Delving into technology topics:
 - [AI](ai/)
 - [Cloud](cloud/)
 
-![Tech section](../assets/images/tech.jpg)
+![Tech section](/assets/images/tech.jpg)

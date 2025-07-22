@@ -1,9 +1,12 @@
 ---
 layout: home
-title: Welcome
+author_profile: true
+title: "Welcome"
+header:
+  image: "/assets/images/blog-banner.jpg"
 ---
 
-# Welcome to Abhinav's Personal Blog
+Welcome to **Abhinav's Personal Blog**!
 
 Explore my thoughts and projects:
 
@@ -13,6 +16,6 @@ Explore my thoughts and projects:
 - [Travel](travel/)
 - [Carpentry](carpentry/)
 
-![Blog Banner](assets/images/blog-banner.jpg)
+![Blog Banner](/assets/images/blog-banner.jpg)
 
 Enjoy the journey!

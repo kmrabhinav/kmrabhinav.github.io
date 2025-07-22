@@ -1,0 +1,32 @@
+main:
+  - title: "Home"
+    url: /
+  - title: "Tech"
+    url: /tech/
+  - title: "Mathematics"
+    url: /mathematics/
+  - title: "Music"
+    url: /music/
+  - title: "Travel"
+    url: /travel/
+  - title: "Carpentry"
+    url: /carpentry/
+tech:
+  - title: "Legacy Modernization"
+    url: /tech/legacy-modernization/
+  - title: "AI"
+    url: /tech/ai/
+  - title: "Cloud"
+    url: /tech/cloud/
+mathematics:
+  - title: "Mathematics"
+    url: /mathematics/
+music:
+  - title: "Music"
+    url: /music/
+travel:
+  - title: "Travel"
+    url: /travel/
+carpentry:
+  - title: "Carpentry"
+    url: /carpentry/
