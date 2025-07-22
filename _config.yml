@@ -2,7 +2,7 @@ title: "Abhinav's Personal Blog"
 description: "Exploring Tech, Mathematics, Music, Travel, and Carpentry"
 baseurl: "" # "" for user.github.io, or "/repo-name" for project site
 url: "https://kmrabhinav.github.io"
-theme: "minimal-mistakes-jekyll"
+remotetheme: "minimal-mistakes-jekyll"
 plugins:
   - jekyll-include-cache
   - jekyll-feed
