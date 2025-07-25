@@ -8,8 +8,8 @@ header:
 
 Welcome to **Abhinav's Personal Blog**!
 
-Explore my thoughts and projects:
-
+Use direct links to go to the content pages. Hyperlinks will be enabled after gathering the critical mass.
+<!-- 
 - [Tech](tech/)
 - [Mathematics](mathematics/)
 - [Music](music/)
@@ -18,4 +18,4 @@ Explore my thoughts and projects:
 
 ![Blog Banner](/assets/images/blog-banner.jpg)
 
-Enjoy the journey!
+Enjoy the journey! -->
