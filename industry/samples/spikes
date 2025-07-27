@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3.js Interactive Spikes</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            padding: 2rem;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        p {
+            color: #666;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+        }
+        svg {
+            overflow: visible; /* Allows elements to be seen outside the SVG's formal boundaries */
+        }
+        .central-box {
+            cursor: pointer;
+            transition: fill 0.3s ease;
+        }
+        .central-box:hover {
+            fill: #4a90e2;
+        }
+        .spike-line {
+            stroke: #667eea;
+            stroke-width: 2;
+        }
+        .spike-label {
+            fill: #333;
+            font-size: 14px;
+            font-weight: 600;
+            text-anchor: middle;
+            dominant-baseline: central;
+        }
+    </style>
+    <!-- Google Font for better typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Interactive Data Spikes</h1>
+        <p>Click the blue box to expand or retract the data spikes.</p>
+        <div id="visualization"></div>
+    </div>
+
+    <script>
+        // --- 1. SETUP ---
+        const width = 400;
+        const height = 400;
+        const boxSize = 80;
+        let spikesVisible = false; // State to track if spikes are shown
+
+        // Sample data for the spikes
+        const spikeData = [
+            { value: 100, angle: -90 },
+            { value: 250, angle: -45 },
+            { value: 180, angle: 0 },
+            { value: 300, angle: 45 },
+            { value: 220, angle: 90 },
+            { value: 150, angle: 135 },
+            { value: 280, angle: 180 },
+            { value: 190, angle: 225 },
+        ];
+
+        // Create the SVG container
+        const svg = d3.select("#visualization")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        // --- 2. CENTRAL BOX ---
+        // Create a group to center the box and its contents
+        const centerGroup = svg.append("g")
+            .attr("transform", `translate(${width / 2}, ${height / 2})`);
+
+        // Add the central clickable box
+        centerGroup.append("rect")
+            .attr("class", "central-box")
+            .attr("x", -boxSize / 2)
+            .attr("y", -boxSize / 2)
+            .attr("width", boxSize)
+            .attr("height", boxSize)
+            .attr("rx", 8) // Rounded corners
+            .attr("fill", "#5d78ff")
+            .on("click", (event, d) => {
+                spikesVisible = !spikesVisible; // Toggle the state
+                toggleSpikes(spikesVisible);
+            });
+
+        // --- 3. SPIKE CREATION & TOGGLE LOGIC ---
+        function toggleSpikes(show) {
+            const spikeLength = 150;
+            const labelOffset = 20;
+
+            // --- DATA BINDING ---
+            // Bind the data to groups. Using groups ('g') is a good practice
+            // as it allows us to group a line and a text label together.
+            const spikes = centerGroup.selectAll(".spike-group")
+                .data(show ? spikeData : [], d => d.angle); // Use a key function for object constancy
+
+            // --- EXIT (Elements to be removed) ---
+            // Animate spikes retracting and fading out
+            spikes.exit()
+                .transition()
+                .duration(500)
+                .ease(d3.easeCubicIn)
+                .attr("transform", "rotate(0) scale(0)") // Scale down to disappear
+                .remove();
+
+            // --- ENTER (New elements to be added) ---
+            // Create a group for each new data point
+            const spikeEnter = spikes.enter()
+                .append("g")
+                .attr("class", "spike-group");
+
+            // Append the line (the spike) to each new group
+            spikeEnter.append("line")
+                .attr("class", "spike-line")
+                .attr("x1", 0)
+                .attr("y1", 0)
+                .attr("x2", 0) // Start from center
+                .attr("y2", 0);
+
+            // Append the text label to each new group
+            spikeEnter.append("text")
+                .attr("class", "spike-label")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("opacity", 0) // Start invisible
+                .text(d => d.value);
+
+            // --- UPDATE (Apply transformations to new and existing elements) ---
+            // Merge the enter selection with the update selection
+            const allSpikes = spikeEnter.merge(spikes);
+
+            // Animate the spikes growing outwards
+            allSpikes.transition()
+                .duration(800)
+                .delay((d, i) => i * 50) // Stagger the animation
+                .ease(d3.easeElasticOut.amplitude(0.8).period(0.5)) // Bouncy effect
+                .attr("transform", d => `rotate(${d.angle})`);
+
+            // Animate the line length
+            allSpikes.select(".spike-line")
+                .transition()
+                .duration(800)
+                .delay((d, i) => i * 50)
+                .ease(d3.easeElasticOut.amplitude(0.8).period(0.5))
+                .attr("x2", spikeLength);
+
+            // Animate the text label position and fade it in
+            allSpikes.select(".spike-label")
+                .transition()
+                .duration(500)
+                .delay((d, i) => 300 + i * 50) // Delay until spikes are mostly out
+                .attr("x", spikeLength + labelOffset)
+                .attr("opacity", 1);
+        }
+    </script>
+</body>
+</html>
