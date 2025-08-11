@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Reinvention: The IT Services Competitive Landscape</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f6f9;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 384px;
+            }
+        }
+        .brand-bg-dark-purple { background-color: #3c3744; }
+        .brand-text-teal { color: #00876c; }
+        .brand-text-magenta { color: #be5a86; }
+        .brand-text-purple { color: #784e83; }
+        .brand-border-teal { border-color: #00876c; }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="brand-bg-dark-purple text-white p-8 text-center">
+        <h1 class="text-4xl md:text-5xl font-black tracking-tight">The AI Reinvention</h1>
+        <p class="mt-4 text-lg max-w-3xl mx-auto text-gray-300">The IT services industry has moved beyond digital transformation. A new competitive arena has emerged, centered on proprietary platforms and the promise of total enterprise reinvention.</p>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <section id="scaling-gap" class="text-center my-12">
+            <h2 class="text-3xl font-bold brand-text-purple mb-2">The AI Scaling Gap: Ambition vs. Reality</h2>
+            <p class="max-w-3xl mx-auto text-lg mb-8">Nearly every company sees AI's potential, but very few have successfully industrialized it. This gap is the primary market opportunity for IT services firms.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-lg shadow-lg p-8 transform hover:scale-105 transition-transform duration-300">
+                    <p class="text-2xl font-bold brand-text-purple mb-2">Believe AI is Transformative</p>
+                    <p class="text-7xl font-black brand-text-teal">97%</p>
+                    <p class="mt-4 text-gray-600">An overwhelming majority of executives believe Generative AI will fundamentally reshape their industries.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-8 transform hover:scale-105 transition-transform duration-300">
+                    <p class="text-2xl font-bold brand-text-purple mb-2">Have Scaled AI Initiatives</p>
+                    <p class="text-7xl font-black brand-text-magenta">8%</p>
+                    <p class="mt-4 text-gray-600">Only a fraction of enterprises have managed to move beyond isolated pilots to widespread, strategic AI deployment.</p>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-12 border-t-2 brand-border-teal border-dashed">
+
+        <section id="competitors" class="my-12">
+            <h2 class="text-3xl font-bold brand-text-purple mb-8 text-center">The New Competitive Pecking Order</h2>
+             <div class="bg-white rounded-lg shadow-lg p-6">
+                <p class="text-2xl font-bold brand-text-purple mb-4 text-center">Market Positioning in AI Services (2024)</p>
+                <div class="chart-container">
+                    <canvas id="marketLeadersChart"></canvas>
+                </div>
+                <p class="mt-4 text-gray-600 text-sm text-center">Based on analyst ratings like the Everest Group PEAK Matrix®, a clear hierarchy has emerged. "Leaders" are distinguished by their comprehensive vision, strong IP, and ability to deliver business outcomes, while "Major Contenders" possess significant assets and are aggressively competing.</p>
+            </div>
+        </section>
+
+        <hr class="my-12 border-t-2 brand-border-teal border-dashed">
+
+        <section id="platforms" class="my-12">
+            <h2 class="text-3xl font-bold brand-text-purple mb-2 text-center">The Platform Wars: The New Enterprise OS</h2>
+            <p class="max-w-3xl mx-auto text-lg mb-8 text-center">The strategic battleground is the proprietary AI platform. These are not just toolkits; they are orchestration layers designed to manage the complexity of the AI ecosystem and create long-term client dependency.</p>
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <p class="text-2xl font-bold brand-text-purple mb-4 text-center">Key Platform Capabilities Comparison</p>
+                <div class="chart-container h-96 md:h-[450px]">
+                    <canvas id="platformFeaturesChart"></canvas>
+                </div>
+                <p class="mt-4 text-gray-600">While narratives differ, platforms are converging on essential features. Agentic AI (autonomous execution) is the next frontier, model-agnostic "switchboards" prevent vendor lock-in, and low-code tools are key to democratizing AI development across the enterprise.</p>
+            </div>
+        </section>
+
+        <hr class="my-12 border-t-2 brand-border-teal border-dashed">
+
+        <section id="narratives" class="my-12">
+            <h2 class="text-3xl font-bold brand-text-purple mb-8 text-center">Selling a Vision: Strategic Narratives</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#00876c]">
+                    <h3 class="text-xl font-bold text-[#00876c]">Accenture's "Reinvention"</h3>
+                    <p class="mt-2 text-gray-600">A top-down, C-suite narrative focused on complete business overhaul, positioning AI as the catalyst for fearless, fundamental change.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#b4a769]">
+                    <h3 class="text-xl font-bold text-[#b4a769]">TCS's "Business Value"</h3>
+                    <p class="mt-2 text-gray-600">A pragmatic, use-case-driven approach promising tangible, measurable ROI and accelerated time-to-value through solution blueprints.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#e67f83]">
+                    <h3 class="text-xl font-bold text-[#e67f83]">Infosys's "AI-First"</h3>
+                    <p class="mt-2 text-gray-600">A human-centric philosophy aimed at amplifying human potential and empowering people by making the enterprise more cognitive.</p>
+                </div>
+                 <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#be5a86]">
+                    <h3 class="text-xl font-bold text-[#be5a86]">Capgemini's "Human-AI Chemistry"</h3>
+                    <p class="mt-2 text-gray-600">A unique focus on the symbiotic relationship between humans and AI, emphasizing trust and responsible collaboration for sustainable adoption.</p>
+                </div>
+                 <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#784e83]">
+                    <h3 class="text-xl font-bold text-[#784e83]">Wipro's "Pervasive AI"</h3>
+                    <p class="mt-2 text-gray-600">A practical narrative anchored in the critical need for workforce readiness and pervasive AI integration, coupled with comprehensive reskilling.</p>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-12 border-t-2 brand-border-teal border-dashed">
+        
+        <section id="outcomes" class="my-12">
+            <h2 class="text-3xl font-bold brand-text-purple mb-8 text-center">The Value Proposition: From Cost Savings to Growth</h2>
+            <p class="max-w-3xl mx-auto text-lg mb-8 text-center">Firms are selling two tiers of value: foundational "Table Stakes" efficiencies and transformative "Strategic Bets" that promise innovation and growth.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <p class="text-2xl font-bold brand-text-purple mb-4 text-center">Efficiency Gains (Table Stakes)</p>
+                    <div class="chart-container">
+                        <canvas id="costSavingsChart"></canvas>
+                    </div>
+                    <p class="mt-4 text-gray-600 text-sm text-center">The most common promise is significant operational cost reduction, a powerful entry point for gaining client trust and demonstrating immediate value.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+                    <p class="text-2xl font-bold brand-text-purple mb-2">Revenue Growth (Strategic Bet)</p>
+                    <p class="text-gray-600">Case Study: Logistics Client</p>
+                    <p class="text-6xl font-black brand-text-magenta mt-4">+350%</p>
+                    <p class="text-xl font-bold text-gray-600 mt-2">Increase in Gross Margin per Employee</p>
+                    <p class="mt-4 text-gray-600">Infosys showcased a dynamic pricing solution that grew a client's margin per employee from $200 to $900, proving AI's potential to drive top-line growth.</p>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-12 border-t-2 brand-border-teal border-dashed">
+
+        <section id="journey" class="my-12">
+            <h2 class="text-3xl font-bold brand-text-purple mb-8 text-center">The Customer Engagement Journey: Land and Expand</h2>
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-0">
+                <div class="bg-white rounded-lg shadow-md p-6 w-64 text-center">
+                    <p class="text-5xl mb-2">💡</p>
+                    <h3 class="text-xl font-bold brand-text-purple">Phase 1: Spark</h3>
+                    <p class="text-sm text-gray-600 mt-2">Discover opportunities and build a strategic business case using frameworks like Infosys's "AI Spark" Launchpads.</p>
+                </div>
+                <div class="text-4xl font-bold brand-text-teal text-center transform md:-translate-y-4 md:rotate-0 rotate-90">→</div>
+                <div class="bg-white rounded-lg shadow-md p-6 w-64 text-center">
+                    <p class="text-5xl mb-2">🔬</p>
+                    <h3 class="text-xl font-bold brand-text-purple">Phase 2: Pilot</h3>
+                    <p class="text-sm text-gray-600 mt-2">Deliver a rapid proof-of-concept (POC) in 4-6 weeks to demonstrate tangible value and build momentum.</p>
+                </div>
+                <div class="text-4xl font-bold brand-text-teal text-center transform md:-translate-y-4 md:rotate-0 rotate-90">→</div>
+                 <div class="bg-white rounded-lg shadow-md p-6 w-64 text-center">
+                    <p class="text-5xl mb-2">🏭</p>
+                    <h3 class="text-xl font-bold brand-text-purple">Phase 3: Factory</h3>
+                    <p class="text-sm text-gray-600 mt-2">Scale the solution enterprise-wide, leveraging robust platforms and governance to industrialize AI.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="brand-bg-dark-purple text-white text-center p-6 mt-12">
+        <p>A visual summary of the report "The AI Reinvention: A Competitive Analysis of Strategy in Large IT Services."</p>
+        <p class="text-sm text-gray-400 mt-2">Infographic created for demonstration purposes.</p>
+    </footer>
+
+    <script>
+        const energeticPalette = {
+            teal: '#00876c',
+            green: '#6d9a5b',
+            olive: '#b4a769',
+            peach: '#f5b390',
+            salmon: '#e67f83',
+            magenta: '#be5a86',
+            purple: '#784e83',
+            darkPurple: '#3c3744'
+        };
+
+        function wrapLabel(str, maxWidth) {
+            if (str.length <= maxWidth) {
+                return str;
+            }
+            const words = str.split(' ');
+            let lines = [];
+            let currentLine = words[0];
+
+            for (let i = 1; i < words.length; i++) {
+                if ((currentLine + ' ' + words[i]).length > maxWidth) {
+                    lines.push(currentLine);
+                    currentLine = words[i];
+                } else {
+                    currentLine += ' ' + words[i];
+                }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+
+        const tooltipTitleCallback = (tooltipItems) => {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+                return label.join(' ');
+            }
+            return label;
+        };
+        
+        const commonChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: { size: 12 },
+                        color: '#374151',
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    callbacks: { title: tooltipTitleCallback },
+                    backgroundColor: energeticPalette.darkPurple,
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 12 },
+                    padding: 10,
+                    cornerRadius: 4
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                    ticks: { color: '#4b5563' }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#4b5563' }
+                }
+            }
+        };
+
+        new Chart(document.getElementById('marketLeadersChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Accenture', 'TCS', 'Capgemini', 'Infosys', 'Wipro'],
+                datasets: [{
+                    label: 'Market Positioning Score (Illustrative)',
+                    data: [95, 90, 88, 75, 72],
+                    backgroundColor: [
+                        energeticPalette.teal, 
+                        energeticPalette.green, 
+                        energeticPalette.magenta,
+                        energeticPalette.salmon,
+                        energeticPalette.purple
+                    ],
+                    barThickness: 40,
+                }]
+            },
+            options: {
+                ...commonChartOptions,
+                indexAxis: 'y',
+                plugins: { ...commonChartOptions.plugins, legend: { display: false } },
+                 scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                if (value === 80) return 'Leaders';
+                                if (value === 60) return 'Major Contenders';
+                                return '';
+                            },
+                            stepSize: 20
+                        },
+                        grid: {
+                           drawTicks: false,
+                           color: (context) => {
+                                if (context.tick.value === 80 || context.tick.value === 60) {
+                                    return '#cccccc';
+                                }
+                                return 'rgba(0,0,0,0)';
+                           },
+                           lineWidth: 2,
+                           borderDash: [5, 5]
+                        }
+                    },
+                    y: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('platformFeaturesChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Accenture AI Refinery', 'TCS WisdomNext', 'Infosys Topaz', 'Capgemini RAISE', 'Wipro ai360'],
+                datasets: [
+                    {
+                        label: 'Agentic AI Focus',
+                        data: [5, 4, 3, 4, 3],
+                        backgroundColor: energeticPalette.teal,
+                    },
+                    {
+                        label: 'Model Agnosticism',
+                        data: [5, 5, 4, 4, 4],
+                        backgroundColor: energeticPalette.magenta,
+                    },
+                    {
+                        label: 'Low-Code/No-Code',
+                        data: [4, 5, 4, 3, 3],
+                        backgroundColor: energeticPalette.purple,
+                    }
+                ]
+            },
+            options: {
+                ...commonChartOptions,
+                scales: {
+                    x: { stacked: true, grid: { display: false } },
+                    y: { stacked: true, grid: { color: 'rgba(0, 0, 0, 0.05)' } }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('costSavingsChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Wipro Claim', 'Accenture (Banking)', 'Capgemini (IT Desk)'],
+                datasets: [{
+                    label: 'Claimed Operational Cost Reduction',
+                    data: [30, 25, 40],
+                    backgroundColor: [energeticPalette.purple, energeticPalette.teal, energeticPalette.magenta],
+                    barThickness: 50,
+                }]
+            },
+            options: {
+                ...commonChartOptions,
+                plugins: { ...commonChartOptions.plugins, legend: { display: false } },
+                scales: {
+                    y: {
+                        ticks: {
+                            callback: function(value) { return value + '%' }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                           callback: function(value) {
+                                return wrapLabel(this.getLabelForValue(value), 15);
+                           }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
