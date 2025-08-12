@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pega & AWS: The Business Case for Mainframe Modernization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 350px;
+            width: 100%;
+        }
+    </style>
+  
+    <!-- ...existing code... -->
+    <script>
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+      });
+    </script>
+    <!-- ...existing code... -->
+
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+
+        <header class="text-center my-12">
+            <h1 class="text-4xl md:text-6xl font-black text-[#003f5c] leading-tight">The $200 Million Question</h1>
+            <p class="text-xl md:text-2xl text-[#374c80] mt-4 max-w-4xl mx-auto">How to escape the mainframe trap and transform a massive operational liability into a strategic innovation engine.</p>
+        </header>
+
+        <main>
+            <section id="problem" class="mb-20">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-[#003f5c]">The Unseen Costs of Legacy Systems</h2>
+                    <p class="mt-2 text-lg text-gray-600 max-w-3xl mx-auto">A 150,000 MIPS mainframe isn't just an IT expense; it's a strategic anchor, imposing staggering financial burdens and operational drag that stifle growth and innovation.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-center">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                        <h3 class="font-bold text-xl text-[#003f5c] mb-4 text-center">Annual TCO: The $200M Drain</h3>
+                        <p class="text-sm text-gray-600 mb-4 text-center">The fully-loaded Total Cost of Ownership for a 150,000 MIPS environment is a massive, recurring drain on enterprise capital, dominated by punitive software licensing.</p>
+                        <div class="chart-container max-w-sm mx-auto h-72">
+                            <canvas id="tcoChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 flex items-center">
+                            <div class="text-5xl mr-4">💡</div>
+                            <div>
+                                <h3 class="font-bold text-xl text-[#003f5c]">Innovation Blocked</h3>
+                                <p class="text-3xl font-extrabold text-[#7a5195]">68%</p>
+                                <p class="text-sm text-gray-600">of IT leaders state legacy systems prevent them from adopting critical AI and automation technologies.</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 flex items-center">
+                             <div class="text-5xl mr-4">🎓</div>
+                            <div>
+                                <h3 class="font-bold text-xl text-[#003f5c]">The Skills Cliff</h3>
+                                <p class="text-3xl font-extrabold text-[#bc5090]">60%</p>
+                                <p class="text-sm text-gray-600">of mainframe professionals are over 50, creating a critical and escalating talent risk for the business.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                     <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 md:col-span-2 lg:col-span-1">
+                        <h3 class="font-bold text-xl text-[#003f5c] mb-4">The "Growth Penalty"</h3>
+                        <p class="text-sm text-gray-600 mb-4">Mainframe licensing models financially penalize business growth. As your company succeeds, your IT costs escalate, creating a direct conflict with strategic objectives.</p>
+                        <div class="chart-container h-72">
+                            <canvas id="growthPenaltyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="solution" class="mb-20 bg-[#003f5c] text-white py-16 px-8 rounded-2xl shadow-2xl">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold">The AI-Powered Modernization Engine</h2>
+                    <p class="mt-2 text-lg text-gray-300 max-w-3xl mx-auto">The Pega & AWS partnership provides an integrated, AI-driven "transformation factory" that deconstructs legacy code and reimagines business processes for the cloud.</p>
+                </div>
+                
+                <div class="w-full overflow-x-auto">
+                    <div class="flex flex-col md:flex-row items-center justify-center space-y-8 md:space-y-0 md:space-x-8 p-4 min-w-[700px]">
+                        <div class="text-center p-6 bg-[#374c80]/50 rounded-lg shadow-md w-full md:w-1/4">
+                            <h4 class="font-bold text-lg">Legacy Mainframe</h4>
+                            <p class="text-sm text-gray-300">Monolithic COBOL Apps & Opaque Logic</p>
+                        </div>
+                        <div class="text-3xl font-bold text-[#ffa600]">→</div>
+                        <div class="text-center p-6 bg-[#7a5195]/50 rounded-lg shadow-md w-full md:w-1/4">
+                            <h4 class="font-bold text-lg">AWS Transform</h4>
+                            <p class="text-sm text-gray-300">AI-led Code Analysis & Refactoring to Java</p>
+                        </div>
+                        <div class="text-3xl font-bold text-[#ffa600]">→</div>
+                        <div class="text-center p-6 bg-[#bc5090]/50 rounded-lg shadow-md w-full md:w-1/4">
+                            <h4 class="font-bold text-lg">Pega Blueprint</h4>
+                            <p class="text-sm text-gray-300">GenAI-powered Workflow Design</p>
+                        </div>
+                         <div class="text-3xl font-bold text-[#ffa600]">→</div>
+                        <div class="text-center p-6 bg-[#ef5675]/50 rounded-lg shadow-md w-full md:w-1/4">
+                            <h4 class="font-bold text-lg">Modern Application</h4>
+                            <p class="text-sm text-gray-300">Agile, Cloud-Native & Intelligent Workflows</p>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <section id="investment" class="mb-20">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-[#003f5c]">Funding the Transformation</h2>
+                    <p class="mt-2 text-lg text-gray-600 max-w-3xl mx-auto">A creative, multi-source funding strategy de-risks the financial commitment, minimizing reliance on new capital by leveraging partner investment and the project's own savings.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                        <h3 class="font-bold text-xl text-center text-[#003f5c] mb-4">Multi-Source Funding Model ($150M)</h3>
+                        <div class="chart-container h-80">
+                            <canvas id="fundingChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                        <h3 class="font-bold text-xl text-[#003f5c] mb-4">Key Funding Levers</h3>
+                        <ul class="space-y-4">
+                            <li class="flex items-start">
+                                <span class="text-2xl text-[#ffa600] mr-3">💰</span>
+                                <div>
+                                    <h4 class="font-semibold">Self-Funding from Savings</h4>
+                                    <p class="text-sm text-gray-600">Redirecting realized OpEx savings from mainframe decommissioning to fund subsequent migration phases.</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-2xl text-[#ff764a] mr-3">☁️</span>
+                                <div>
+                                    <h4 class="font-semibold">AWS MAP Funding</h4>
+                                    <p class="text-sm text-gray-600">Leveraging the AWS Migration Acceleration Program for service credits and cash to offset costs.</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-2xl text-[#ef5675] mr-3">🤝</span>
+                                <div>
+                                    <h4 class="font-semibold">SI Partner Co-Investment</h4>
+                                    <p class="text-sm text-gray-600">Structuring outcome-based commercial models with the implementation partner to share risk and investment.</p>
+                                </div>
+                            </li>
+                             <li class="flex items-start">
+                                <span class="text-2xl text-[#bc5090] mr-3">🏦</span>
+                                <div>
+                                    <h4 class="font-semibold">Internal Capital</h4>
+                                    <p class="text-sm text-gray-600">Securing traditional capital budget, minimized by leveraging external and self-funding sources.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="roi" class="mb-12">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-[#003f5c]">The Transformative Return on Investment</h2>
+                    <p class="mt-2 text-lg text-gray-600 max-w-3xl mx-auto">The business case is clear. Modernization delivers massive hard-cost savings, unlocks strategic value, and mitigates critical enterprise risks.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                    <div class="lg:col-span-3 bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                        <h3 class="font-bold text-xl text-[#003f5c] mb-4">5-Year Cost Projection: Legacy vs. Modern</h3>
+                        <p class="text-sm text-gray-600 mb-4">The project rapidly pays for itself, with the new cloud-native operational cost being a fraction of the legacy TCO, leading to exponential savings.</p>
+                        <div class="chart-container h-96">
+                            <canvas id="roiChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                         <h3 class="font-bold text-xl text-[#003f5c] mb-4">5-Year Total Benefits: $837M</h3>
+                         <p class="text-sm text-gray-600 mb-4">Value is realized across three key pillars, with direct cost savings forming the foundation for strategic and risk-mitigation benefits.</p>
+                        <div class="chart-container h-96">
+                            <canvas id="benefitsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-8 text-center">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                        <h4 class="text-lg font-semibold text-gray-600">5-Year ROI</h4>
+                        <p class="text-6xl font-black text-[#7a5195]">458%</p>
+                    </div>
+                     <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                        <h4 class="text-lg font-semibold text-gray-600">Payback Period</h4>
+                        <p class="text-6xl font-black text-[#bc5090]">25</p>
+                        <p class="text-xl font-bold text-[#bc5090] -mt-2">Months</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                        <h4 class="text-lg font-semibold text-gray-600">Net Present Value</h4>
+                        <p class="text-5xl font-black text-[#ef5675]">$485M</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                        <h4 class="text-lg font-semibold text-gray-600">Internal Rate of Return</h4>
+                        <p class="text-6xl font-black text-[#ff764a]">78%</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="text-center mt-20 py-8 border-t border-gray-300">
+            <h3 class="text-2xl font-bold text-[#003f5c]">From Cost Center to Innovation Engine</h3>
+            <p class="text-gray-600 mt-2">The Pega & AWS partnership provides a viable, powerful, and strategically sound pathway to escape legacy dependency.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        const FONT_COLOR = '#003f5c';
+        const GRID_COLOR = '#e5e7eb';
+        const PALETTE = {
+            blue_dark: '#003f5c',
+            blue_mid: '#374c80',
+            purple_dark: '#7a5195',
+            purple_light: '#bc5090',
+            pink: '#ef5675',
+            orange: '#ff764a',
+            yellow: '#ffa600'
+        };
+
+        const tooltipPlugin = {
+            tooltip: {
+                callbacks: {
+                    title: function(tooltipItems) {
+                        const item = tooltipItems[0];
+                        let label = item.chart.data.labels[item.dataIndex];
+                        if (Array.isArray(label)) {
+                            return label.join(' ');
+                        }
+                        return label;
+                    }
+                }
+            }
+        };
+
+        function wrapLabel(str, maxWidth) {
+            if (str.length <= maxWidth) return str;
+            const words = str.split(' ');
+            let lines = [];
+            let currentLine = '';
+            for (const word of words) {
+                if ((currentLine + word).length > maxWidth) {
+                    lines.push(currentLine.trim());
+                    currentLine = '';
+                }
+                currentLine += word + ' ';
+            }
+            lines.push(currentLine.trim());
+            return lines.filter(line => line.length > 0);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            Chart.defaults.color = FONT_COLOR;
+            Chart.defaults.font.family = "'Inter', sans-serif";
+
+            new Chart(document.getElementById('tcoChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Software Licensing', '3rd Party Tools', 'Hardware', 'Labor', 'Infrastructure'],
+                    datasets: [{
+                        label: 'Annual TCO Breakdown',
+                        data: [150, 15, 10, 12.5, 5],
+                        backgroundColor: [PALETTE.blue_dark, PALETTE.blue_mid, PALETTE.purple_dark, PALETTE.purple_light, PALETTE.pink],
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        title: {
+                            display: false
+                        },
+                        ...tooltipPlugin
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('growthPenaltyChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+                    datasets: [{
+                        label: 'Business Growth',
+                        data: [100, 120, 150, 180, 220],
+                        borderColor: PALETTE.yellow,
+                        backgroundColor: PALETTE.yellow + '33',
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Mainframe Licensing Cost',
+                        data: [100, 125, 160, 195, 240],
+                        borderColor: PALETTE.pink,
+                        backgroundColor: PALETTE.pink + '33',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                     scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: GRID_COLOR },
+                            ticks: { callback: value => value + '%' }
+                        },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        ...tooltipPlugin
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('fundingChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Self-Funded (Savings)', 'Internal Capital', 'SI Co-Investment', 'AWS MAP Funding'],
+                    datasets: [{
+                        label: 'Funding Source',
+                        data: [90, 35, 15, 10],
+                        backgroundColor: [PALETTE.blue_dark, PALETTE.purple_light, PALETTE.pink, PALETTE.yellow],
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                         ...tooltipPlugin
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('roiChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Year 0', 'Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+                    datasets: [{
+                        label: 'Legacy Annual TCO',
+                        data: [200, 200, 200, 200, 200, 200],
+                        borderColor: PALETTE.pink,
+                        borderDash: [5, 5],
+                        tension: 0.1,
+                        fill: false
+                    }, {
+                        label: 'Modernized Annual OpEx',
+                        data: [200, 160, 110, 40, 20, 20],
+                        borderColor: PALETTE.blue_dark,
+                        backgroundColor: PALETTE.blue_dark + '33',
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: GRID_COLOR },
+                            ticks: { callback: value => '$' + value + 'M' }
+                        },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' },
+                         ...tooltipPlugin
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('benefitsChart'), {
+                type: 'bar',
+                data: {
+                    labels: [
+                        wrapLabel('Hard Returns (Cost Savings)', 16),
+                        wrapLabel('Strategic Value (Revenue & Agility)', 16),
+                        wrapLabel('Risk Mitigation Value', 16)
+                    ],
+                    datasets: [{
+                        label: '5-Year Benefit Value (in $M)',
+                        data: [650, 140, 47],
+                        backgroundColor: [PALETTE.blue_dark, PALETTE.purple_dark, PALETTE.orange],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: GRID_COLOR },
+                            ticks: { callback: value => '$' + value + 'M' }
+                        },
+                        y: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        ...tooltipPlugin
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
