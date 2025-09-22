@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progressive Engineering: Crawl, Walk, Run, Fly</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #001219;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+        .stage-card {
+            background-color: #002a33;
+            border-left: 4px solid;
+            transition: all 0.3s ease-in-out;
+        }
+        .stage-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(148, 210, 189, 0.1), 0 4px 6px -2px rgba(148, 210, 189, 0.05);
+        }
+        .crawl-border { border-color: #94D2BD; }
+        .walk-border { border-color: #E9D8A6; }
+        .run-border { border-color: #EE9B00; }
+        .fly-border { border-color: #CA6702; }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            min-height: 60px;
+            font-weight: 600;
+        }
+        .flow-connector {
+            font-size: 2rem;
+            color: #94D2BD;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body class="text-gray-200">
+
+    <header class="text-center p-8 md:p-12">
+        <h1 class="text-4xl md:text-6xl font-black text-white uppercase tracking-wider">The Ascent of Engineering</h1>
+        <p class="mt-4 text-lg md:text-xl text-gray-300 max-w-4xl mx-auto">From Foundational Code to the Agentic Enterprise: A Maturity Model</p>
+    </header>
+
+    <main class="p-4 md:p-8 max-w-7xl mx-auto space-y-16">
+
+        <section id="crawl" class="stage-card crawl-border rounded-2xl shadow-2xl p-6 md:p-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+                <div class="md:col-span-1">
+                    <h2 class="text-4xl font-bold text-[#94D2BD] flex items-center"><span class="text-5xl mr-4" role="img" aria-label="Baby icon">👶</span>CRAWL</h2>
+                    <h3 class="text-2xl font-semibold text-white mt-1">Mastering the Fundamentals</h3>
+                    <p class="mt-4 text-gray-400">This is the non-negotiable foundation. Before speed, there must be stability. The crawl stage is about building a robust, automated pipeline that enforces quality, security, and consistency for every line of code committed.</p>
+                </div>
+                <div class="md:col-span-2">
+                    <div class="flex flex-col space-y-4">
+                        <h4 class="text-lg font-bold text-center text-white">Essential Engineering Hygiene Pipeline</h4>
+                         <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 items-center gap-2">
+                            <div class="flow-step bg-[#005f73]">Code & Branch Policy</div>
+                            <div class="flow-connector text-center hidden md:block">→</div>
+                            <div class="flow-step bg-[#005f73]">PR & Code Review</div>
+                             <div class="flow-connector text-center hidden md:block">→</div>
+                            <div class="flow-step bg-[#0a9396]">CI & Unit Tests</div>
+                             <div class="flow-connector text-center hidden md:block">→</div>
+                             <div class="flow-step bg-[#0a9396] col-span-2 sm:col-span-4 md:col-span-1">Quality Gates (Code Coverage, Vuln Scan)</div>
+                             <div class="flow-connector text-center hidden md:block">→</div>
+                            <div class="flow-step bg-[#94d2bd] text-black">Build Artifact</div>
+                             <div class="flow-connector text-center hidden md:block">→</div>
+                            <div class="flow-step bg-[#94d2bd] text-black">Automated Tests</div>
+                             <div class="flow-connector text-center hidden md:block">→</div>
+                            <div class="flow-step bg-white text-black">Deploy</div>
+                        </div>
+                        <p class="text-center text-sm text-gray-400 mt-2">This diagram illustrates the mandatory, sequential flow of the CI/CD pipeline, where each step ensures the integrity of the software before it progresses, culminating in a safe, automated deployment.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="walk" class="stage-card walk-border rounded-2xl shadow-2xl p-6 md:p-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+                <div class="md:col-span-1">
+                    <h2 class="text-4xl font-bold text-[#E9D8A6] flex items-center"><span class="text-5xl mr-4" role="img" aria-label="Walking person icon">🚶</span>WALK</h2>
+                    <h3 class="text-2xl font-semibold text-white mt-1">Accelerating with AI Assistance</h3>
+                    <p class="mt-4 text-gray-400">With a solid foundation, we can now focus on velocity. The walk stage introduces AI-powered tools that act as copilots for developers, automating repetitive tasks and accelerating core activities across the SDLC, from coding to test creation.</p>
+                </div>
+                <div class="md:col-span-2">
+                    <h4 class="text-lg font-bold text-center text-white mb-4">AI-Driven Productivity Gains</h4>
+                    <div class="chart-container h-[350px]">
+                        <canvas id="productivityChart"></canvas>
+                    </div>
+                    <p class="text-center text-sm text-gray-400 mt-4">This chart compares the estimated efficiency boost from AI assistants in various development phases. The greatest impact is seen in code generation and test automation, significantly reducing manual effort.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="run" class="stage-card run-border rounded-2xl shadow-2xl p-6 md:p-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+                <div class="md:col-span-1">
+                    <h2 class="text-4xl font-bold text-[#EE9B00] flex items-center"><span class="text-5xl mr-4" role="img" aria-label="Running person icon">🏃</span>RUN</h2>
+                    <h3 class="text-2xl font-semibold text-white mt-1">Automating with Agentic Platforms</h3>
+                    <p class="mt-4 text-gray-400">The focus shifts from assistive tools to autonomous platforms. The run stage establishes an Internal Developer Portal (IDP) as a central, self-service hub. Here, AI agents execute complex operational tasks on behalf of developers, from provisioning infrastructure to managing cloud costs.</p>
+                </div>
+                <div class="md:col-span-2">
+                    <h4 class="text-lg font-bold text-center text-white mb-4">The Self-Service Agentic Hub</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
+                        <div class="p-4 bg-[#ca6702] rounded-lg shadow-lg">Agentic IaC</div>
+                        <div class="p-4 bg-[#ca6702] rounded-lg shadow-lg">AI-Assisted Pipelines</div>
+                        <div class="p-4 bg-[#ca6702] rounded-lg shadow-lg">Infrastructure Monitoring</div>
+                        <div class="p-4 bg-[#bb3e03] rounded-lg shadow-lg">Autonomous FinOps</div>
+                        <div class="p-4 bg-[#bb3e03] rounded-lg shadow-lg">Cloud Operations</div>
+                        <div class="p-4 bg-[#bb3e03] rounded-lg shadow-lg">Self-Service Portals</div>
+                    </div>
+                     <p class="text-center text-sm text-gray-400 mt-4">This organized grid represents capabilities managed by an IDP. It provides developers with a self-service interface where AI agents handle the underlying complexity of DevOps and CloudOps tasks.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="fly" class="stage-card fly-border rounded-2xl shadow-2xl p-6 md:p-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+                <div class="md:col-span-1">
+                    <h2 class="text-4xl font-bold text-[#CA6702] flex items-center"><span class="text-5xl mr-4" role="img" aria-label="Rocket icon">🚀</span>FLY</h2>
+                    <h3 class="text-2xl font-semibold text-white mt-1">Orchestrating the Agentic Enterprise</h3>
+                    <p class="mt-4 text-gray-400">This is the ultimate state of maturity. Engineering transcends software creation to enable intelligent business automation. By exposing enterprise APIs as tools for AI via the Model Context Protocol (MCP), agents can now directly orchestrate complex business workflows, driving unprecedented operational efficiency.</p>
+                </div>
+                <div class="md:col-span-2">
+                     <h4 class="text-lg font-bold text-center text-white">Enterprise API Ecosystem Flow</h4>
+                     <div class="flex flex-col md:flex-row items-stretch justify-center gap-2 text-center text-white font-semibold">
+                         <div class="flex-1 p-4 bg-[#ae2012] rounded-lg flex flex-col justify-center">Agentic AI<span class="text-xs font-normal">(MCP Client)</span></div>
+                         <div class="text-2xl self-center mx-2 text-[#CA6702]">→</div>
+                         <div class="flex-1 p-4 bg-[#9b2226] rounded-lg flex flex-col justify-center">MCP Auth & Gateway<span class="text-xs font-normal">(Secure Tooling Layer)</span></div>
+                         <div class="text-2xl self-center mx-2 text-[#CA6702]">→</div>
+                         <div class="flex-1 p-4 bg-[#005f73] rounded-lg flex flex-col justify-center">Enterprise Business Capabilities<span class="text-xs font-normal">(APIs as Tools)</span></div>
+                     </div>
+                     <p class="text-center text-sm text-gray-400 mt-4">This diagram shows the relationship where Agentic AIs securely access and utilize core enterprise data and functions (like inventory or finance) through a specialized MCP gateway, transforming APIs into actionable tools for intelligent automation.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center p-8 mt-8 border-t border-gray-800">
+        <p class="text-gray-400">The journey through Crawl, Walk, Run, and Fly transforms engineering from a cost center to a strategic enabler of intelligent automation.</p>
+    </footer>
+
+    <script>
+        const processLabel = (label) => {
+            const maxLength = 16;
+            if (label.length <= maxLength) return label;
+            const words = label.split(' ');
+            const lines = [];
+            let currentLine = '';
+            for (const word of words) {
+                if ((currentLine + ' ' + word).trim().length > maxLength) {
+                    lines.push(currentLine.trim());
+                    currentLine = word;
+                } else {
+                    currentLine = (currentLine + ' ' + word).trim();
+                }
+            }
+            if (currentLine) lines.push(currentLine.trim());
+            return lines;
+        };
+
+        const ctx = document.getElementById('productivityChart').getContext('2d');
+        const productivityChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [
+                    'AI Code Assistants', 
+                    'AI Test Case Creation', 
+                    'AI Test Data Generation', 
+                    'AI Story Grooming', 
+                    'AI Data Model Creation',
+                ].map(processLabel),
+                datasets: [{
+                    label: 'Productivity Uplift (%)',
+                    data: [55, 48, 42, 35, 30],
+                    backgroundColor: ['#E9D8A6', '#EE9B00', '#CA6702', '#BB3E03', '#AE2012'],
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(233, 216, 166, 0.1)' }, ticks: { color: '#E9D8A6' } },
+                    x: { grid: { display: false }, ticks: { color: 'white' } }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) return label.join(' ');
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
