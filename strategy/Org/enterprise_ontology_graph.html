@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Ontology Relationship Graph</title>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            margin-top: 10px;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .legend {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .legend-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #333;
+        }
+
+        #graph {
+            background: #fafbfc;
+            cursor: grab;
+        }
+
+        #graph:active {
+            cursor: grabbing;
+        }
+
+        .node {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .node:hover {
+            filter: brightness(1.2);
+        }
+
+        .node circle {
+            stroke: #fff;
+            stroke-width: 2.5px;
+            transition: all 0.3s ease;
+        }
+
+        .node:hover circle {
+            stroke-width: 4px;
+            filter: drop-shadow(0 0 8px rgba(0,0,0,0.4));
+        }
+
+        .node text {
+            font-size: 11px;
+            font-weight: 600;
+            pointer-events: none;
+            text-shadow: 
+                -1px -1px 0 #fff,
+                1px -1px 0 #fff,
+                -1px 1px 0 #fff,
+                1px 1px 0 #fff;
+        }
+
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+            stroke-width: 1.5px;
+            fill: none;
+        }
+
+        .link.hierarchy {
+            stroke: #3498db;
+            stroke-width: 2px;
+        }
+
+        .link.works-on {
+            stroke: #e74c3c;
+            stroke-dasharray: 5,5;
+        }
+
+        .link.supports {
+            stroke: #2ecc71;
+            stroke-dasharray: 3,3;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            max-width: 300px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .info-panel {
+            background: #ecf0f1;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+        }
+
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Enterprise Ontology Relationship Graph</h1>
+            <div class="subtitle">Organizations • People • Value Chain</div>
+        </div>
+
+        <div class="controls">
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-circle" style="background: #3498db;"></div>
+                    <span>Organization</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-circle" style="background: #e74c3c;"></div>
+                    <span>People/Roles</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-circle" style="background: #2ecc71;"></div>
+                    <span>Value Chain</span>
+                </div>
+            </div>
+            <button onclick="resetSimulation()">Reset Layout</button>
+        </div>
+
+        <svg id="graph"></svg>
+
+        <div class="info-panel">
+            Drag nodes to reposition • Hover for details • Zoom with mouse wheel
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // Graph dimensions
+        const width = 1800;
+        const height = 1000;
+
+        // Color schemes for different entity types
+        const colors = {
+            organization: '#3498db',
+            people: '#e74c3c',
+            valueChain: '#2ecc71'
+        };
+
+        // Create nodes data
+        const nodes = [
+            // Organization hierarchy
+            { id: 'company', label: 'Company', type: 'organization', level: 0, description: 'Top-level organization' },
+            { id: 'businessGroup', label: 'Business Group', type: 'organization', level: 1, description: 'Strategic business unit' },
+            { id: 'isu', label: 'ISU', type: 'organization', level: 2, description: 'Industry Solution Unit' },
+            { id: 'subisu', label: 'Sub-ISU', type: 'organization', level: 3, description: 'Sub Industry Solution Unit' },
+            { id: 'customerAccounts', label: 'Customer Accounts', type: 'organization', level: 4, description: 'Client relationship management' },
+            { id: 'programs', label: 'Programs', type: 'organization', level: 5, description: 'Strategic initiatives' },
+            { id: 'projects', label: 'Projects', type: 'organization', level: 6, description: 'Tactical execution units' },
+            
+            // Business Group Level People
+            { id: 'bgHead', label: 'BG Head', type: 'people', description: 'Business Group Head - Strategic leadership' },
+            { id: 'isuHeadBG', label: 'ISU Head (BG)', type: 'people', description: 'ISU Head reporting to BG' },
+            { id: 'deliveryHeadBG', label: 'Delivery Head (BG)', type: 'people', description: 'Delivery Head at BG level' },
+            { id: 'financeHead', label: 'Finance Head', type: 'people', description: 'Finance and budget management' },
+            { id: 'securityHead', label: 'Security Head', type: 'people', description: 'Security and compliance leadership' },
+            
+            // ISU Level People
+            { id: 'isuHead', label: 'ISU Head', type: 'people', description: 'Industry Solution Unit Head' },
+            { id: 'subISUHead', label: 'Sub-ISU Head', type: 'people', description: 'Sub-ISU leadership' },
+            { id: 'clientPartner', label: 'Client Partner', type: 'people', description: 'Client relationship management' },
+            { id: 'deliveryPartner', label: 'Delivery Partner', type: 'people', description: 'Delivery partnership and coordination' },
+            { id: 'deliveryHead', label: 'Delivery Head (ISU)', type: 'people', description: 'ISU-level delivery management' },
+            
+            // Project/Program Level People
+            { id: 'enterpriseArchitect', label: 'Enterprise Architect', type: 'people', description: 'Designs enterprise-wide solutions' },
+            { id: 'solutionArchitect', label: 'Solution Architect', type: 'people', description: 'Designs specific solution architectures' },
+            { id: 'architect', label: 'Architect', type: 'people', description: 'Technical architecture specialist' },
+            { id: 'techLead', label: 'Tech Lead', type: 'people', description: 'Technical team leadership' },
+            { id: 'developer', label: 'Developer', type: 'people', description: 'Software development' },
+            { id: 'domainSME', label: 'Domain SME', type: 'people', description: 'Subject matter expert' },
+            { id: 'projectManager', label: 'Project Manager', type: 'people', description: 'Project coordination and delivery' },
+            { id: 'devOpsEngineer', label: 'DevOps Engineer', type: 'people', description: 'CI/CD and automation' },
+            { id: 'infraEngineer', label: 'Infrastructure Engineer', type: 'people', description: 'Infrastructure management' },
+            { id: 'cloudEngineer', label: 'Cloud Engineer', type: 'people', description: 'Cloud platform specialist' },
+            
+            // Customer Value Chain (all belong to Customer Accounts)
+            { id: 'product', label: 'Product', type: 'valueChain', description: 'Product development and management' },
+            { id: 'sales', label: 'Sales', type: 'valueChain', description: 'Sales operations' },
+            { id: 'marketing', label: 'Marketing', type: 'valueChain', description: 'Marketing and promotion' },
+            { id: 'enrollment', label: 'Enrollment', type: 'valueChain', description: 'Member enrollment process' },
+            { id: 'memberAdmin', label: 'Member Administration', type: 'valueChain', description: 'Member data management' },
+            { id: 'claims', label: 'Claims', type: 'valueChain', description: 'Claims processing' },
+            { id: 'providerAdmin', label: 'Provider Administration', type: 'valueChain', description: 'Provider network management' },
+            { id: 'clinicalUtil', label: 'Clinical Utilization Mgmt', type: 'valueChain', description: 'Clinical utilization management' },
+            { id: 'caseManagement', label: 'Case Management', type: 'valueChain', description: 'Case coordination' },
+            { id: 'customerCare', label: 'Customer Care', type: 'valueChain', description: 'Customer support services' }
+        ];
+
+        // Create links data
+        const links = [
+            // Organization hierarchy
+            { source: 'company', target: 'businessGroup', type: 'hierarchy' },
+            { source: 'businessGroup', target: 'isu', type: 'hierarchy' },
+            { source: 'isu', target: 'subisu', type: 'hierarchy' },
+            { source: 'subisu', target: 'customerAccounts', type: 'hierarchy' },
+            { source: 'customerAccounts', target: 'programs', type: 'hierarchy' },
+            { source: 'programs', target: 'projects', type: 'hierarchy' },
+            
+            // Business Group Level People to Organization
+            { source: 'bgHead', target: 'businessGroup', type: 'works-on' },
+            { source: 'isuHeadBG', target: 'businessGroup', type: 'works-on' },
+            { source: 'deliveryHeadBG', target: 'businessGroup', type: 'works-on' },
+            { source: 'financeHead', target: 'businessGroup', type: 'works-on' },
+            { source: 'securityHead', target: 'businessGroup', type: 'works-on' },
+            
+            // ISU Level People to Organization
+            { source: 'isuHead', target: 'isu', type: 'works-on' },
+            { source: 'subISUHead', target: 'subisu', type: 'works-on' },
+            { source: 'clientPartner', target: 'isu', type: 'works-on' },
+            { source: 'deliveryPartner', target: 'isu', type: 'works-on' },
+            { source: 'deliveryHead', target: 'isu', type: 'works-on' },
+            
+            // Client Partner also connects to Customer Accounts
+            { source: 'clientPartner', target: 'customerAccounts', type: 'works-on' },
+            
+            // Program/Project Level People to Organization
+            { source: 'enterpriseArchitect', target: 'company', type: 'works-on' },
+            { source: 'enterpriseArchitect', target: 'businessGroup', type: 'works-on' },
+            { source: 'solutionArchitect', target: 'programs', type: 'works-on' },
+            { source: 'architect', target: 'projects', type: 'works-on' },
+            { source: 'projectManager', target: 'programs', type: 'works-on' },
+            { source: 'projectManager', target: 'projects', type: 'works-on' },
+            { source: 'techLead', target: 'projects', type: 'works-on' },
+            { source: 'developer', target: 'projects', type: 'works-on' },
+            { source: 'domainSME', target: 'projects', type: 'works-on' },
+            { source: 'devOpsEngineer', target: 'projects', type: 'works-on' },
+            { source: 'infraEngineer', target: 'programs', type: 'works-on' },
+            { source: 'cloudEngineer', target: 'programs', type: 'works-on' },
+            
+            // All Value Chain processes belong to Customer Accounts
+            { source: 'product', target: 'customerAccounts', type: 'supports' },
+            { source: 'sales', target: 'customerAccounts', type: 'supports' },
+            { source: 'marketing', target: 'customerAccounts', type: 'supports' },
+            { source: 'enrollment', target: 'customerAccounts', type: 'supports' },
+            { source: 'memberAdmin', target: 'customerAccounts', type: 'supports' },
+            { source: 'claims', target: 'customerAccounts', type: 'supports' },
+            { source: 'providerAdmin', target: 'customerAccounts', type: 'supports' },
+            { source: 'clinicalUtil', target: 'customerAccounts', type: 'supports' },
+            { source: 'caseManagement', target: 'customerAccounts', type: 'supports' },
+            { source: 'customerCare', target: 'customerAccounts', type: 'supports' },
+            
+            // Value Chain processes also connect to Programs
+            { source: 'enrollment', target: 'programs', type: 'supports' },
+            { source: 'claims', target: 'programs', type: 'supports' },
+            { source: 'providerAdmin', target: 'programs', type: 'supports' },
+            { source: 'clinicalUtil', target: 'programs', type: 'supports' },
+            { source: 'caseManagement', target: 'programs', type: 'supports' },
+            
+            // Cross-domain: People supporting Value Chain
+            { source: 'solutionArchitect', target: 'product', type: 'supports' },
+            { source: 'domainSME', target: 'claims', type: 'supports' },
+            { source: 'domainSME', target: 'clinicalUtil', type: 'supports' },
+            { source: 'developer', target: 'enrollment', type: 'supports' },
+            { source: 'developer', target: 'memberAdmin', type: 'supports' },
+            
+            // Delivery heads coordinate across levels
+            { source: 'deliveryHeadBG', target: 'deliveryHead', type: 'works-on' },
+            { source: 'deliveryHead', target: 'deliveryPartner', type: 'works-on' }
+        ];
+
+        // Create SVG
+        const svg = d3.select('#graph')
+            .attr('width', width)
+            .attr('height', height);
+
+        // Add zoom behavior
+        const g = svg.append('g');
+        
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 4])
+            .on('zoom', (event) => {
+                g.attr('transform', event.transform);
+            });
+        
+        svg.call(zoom);
+
+        // Create force simulation
+        const simulation = d3.forceSimulation(nodes)
+            .force('link', d3.forceLink(links).id(d => d.id).distance(120))
+            .force('charge', d3.forceManyBody().strength(-400))
+            .force('center', d3.forceCenter(width / 2, height / 2))
+            .force('collision', d3.forceCollide().radius(50))
+            .force('x', d3.forceX(width / 2).strength(0.05))
+            .force('y', d3.forceY(height / 2).strength(0.05));
+
+        // Create links
+        const link = g.append('g')
+            .selectAll('line')
+            .data(links)
+            .join('line')
+            .attr('class', d => `link ${d.type}`)
+            .attr('stroke-width', d => d.type === 'hierarchy' ? 2 : 1.5);
+
+        // Create nodes
+        const node = g.append('g')
+            .selectAll('g')
+            .data(nodes)
+            .join('g')
+            .attr('class', 'node')
+            .call(d3.drag()
+                .on('start', dragstarted)
+                .on('drag', dragged)
+                .on('end', dragended));
+
+        // Add circles to nodes
+        node.append('circle')
+            .attr('r', d => {
+                if (d.type === 'organization') return d.level === 0 ? 25 : 20;
+                return 18;
+            })
+            .attr('fill', d => colors[d.type]);
+
+        // Add labels to nodes
+        node.append('text')
+            .text(d => d.label)
+            .attr('dy', d => {
+                if (d.type === 'organization') return d.level === 0 ? 35 : 30;
+                return 28;
+            })
+            .attr('text-anchor', 'middle')
+            .style('font-size', d => d.type === 'organization' && d.level === 0 ? '13px' : '11px');
+
+        // Tooltip
+        const tooltip = d3.select('#tooltip');
+
+        node.on('mouseover', function(event, d) {
+            tooltip
+                .style('opacity', 1)
+                .html(`<strong>${d.label}</strong><br/>${d.description}<br/><em>Type: ${d.type}</em>`)
+                .style('left', (event.pageX + 10) + 'px')
+                .style('top', (event.pageY - 10) + 'px');
+        })
+        .on('mouseout', function() {
+            tooltip.style('opacity', 0);
+        });
+
+        // Update positions on simulation tick
+        simulation.on('tick', () => {
+            link
+                .attr('x1', d => d.source.x)
+                .attr('y1', d => d.source.y)
+                .attr('x2', d => d.target.x)
+                .attr('y2', d => d.target.y);
+
+            node.attr('transform', d => `translate(${d.x},${d.y})`);
+        });
+
+        // Drag functions
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+
+        // Reset function
+        function resetSimulation() {
+            simulation.alpha(1).restart();
+            svg.transition()
+                .duration(750)
+                .call(zoom.transform, d3.zoomIdentity);
+        }
+
+        // Initial zoom to fit
+        setTimeout(() => {
+            const bounds = g.node().getBBox();
+            const fullWidth = bounds.width;
+            const fullHeight = bounds.height;
+            const midX = bounds.x + fullWidth / 2;
+            const midY = bounds.y + fullHeight / 2;
+            
+            const scale = 0.9 / Math.max(fullWidth / width, fullHeight / height);
+            const translate = [width / 2 - scale * midX, height / 2 - scale * midY];
+            
+            svg.transition()
+                .duration(750)
+                .call(zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+        }, 1000);
+    </script>
+</body>
+</html>
