@@ -1,0 +1,353 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ontology Graph (Plain HTML + SVG)</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --org: #93c5fd;      /* blue */
+      --people: #86efac;   /* green */
+      --value: #facc15;    /* amber */
+      --edge: #94a3b8;     /* gray */
+      --highlight: #22d3ee;/* cyan */
+    }
+    html, body { height: 100%; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    }
+    header { background: var(--panel); border-bottom: 1px solid #334155; padding: 12px 16px; }
+    h1 { margin: 0; font-size: 1.1rem; }
+    .subtitle { margin-top: 4px; color: var(--muted); font-size: .95rem; }
+    .container { padding: 12px; }
+    .legend { display: flex; gap: 16px; margin-bottom: 8px; }
+    .badge { display:flex; align-items:center; gap:8px; font-size: .9rem; color: var(--muted); }
+    .swatch { width: 14px; height: 14px; border-radius: 3px; }
+    .panel { background: var(--panel); border: 1px solid #334155; border-radius: 12px; padding: 12px; }
+    .note { color: var(--muted); font-size: .9rem; margin-top: 8px; }
+
+    svg { width: 100%; height: 1000px; background: #0b1220; border: 1px solid #334155; border-radius: 12px; }
+    text { font-size: 12px; fill: #0b132b; }
+    .node rect { rx: 6; ry: 6; stroke-width: 2; }
+    .node.org rect { fill: #E3F2FD; stroke: #1565C0; }
+    .node.people rect { fill: #E8F5E9; stroke: #2E7D32; }
+    .node.value rect { fill: #FFF3E0; stroke: #EF6C00; }
+    .node.role rect { fill: #d1fae5; stroke: #16a34a; stroke-dasharray: 3 3; }
+
+    .edge { stroke: var(--edge); stroke-width: 1.6; fill: none; }
+    .edge.arrow { marker-end: url(#arrow); }
+    .edge.m2m { stroke-dasharray: 6 4; }
+    .edge-label { font-size: 11px; fill: var(--muted); }
+    .cardinality { font-size: 11px; fill: #64748b; font-style: italic; }
+
+    .interactive .node:hover rect { stroke: var(--highlight); stroke-width: 3; }
+    .interactive .edge.hover { stroke: var(--highlight); stroke-width: 2.4; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Ontology Relationship Graph</h1>
+    <div class="subtitle">Plain HTML + SVG • Organizations ▸ People ▸ Value Chain • Highlights many-to-many and generalization</div>
+  </header>
+
+  <div class="container">
+    <div class="legend">
+      <div class="badge"><span class="swatch" style="background:#E3F2FD;border:2px solid #1565C0"></span>Organizations</div>
+      <div class="badge"><span class="swatch" style="background:#E8F5E9;border:2px solid #2E7D32"></span>People & Roles</div>
+      <div class="badge"><span class="swatch" style="background:#FFF3E0;border:2px solid #EF6C00"></span>Value Chain</div>
+      <div class="badge"><svg width="32" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="6 4"></line></svg>many-to-many</div>
+      <div class="badge">Cardinality labels: <span style="color:#64748b">1..*</span>, <span style="color:#64748b">*..*</span>, <span style="color:#64748b">0..*</span></div>
+    </div>
+
+    <div class="panel">
+      <svg viewBox="0 0 1400 1000" class="interactive" role="img" aria-label="Ontology graph with organizations, people, and value chain">
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" fill="#94a3b8"></path>
+          </marker>
+        </defs>
+
+        <!-- ========== ORGANIZATIONS COLUMN (x ~ 120) ========== -->
+        <g id="org-column">
+          <g class="node org" id="Company" transform="translate(120,100)">
+            <rect width="200" height="40"></rect>
+            <text x="10" y="25">Company</text>
+          </g>
+          <g class="node org" id="BG" transform="translate(120,170)">
+            <rect width="200" height="40"></rect>
+            <text x="10" y="25">Business Group</text>
+          </g>
+          <g class="node org" id="ISU" transform="translate(120,240)">
+            <rect width="200" height="40"></rect>
+            <text x="10" y="25">Industry Solution Unit (ISU)</text>
+          </g>
+          <g class="node org" id="SubISU" transform="translate(120,310)">
+            <rect width="200" height="40"></rect>
+            <text x="10" y="25">Sub-ISU</text>
+          </g>
+          <g class="node org" id="Customer" transform="translate(120,380)">
+            <rect width="200" height="40"></rect>
+            <text x="10" y="25">Customer Account</text>
+          </g>
+          <g class="node org" id="Program" transform="translate(120,450)">
+            <rect width="200" height="40"></rect>
+            <text x="10" y="25">Program</text>
+          </g>
+          <g class="node org" id="Project" transform="translate(120,520)">
+            <rect width="200" height="40"></rect>
+            <text x="10" y="25">Project</text>
+          </g>
+
+          <!-- Hierarchy edges -->
+          <g class="edge-group">
+            <line class="edge arrow" x1="320" y1="120" x2="340" y2="120" />
+            <text class="edge-label" x="330" y="112">has</text>
+            <text class="cardinality" x="322" y="135">1..*</text>
+          </g>
+          <!-- Company -> BG -->
+          <path class="edge arrow" d="M320,120 C360,120 360,190 320,190" />
+
+          <!-- BG -> ISU -->
+          <path class="edge arrow" d="M320,190 C360,190 360,260 320,260" />
+          <text class="cardinality" x="322" y="205">1..*</text>
+
+          <!-- ISU -> SubISU -->
+          <path class="edge arrow" d="M320,260 C360,260 360,330 320,330" />
+          <text class="cardinality" x="322" y="275">1..*</text>
+
+          <!-- SubISU <-> Customer (many-to-many) -->
+          <path class="edge m2m arrow" d="M320,330 C380,330 380,400 320,400" />
+          <text class="edge-label" x="350" y="365">serves</text>
+          <text class="cardinality" x="322" y="345">*..*</text>
+
+          <!-- Customer <-> Program (many-to-many) -->
+          <path class="edge m2m arrow" d="M320,400 C380,400 380,470 320,470" />
+          <text class="edge-label" x="350" y="435">sponsors / servedBy</text>
+          <text class="cardinality" x="322" y="415">*..*</text>
+
+          <!-- Program -> Project (one-to-many) -->
+          <path class="edge arrow" d="M320,470 C360,470 360,540 320,540" />
+          <text class="cardinality" x="322" y="485">1..*</text>
+        </g>
+
+        <!-- ========== PEOPLE COLUMN (x ~ 580..780) ========== -->
+        <g id="people-column">
+          <g class="node people" id="Person" transform="translate(580,100)">
+            <rect width="220" height="40"></rect>
+            <text x="10" y="25">Person</text>
+          </g>
+          <g class="node role" id="Role" transform="translate(580,160)">
+            <rect width="220" height="40"></rect>
+            <text x="10" y="25">Role</text>
+          </g>
+
+          <!-- Generalization Role -> specific roles (isA) -->
+          <!-- Left column roles -->
+          <g class="node people" id="Architect" transform="translate(560,220)">
+            <rect width="160" height="36"></rect>
+            <text x="10" y="22">Architect</text>
+          </g>
+          <g class="node people" id="Developer" transform="translate(560,270)">
+            <rect width="160" height="36"></rect>
+            <text x="10" y="22">Developer</text>
+          </g>
+          <g class="node people" id="TechLead" transform="translate(560,320)">
+            <rect width="160" height="36"></rect>
+            <text x="10" y="22">Tech Lead</text>
+          </g>
+          <g class="node people" id="DomainSME" transform="translate(560,370)">
+            <rect width="160" height="36"></rect>
+            <text x="10" y="22">Domain SME</text>
+          </g>
+          <g class="node people" id="ProjectMgr" transform="translate(560,420)">
+            <rect width="160" height="36"></rect>
+            <text x="10" y="22">Project Manager</text>
+          </g>
+
+          <!-- Right column roles -->
+          <g class="node people" id="DevOps" transform="translate(760,220)">
+            <rect width="180" height="36"></rect>
+            <text x="10" y="22">DevOps Engineer</text>
+          </g>
+          <g class="node people" id="Infra" transform="translate(760,270)">
+            <rect width="180" height="36"></rect>
+            <text x="10" y="22">Infrastructure Engineer</text>
+          </g>
+          <g class="node people" id="Cloud" transform="translate(760,320)">
+            <rect width="180" height="36"></rect>
+            <text x="10" y="22">Cloud Engineer</text>
+          </g>
+          <g class="node people" id="EntArch" transform="translate(760,370)">
+            <rect width="180" height="36"></rect>
+            <text x="10" y="22">Enterprise Architect</text>
+          </g>
+          <g class="node people" id="SolArch" transform="translate(760,420)">
+            <rect width="180" height="36"></rect>
+            <text x="10" y="22">Solution Architect</text>
+          </g>
+
+          <!-- Person <-> Role (many-to-many) -->
+          <path class="edge m2m arrow" d="M800,140 C880,140 880,180 800,180" />
+          <text class="edge-label" x="835" y="160">plays</text>
+          <text class="cardinality" x="802" y="152">*..*</text>
+
+          <!-- Role -> each specific role (generalization) -->
+          <path class="edge arrow" d="M690,200 C690,210 640,210 640,220" />
+          <text class="edge-label" x="655" y="210">isA</text>
+          <path class="edge arrow" d="M690,200 C690,230 640,230 640,270" />
+          <path class="edge arrow" d="M690,200 C690,260 640,260 640,320" />
+          <path class="edge arrow" d="M690,200 C690,290 640,290 640,370" />
+          <path class="edge arrow" d="M690,200 C690,320 640,320 640,420" />
+
+          <path class="edge arrow" d="M690,200 C690,210 850,210 850,220" />
+          <path class="edge arrow" d="M690,200 C690,230 850,230 850,270" />
+          <path class="edge arrow" d="M690,200 C690,260 850,260 850,320" />
+          <path class="edge arrow" d="M690,200 C690,290 850,290 850,370" />
+          <path class="edge arrow" d="M690,200 C690,320 850,320 850,420" />
+        </g>
+
+        <!-- ========== VALUE CHAIN COLUMN (x ~ 1040) ========== -->
+        <g id="value-column">
+          <g class="node value" id="Product" transform="translate(1040,100)">
+            <rect width="220" height="36"></rect>
+            <text x="10" y="22">Product</text>
+          </g>
+          <g class="node value" id="Sales" transform="translate(1040,150)">
+            <rect width="220" height="36"></rect>
+            <text x="10" y="22">Sales</text>
+          </g>
+          <g class="node value" id="Marketing" transform="translate(1040,200)">
+            <rect width="220" height="36"></rect>
+            <text x="10" y="22">Marketing</text>
+          </g>
+          <g class="node value" id="Enrollment" transform="translate(1040,250)">
+            <rect width="220" height="36"></rect>
+            <text x="10" y="22">Enrollment</text>
+          </g>
+          <g class="node value" id="MemberAdmin" transform="translate(1040,300)">
+            <rect width="220" height="36"></rect>
+            <text x="10" y="22">Member Administration</text>
+          </g>
+          <g class="node value" id="Claims" transform="translate(1040,350)">
+            <rect width="220" height="36"></rect>
+            <text x="10" y="22">Claims</text>
+          </g>
+          <g class="node value" id="ProviderAdmin" transform="translate(1040,400)">
+            <rect width="220" height="36"></rect>
+            <text x="10" y="22">Provider Administration</text>
+          </g>
+          <g class="node value" id="ClinicalUM" transform="translate(1040,450)">
+            <rect width="220" height="36"></rect>
+            <text x="10" y="22">Clinical Utilization Management</text>
+          </g>
+          <g class="node value" id="CaseMgmt" transform="translate(1040,500)">
+            <rect width="220" height="36"></rect>
+            <text x="10" y="22">Case Management</text>
+          </g>
+          <g class="node value" id="CustomerCare" transform="translate(1040,550)">
+            <rect width="220" height="36"></rect>
+            <text x="10" y="22">Customer Care</text>
+          </g>
+
+          <!-- Sequential value chain edges -->
+          <path class="edge arrow" d="M1260,118 C1290,118 1290,168 1260,168" />
+          <path class="edge arrow" d="M1260,168 C1290,168 1290,218 1260,218" />
+          <path class="edge arrow" d="M1260,218 C1290,218 1290,268 1260,268" />
+          <path class="edge arrow" d="M1260,268 C1290,268 1290,318 1260,318" />
+          <path class="edge arrow" d="M1260,318 C1290,318 1290,368 1260,368" />
+          <path class="edge arrow" d="M1260,368 C1290,368 1290,418 1260,418" />
+          <path class="edge arrow" d="M1260,418 C1290,418 1290,468 1260,468" />
+          <path class="edge arrow" d="M1260,468 C1290,468 1290,518 1260,518" />
+          <path class="edge arrow" d="M1260,518 C1290,518 1290,568 1260,568" />
+        </g>
+
+        <!-- ========== CROSS-DOMAIN MANY-TO-MANY LINKS ========== -->
+        <!-- Projects <-> People (staffedBy) -->
+        <path class="edge m2m arrow" d="M320,540 C460,540 460,420 560,420" />
+        <text class="edge-label" x="470" y="515">staffedBy</text>
+        <text class="cardinality" x="470" y="530">*..*</text>
+
+        <!-- Projects <-> ValueChainStage (supports) (to Claims as example, generalizable) -->
+        <path class="edge m2m arrow" d="M320,540 C420,540 900,360 1040,366" />
+        <text class="edge-label" x="720" y="460">supports</text>
+        <text class="cardinality" x="720" y="475">*..*</text>
+
+        <!-- SubISU <-> ValueChainStage (focusesOn) (to ClinicalUM) -->
+        <path class="edge m2m arrow" d="M320,330 C420,330 920,460 1040,468" />
+        <text class="edge-label" x="720" y="410">focusesOn</text>
+        <text class="cardinality" x="720" y="425">*..*</text>
+
+        <!-- Enterprise Architect <-> ISU (governs) -->
+        <path class="edge m2m arrow" d="M320,260 C520,260 820,370 760,388" />
+        <text class="edge-label" x="620" y="300">governs</text>
+        <text class="cardinality" x="620" y="315">*..*</text>
+
+        <!-- Solution Architect <-> Program (designs) -->
+        <path class="edge m2m arrow" d="M320,470 C500,470 940,420 760,438" />
+        <text class="edge-label" x="520" y="452">designs</text>
+        <text class="cardinality" x="520" y="467">*..*</text>
+
+      </svg>
+      <div class="note">
+        <strong>Assumptions & Generalization:</strong>
+        <ul>
+          <li>Organization hierarchy is canonical: Company → Business Group → ISU → Sub-ISU; cardinalities are typically <em>1..*</em>.</li>
+          <li>Sub-ISUs serve Customer Accounts in a <em>*..*</em> manner (multiple accounts per Sub-ISU and vice-versa).</li>
+          <li>Programs are sponsored by Customer Accounts and may serve multiple accounts; accounts can sponsor multiple programs (<em>*..*</em>).</li>
+          <li>Programs decompose into multiple Projects (<em>1..*</em>).</li>
+          <li>Persons can play multiple Roles across time, and Roles can be held by multiple Persons (<em>*..*</em>).</li>
+          <li>Projects are staffed by People and support multiple Value Chain stages (e.g., Claims), both <em>*..*</em>.</li>
+          <li>Sub-ISUs focus on specific Value Chain stages (e.g., Clinical UM) in a <em>*..*</em> fashion.</li>
+          <li>Enterprise Architects govern ISUs; Solution Architects design Programs (both <em>*..*</em>).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Lightweight hover highlighting: highlight edges near hovered nodes (by proximity heuristics)
+    (function(){
+      const svg = document.querySelector('svg.interactive');
+      const nodes = svg.querySelectorAll('.node');
+      const edges = Array.from(svg.querySelectorAll('.edge'));
+
+      function bboxCenter(node){
+        const rect = node.querySelector('rect');
+        const g = node.getCTM();
+        const cx = g.e + rect.width.baseVal.value/2;
+        const cy = g.f + rect.height.baseVal.value/2;
+        return {cx, cy};
+      }
+
+      function dist2(edge, pt){
+        // sample edges as paths or lines, compute approx distance to label center; simplified heuristic
+        const bb = edge.getBBox();
+        const ex = bb.x + bb.width/2;
+        const ey = bb.y + bb.height/2;
+        const dx = ex - pt.cx;
+        const dy = ey - pt.cy;
+        return dx*dx + dy*dy;
+      }
+
+      nodes.forEach(n => {
+        n.addEventListener('mouseenter', () => {
+          const c = bboxCenter(n);
+          edges.forEach(e => {
+            if (dist2(e, c) < 10000) { // proximity threshold
+              e.classList.add('hover');
+            }
+          });
+        });
+        n.addEventListener('mouseleave', () => {
+          edges.forEach(e => e.classList.remove('hover'));
+        });
+      });
+    })();
+  </script>
+</body>
