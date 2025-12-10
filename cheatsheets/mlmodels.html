@@ -2,674 +2,229 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ML Models Universe - Interactive Explorer</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --bg-primary: #0a0a0f;
-            --bg-secondary: #12121a;
-            --bg-tertiary: #1a1a25;
-            --text-primary: #f0f0f5;
-            --text-secondary: #8888aa;
-            --accent-cyan: #00f5d4;
-            --accent-magenta: #f72585;
-            --accent-yellow: #fee440;
-            --accent-blue: #4361ee;
-            --accent-orange: #ff6b35;
-            --accent-green: #7ae582;
-            --accent-purple: #9b5de5;
-            --accent-red: #ef476f;
-            --glow-intensity: 0.6;
+            --bg-primary: #0a0a0f; --bg-secondary: #12121a; --bg-tertiary: #1a1a25;
+            --text-primary: #f0f0f5; --text-secondary: #8888aa;
+            --accent-cyan: #00f5d4; --accent-magenta: #f72585; --accent-yellow: #fee440;
+            --accent-blue: #4361ee; --accent-orange: #ff6b35; --accent-green: #7ae582;
+            --accent-purple: #9b5de5; --accent-red: #ef476f;
         }
-
         body {
-            font-family: 'Space Mono', monospace;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            overflow: hidden;
-            height: 100vh;
+            font-family: 'Space Mono', monospace; background: var(--bg-primary);
+            color: var(--text-primary); overflow: hidden; height: 100vh; height: 100dvh;
+            touch-action: none;
         }
-
-        /* Animated background */
         .bg-grid {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(0, 245, 212, 0.03) 1px, transparent 1px),
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(0, 245, 212, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 245, 212, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-            pointer-events: none;
-            z-index: 0;
+            background-size: 50px 50px; pointer-events: none; z-index: 0;
         }
-
         .bg-gradient {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(ellipse at 20% 20%, rgba(67, 97, 238, 0.15) 0%, transparent 50%),
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(ellipse at 20% 20%, rgba(67, 97, 238, 0.15) 0%, transparent 50%),
                 radial-gradient(ellipse at 80% 80%, rgba(247, 37, 133, 0.1) 0%, transparent 50%),
                 radial-gradient(ellipse at 50% 50%, rgba(0, 245, 212, 0.05) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
+            pointer-events: none; z-index: 0;
         }
-
-        /* Header */
         .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            padding: 20px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(to bottom, rgba(10, 10, 15, 0.95), transparent);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 15px 20px; display: flex; justify-content: space-between;
+            align-items: center; background: linear-gradient(to bottom, rgba(10, 10, 15, 0.98), rgba(10, 10, 15, 0.8), transparent);
+            flex-wrap: wrap; gap: 10px;
         }
-
         .logo {
-            font-family: 'Syne', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 800;
+            font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800;
             background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -1px;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; letter-spacing: -1px;
         }
-
-        .logo span {
-            font-weight: 400;
-            opacity: 0.7;
-        }
-
-        /* Search and filters */
-        .controls {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .search-box {
-            position: relative;
-        }
-
+        .logo span { font-weight: 400; opacity: 0.7; }
+        .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .search-box { position: relative; }
         .search-box input {
-            background: var(--bg-secondary);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 12px 20px 12px 45px;
-            border-radius: 30px;
-            color: var(--text-primary);
-            font-family: 'Space Mono', monospace;
-            font-size: 0.85rem;
-            width: 280px;
+            background: var(--bg-secondary); border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 15px 10px 40px; border-radius: 25px; color: var(--text-primary);
+            font-family: 'Space Mono', monospace; font-size: 0.8rem; width: 200px;
             transition: all 0.3s ease;
         }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 20px rgba(0, 245, 212, 0.2);
-        }
-
-        .search-box::before {
-            content: "⌕";
-            position: absolute;
-            left: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-        }
-
-        .view-toggle {
-            display: flex;
-            background: var(--bg-secondary);
-            border-radius: 25px;
-            padding: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
+        .search-box input:focus { outline: none; border-color: var(--accent-cyan); box-shadow: 0 0 20px rgba(0, 245, 212, 0.2); }
+        .search-box::before { content: "⌕"; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 1rem; }
+        .view-toggle { display: flex; background: var(--bg-secondary); border-radius: 20px; padding: 3px; border: 1px solid rgba(255, 255, 255, 0.1); }
         .view-btn {
-            padding: 10px 20px;
-            border: none;
-            background: transparent;
-            color: var(--text-secondary);
-            font-family: 'Space Mono', monospace;
-            font-size: 0.8rem;
-            cursor: pointer;
-            border-radius: 20px;
-            transition: all 0.3s ease;
+            padding: 8px 14px; border: none; background: transparent; color: var(--text-secondary);
+            font-family: 'Space Mono', monospace; font-size: 0.7rem; cursor: pointer;
+            border-radius: 18px; transition: all 0.3s ease;
         }
-
-        .view-btn.active {
-            background: var(--accent-cyan);
-            color: var(--bg-primary);
-        }
-
-        .view-btn:hover:not(.active) {
-            color: var(--text-primary);
-        }
-
-        /* Stats bar */
-        .stats-bar {
-            position: fixed;
-            top: 80px;
-            left: 30px;
-            z-index: 90;
-            display: flex;
-            gap: 20px;
-        }
-
-        .stat-item {
-            background: rgba(18, 18, 26, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 12px 20px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .stat-value {
-            font-family: 'Syne', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--accent-cyan);
-        }
-
-        .stat-label {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Category legend */
+        .view-btn.active { background: var(--accent-cyan); color: var(--bg-primary); }
+        .view-btn:hover:not(.active) { color: var(--text-primary); }
+        .stats-bar { position: fixed; top: 70px; left: 15px; z-index: 90; display: flex; gap: 10px; flex-wrap: wrap; }
+        .stat-item { background: rgba(18, 18, 26, 0.9); backdrop-filter: blur(10px); padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .stat-value { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--accent-cyan); }
+        .stat-label { font-size: 0.6rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
         .legend {
-            position: fixed;
-            left: 30px;
-            top: 160px;
-            z-index: 90;
-            background: rgba(18, 18, 26, 0.9);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            max-height: calc(100vh - 200px);
-            overflow-y: auto;
-            width: 260px;
+            position: fixed; left: 15px; top: 130px; z-index: 90;
+            background: rgba(18, 18, 26, 0.95); backdrop-filter: blur(10px);
+            padding: 15px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05);
+            max-height: calc(100vh - 180px); max-height: calc(100dvh - 180px);
+            overflow-y: auto; width: 240px; transition: transform 0.3s ease, opacity 0.3s ease;
         }
-
-        .legend::-webkit-scrollbar {
-            width: 4px;
+        .legend.collapsed { transform: translateX(-260px); opacity: 0; pointer-events: none; }
+        .legend::-webkit-scrollbar { width: 4px; }
+        .legend::-webkit-scrollbar-thumb { background: var(--accent-cyan); border-radius: 2px; }
+        .legend h3 { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 600; margin-bottom: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 2px; }
+        .legend-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; margin: 3px 0; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent; }
+        .legend-item:hover { background: rgba(255, 255, 255, 0.05); }
+        .legend-item.active { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.1); }
+        .legend-item.dimmed { opacity: 0.3; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 8px currentColor; }
+        .legend-text { font-size: 0.65rem; color: var(--text-primary); flex: 1; }
+        .legend-count { font-size: 0.6rem; color: var(--text-secondary); background: rgba(255, 255, 255, 0.05); padding: 2px 6px; border-radius: 8px; }
+        .legend-toggle {
+            position: fixed; left: 15px; top: 130px; z-index: 91; width: 44px; height: 44px;
+            border: none; background: rgba(18, 18, 26, 0.95); backdrop-filter: blur(10px);
+            border-radius: 12px; color: var(--text-primary); font-size: 1.2rem; cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1); display: none; align-items: center;
+            justify-content: center; transition: all 0.2s ease;
         }
-
-        .legend::-webkit-scrollbar-thumb {
-            background: var(--accent-cyan);
-            border-radius: 2px;
-        }
-
-        .legend h3 {
-            font-family: 'Syne', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 12px;
-            margin: 4px 0;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: 1px solid transparent;
-        }
-
-        .legend-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .legend-item.active {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .legend-item.dimmed {
-            opacity: 0.3;
-        }
-
-        .legend-dot {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            box-shadow: 0 0 10px currentColor;
-        }
-
-        .legend-text {
-            font-size: 0.75rem;
-            color: var(--text-primary);
-            flex: 1;
-        }
-
-        .legend-count {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            background: rgba(255, 255, 255, 0.05);
-            padding: 2px 8px;
-            border-radius: 10px;
-        }
-
-        /* Graph container */
-        #graph-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-
-        #graph-container svg {
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Node styles */
-        .node {
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        .node circle {
-            transition: all 0.3s ease;
-        }
-
-        .node:hover circle {
-            filter: brightness(1.3);
-        }
-
-        .node text {
-            font-family: 'Space Mono', monospace;
-            font-size: 9px;
-            fill: var(--text-primary);
-            pointer-events: none;
-            text-anchor: middle;
-            dominant-baseline: middle;
-        }
-
-        .node.dimmed {
-            opacity: 0.15;
-        }
-
-        .node.highlighted circle {
-            stroke: white;
-            stroke-width: 3;
-        }
-
-        /* Links */
-        .link {
-            stroke: rgba(255, 255, 255, 0.08);
-            stroke-width: 1;
-            transition: all 0.3s ease;
-        }
-
-        .link.highlighted {
-            stroke: var(--accent-cyan);
-            stroke-width: 2;
-            stroke-opacity: 0.6;
-        }
-
-        .link.dimmed {
-            stroke-opacity: 0.02;
-        }
-
-        /* Detail panel */
+        .legend-toggle:hover { background: var(--accent-cyan); color: var(--bg-primary); }
+        .legend-toggle.active { background: var(--accent-cyan); color: var(--bg-primary); }
+        #graph-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        #graph-container svg { width: 100%; height: 100%; touch-action: none; }
+        .node { cursor: pointer; transition: transform 0.2s ease; }
+        .node circle { transition: all 0.3s ease; }
+        .node:hover circle { filter: brightness(1.3); }
+        .node text { font-family: 'Space Mono', monospace; font-size: 8px; fill: var(--text-primary); pointer-events: none; text-anchor: middle; dominant-baseline: middle; }
+        .node.dimmed { opacity: 0.15; }
+        .node.highlighted circle { stroke: white; stroke-width: 3; }
+        .link { stroke: rgba(255, 255, 255, 0.08); stroke-width: 1; transition: all 0.3s ease; }
+        .link.highlighted { stroke: var(--accent-cyan); stroke-width: 2; stroke-opacity: 0.6; }
+        .link.dimmed { stroke-opacity: 0.02; }
         .detail-panel {
-            position: fixed;
-            right: -450px;
-            top: 0;
-            width: 420px;
-            height: 100%;
-            background: rgba(18, 18, 26, 0.95);
-            backdrop-filter: blur(20px);
-            z-index: 200;
-            padding: 30px;
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
-            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: fixed; right: 0; top: 0; width: 380px; height: 100%;
+            background: rgba(18, 18, 26, 0.98); backdrop-filter: blur(20px); z-index: 200;
+            padding: 25px; border-left: 1px solid rgba(255, 255, 255, 0.1);
+            transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             overflow-y: auto;
         }
-
-        .detail-panel.open {
-            right: 0;
-        }
-
-        .detail-panel::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .detail-panel::-webkit-scrollbar-thumb {
-            background: var(--accent-magenta);
-            border-radius: 2px;
-        }
-
+        .detail-panel.open { transform: translateX(0); }
+        .detail-panel::-webkit-scrollbar { width: 4px; }
+        .detail-panel::-webkit-scrollbar-thumb { background: var(--accent-magenta); border-radius: 2px; }
         .panel-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
-            border: none;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            color: var(--text-primary);
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            position: absolute; top: 15px; right: 15px; width: 36px; height: 36px;
+            border: none; background: rgba(255, 255, 255, 0.1); border-radius: 50%;
+            color: var(--text-primary); font-size: 1.1rem; cursor: pointer; transition: all 0.2s ease;
         }
-
-        .panel-close:hover {
-            background: var(--accent-magenta);
-            transform: rotate(90deg);
+        .panel-close:hover { background: var(--accent-magenta); transform: rotate(90deg); }
+        .panel-category { display: inline-block; padding: 5px 12px; border-radius: 15px; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+        .panel-title { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; line-height: 1.2; padding-right: 40px; }
+        .panel-type { color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+        .panel-type-badge { background: rgba(255, 255, 255, 0.1); padding: 4px 10px; border-radius: 12px; }
+        .panel-section { margin-bottom: 20px; }
+        .panel-section h4 { font-family: 'Syne', sans-serif; font-size: 0.75rem; font-weight: 600; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        .panel-section h4::before { content: ""; width: 4px; height: 4px; background: var(--accent-cyan); border-radius: 50%; }
+        .panel-section p { font-size: 0.85rem; line-height: 1.6; color: var(--text-secondary); }
+        .panel-problem { background: rgba(0, 245, 212, 0.05); border-left: 3px solid var(--accent-cyan); padding: 12px 15px; border-radius: 0 8px 8px 0; font-style: italic; }
+        .panel-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+        .panel-tag { background: rgba(255, 255, 255, 0.08); padding: 5px 12px; border-radius: 15px; font-size: 0.7rem; color: var(--text-secondary); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .related-models { display: grid; gap: 8px; }
+        .related-model { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255, 255, 255, 0.03); border-radius: 8px; cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent; }
+        .related-model:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.1); }
+        .related-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .related-name { flex: 1; font-size: 0.8rem; }
+        .related-arrow { color: var(--text-secondary); }
+        .tooltip { position: fixed; background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(10px); padding: 12px 16px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.1); pointer-events: none; z-index: 300; opacity: 0; transition: opacity 0.2s ease; max-width: 250px; }
+        .tooltip.visible { opacity: 1; }
+        .tooltip-title { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; }
+        .tooltip-category { font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+        .loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 500; text-align: center; }
+        .loading-spinner { width: 50px; height: 50px; border: 3px solid var(--bg-tertiary); border-top-color: var(--accent-cyan); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { font-family: 'Syne', sans-serif; color: var(--text-secondary); font-size: 0.85rem; }
+        .zoom-controls { position: fixed; bottom: 20px; right: 15px; z-index: 90; display: flex; flex-direction: column; gap: 6px; }
+        .zoom-btn { width: 40px; height: 40px; border: none; background: rgba(18, 18, 26, 0.95); backdrop-filter: blur(10px); border-radius: 10px; color: var(--text-primary); font-size: 1.2rem; cursor: pointer; transition: all 0.2s ease; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .zoom-btn:hover, .zoom-btn:active { background: var(--accent-cyan); color: var(--bg-primary); }
+        .instructions { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); z-index: 90; background: rgba(18, 18, 26, 0.9); backdrop-filter: blur(10px); padding: 10px 20px; border-radius: 25px; border: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.7rem; color: var(--text-secondary); display: flex; gap: 20px; }
+        .instruction-item { display: flex; align-items: center; gap: 6px; }
+        .instruction-key { background: rgba(255, 255, 255, 0.1); padding: 3px 8px; border-radius: 5px; font-size: 0.65rem; }
+        
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .header { padding: 12px 15px; gap: 8px; }
+            .logo { font-size: 1.2rem; }
+            .controls { width: 100%; justify-content: space-between; }
+            .search-box input { width: 140px; padding: 8px 12px 8px 35px; font-size: 0.75rem; }
+            .search-box::before { left: 12px; font-size: 0.9rem; }
+            .view-toggle { padding: 2px; }
+            .view-btn { padding: 6px 10px; font-size: 0.65rem; }
+            .stats-bar { top: auto; bottom: 70px; left: 50%; transform: translateX(-50%); gap: 8px; }
+            .stat-item { padding: 6px 12px; }
+            .stat-value { font-size: 1rem; }
+            .stat-label { font-size: 0.55rem; }
+            .legend { left: 10px; top: 110px; width: 220px; max-height: calc(100vh - 200px); max-height: calc(100dvh - 200px); padding: 12px; }
+            .legend-toggle { display: flex; top: 110px; }
+            .legend-item { padding: 6px 8px; }
+            .legend-text { font-size: 0.6rem; }
+            .detail-panel { width: 100%; padding: 20px; padding-top: 60px; }
+            .panel-title { font-size: 1.4rem; }
+            .panel-section p { font-size: 0.8rem; }
+            .tooltip { display: none !important; }
+            .instructions { padding: 8px 15px; gap: 15px; font-size: 0.6rem; }
+            .instruction-key { padding: 2px 6px; font-size: 0.6rem; }
+            .node circle { stroke: transparent; stroke-width: 15px; }
+            .node text { font-size: 7px; }
+            .zoom-controls { bottom: 80px; right: 10px; }
+            .zoom-btn { width: 36px; height: 36px; font-size: 1rem; }
         }
-
-        .panel-category {
-            display: inline-block;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 15px;
+        @media (max-width: 480px) {
+            .header { padding: 10px 12px; }
+            .logo { font-size: 1rem; }
+            .search-box input { width: 120px; padding: 7px 10px 7px 30px; font-size: 0.7rem; }
+            .view-btn { padding: 5px 8px; font-size: 0.6rem; }
+            .stats-bar { bottom: 65px; }
+            .legend { width: 200px; max-height: calc(100vh - 180px); }
+            .detail-panel { padding: 15px; padding-top: 55px; }
+            .panel-title { font-size: 1.2rem; }
+            .panel-category { font-size: 0.6rem; }
+            .panel-section h4 { font-size: 0.7rem; }
+            .panel-section p { font-size: 0.75rem; }
+            .panel-tag { font-size: 0.65rem; padding: 4px 10px; }
+            .related-name { font-size: 0.75rem; }
+            .instructions { display: none; }
+            .zoom-controls { bottom: 75px; }
         }
-
-        .panel-title {
-            font-family: 'Syne', sans-serif;
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            line-height: 1.2;
+        @media (max-height: 500px) and (orientation: landscape) {
+            .header { padding: 8px 15px; }
+            .logo { font-size: 1rem; }
+            .stats-bar { top: 55px; left: 15px; bottom: auto; transform: none; }
+            .legend { top: 55px; left: auto; right: 15px; max-height: calc(100vh - 70px); width: 200px; }
+            .legend-toggle { top: 55px; left: auto; right: 15px; }
+            .legend.collapsed { transform: translateX(220px); }
+            .detail-panel { width: 50%; }
+            .instructions { display: none; }
         }
-
-        .panel-type {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .panel-type-badge {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 4px 12px;
-            border-radius: 15px;
-        }
-
-        .panel-section {
-            margin-bottom: 25px;
-        }
-
-        .panel-section h4 {
-            font-family: 'Syne', sans-serif;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--accent-cyan);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .panel-section h4::before {
-            content: "";
-            width: 4px;
-            height: 4px;
-            background: var(--accent-cyan);
-            border-radius: 50%;
-        }
-
-        .panel-section p {
-            font-size: 0.9rem;
-            line-height: 1.7;
-            color: var(--text-secondary);
-        }
-
-        .panel-problem {
-            background: rgba(0, 245, 212, 0.05);
-            border-left: 3px solid var(--accent-cyan);
-            padding: 15px 20px;
-            border-radius: 0 10px 10px 0;
-            font-style: italic;
-        }
-
-        .panel-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .panel-tag {
-            background: rgba(255, 255, 255, 0.08);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .related-models {
-            display: grid;
-            gap: 10px;
-        }
-
-        .related-model {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 15px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: 1px solid transparent;
-        }
-
-        .related-model:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .related-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-        }
-
-        .related-name {
-            flex: 1;
-            font-size: 0.85rem;
-        }
-
-        .related-arrow {
-            color: var(--text-secondary);
-        }
-
-        /* Tooltip */
-        .tooltip {
-            position: fixed;
-            background: rgba(10, 10, 15, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 15px 20px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            pointer-events: none;
-            z-index: 300;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            max-width: 300px;
-        }
-
-        .tooltip.visible {
-            opacity: 1;
-        }
-
-        .tooltip-title {
-            font-family: 'Syne', sans-serif;
-            font-weight: 600;
-            font-size: 1rem;
-            margin-bottom: 5px;
-        }
-
-        .tooltip-category {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Loading animation */
-        .loading {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 500;
-            text-align: center;
-        }
-
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 3px solid var(--bg-tertiary);
-            border-top-color: var(--accent-cyan);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            font-family: 'Syne', sans-serif;
-            color: var(--text-secondary);
-        }
-
-        /* Zoom controls */
-        .zoom-controls {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 90;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .zoom-btn {
-            width: 45px;
-            height: 45px;
-            border: none;
-            background: rgba(18, 18, 26, 0.9);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-size: 1.3rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .zoom-btn:hover {
-            background: var(--accent-cyan);
-            color: var(--bg-primary);
-        }
-
-        /* Instructions */
-        .instructions {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 90;
-            background: rgba(18, 18, 26, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 12px 25px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            display: flex;
-            gap: 25px;
-        }
-
-        .instruction-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .instruction-key {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.7rem;
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .animate-in {
-            animation: fadeIn 0.6s ease forwards;
+        @media (hover: none) and (pointer: coarse) {
+            .view-btn:active { transform: scale(0.95); }
+            .legend-item:active { background: rgba(255, 255, 255, 0.1); }
+            .zoom-btn:active { transform: scale(0.9); }
+            .related-model:active { background: rgba(255, 255, 255, 0.1); }
         }
     </style>
 </head>
 <body>
     <div class="bg-grid"></div>
     <div class="bg-gradient"></div>
-
-    <div class="loading" id="loading">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Initializing ML Universe...</div>
-    </div>
-
+    <div class="loading" id="loading"><div class="loading-spinner"></div><div class="loading-text">Initializing ML Universe...</div></div>
     <header class="header">
         <div class="logo">ML<span>_</span>UNIVERSE</div>
         <div class="controls">
-            <div class="search-box">
-                <input type="text" id="search" placeholder="Search 150+ models...">
-            </div>
+            <div class="search-box"><input type="text" id="search" placeholder="Search models..."></div>
             <div class="view-toggle">
                 <button class="view-btn active" data-view="force">Force</button>
                 <button class="view-btn" data-view="radial">Radial</button>
@@ -677,63 +232,28 @@
             </div>
         </div>
     </header>
-
     <div class="stats-bar">
-        <div class="stat-item">
-            <div class="stat-value" id="model-count">0</div>
-            <div class="stat-label">Models</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-value" id="category-count">0</div>
-            <div class="stat-label">Categories</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-value" id="visible-count">0</div>
-            <div class="stat-label">Visible</div>
-        </div>
+        <div class="stat-item"><div class="stat-value" id="model-count">0</div><div class="stat-label">Models</div></div>
+        <div class="stat-item"><div class="stat-value" id="category-count">0</div><div class="stat-label">Categories</div></div>
+        <div class="stat-item"><div class="stat-value" id="visible-count">0</div><div class="stat-label">Visible</div></div>
     </div>
-
-    <div class="legend" id="legend">
-        <h3>Categories</h3>
-        <div id="legend-items"></div>
-    </div>
-
+    <button class="legend-toggle" id="legend-toggle">☰</button>
+    <div class="legend" id="legend"><h3>Categories</h3><div id="legend-items"></div></div>
     <div id="graph-container"></div>
-
-    <div class="detail-panel" id="detail-panel">
-        <button class="panel-close" id="panel-close">×</button>
-        <div id="panel-content"></div>
-    </div>
-
+    <div class="detail-panel" id="detail-panel"><button class="panel-close" id="panel-close">×</button><div id="panel-content"></div></div>
     <div class="tooltip" id="tooltip"></div>
-
     <div class="zoom-controls">
         <button class="zoom-btn" id="zoom-in">+</button>
         <button class="zoom-btn" id="zoom-out">−</button>
         <button class="zoom-btn" id="zoom-reset">⟲</button>
     </div>
-
     <div class="instructions">
-        <div class="instruction-item">
-            <span class="instruction-key">Click</span>
-            <span>View details</span>
-        </div>
-        <div class="instruction-item">
-            <span class="instruction-key">Drag</span>
-            <span>Move nodes</span>
-        </div>
-        <div class="instruction-item">
-            <span class="instruction-key">Scroll</span>
-            <span>Zoom</span>
-        </div>
-        <div class="instruction-item">
-            <span class="instruction-key">Esc</span>
-            <span>Reset</span>
-        </div>
+        <div class="instruction-item"><span class="instruction-key">Tap</span><span>Details</span></div>
+        <div class="instruction-item"><span class="instruction-key">Drag</span><span>Move</span></div>
+        <div class="instruction-item"><span class="instruction-key">Pinch</span><span>Zoom</span></div>
     </div>
 
     <script>
-        // ML Models Data
         const categories = [
             { id: "simple", name: "Simple/Foundational", color: "#00f5d4" },
             { id: "tree", name: "Decision Tree Based", color: "#7ae582" },
@@ -758,633 +278,340 @@
         ];
 
         const models = [
-            // Simple/Foundational
-            { id: "linreg", name: "Linear Regression", category: "simple", type: "Regression", problem: "Predict house prices based on square footage, bedrooms, and location features.", explanation: "Assumes linear relationship between features and target. Provides interpretable coefficients showing exact impact of each feature. Fast training, no hyperparameters.", tags: ["interpretable", "fast", "baseline"] },
+            { id: "linreg", name: "Linear Regression", category: "simple", type: "Regression", problem: "Predict house prices based on square footage, bedrooms, and location features.", explanation: "Assumes linear relationship between features and target. Provides interpretable coefficients showing exact impact of each feature.", tags: ["interpretable", "fast", "baseline"] },
             { id: "logreg", name: "Logistic Regression", category: "simple", type: "Classification", problem: "Predict whether a customer will churn (yes/no) based on usage patterns.", explanation: "Outputs calibrated probabilities. Highly interpretable odds ratios. Works well when decision boundary is approximately linear.", tags: ["interpretable", "probabilistic", "baseline"] },
-            { id: "naivebayes", name: "Naive Bayes", category: "simple", type: "Classification", problem: "Classify emails as spam or not-spam based on word frequencies.", explanation: "Extremely fast training and prediction. Works well with high-dimensional sparse data (text). Assumes feature independence.", tags: ["fast", "text", "probabilistic"] },
-            { id: "knn", name: "K-Nearest Neighbors", category: "simple", type: "Both", problem: "Recommend similar products based on customer purchase history.", explanation: "Non-parametric - makes no assumptions about data distribution. Captures local patterns. Simple to understand.", tags: ["non-parametric", "lazy", "instance-based"] },
-            { id: "perceptron", name: "Perceptron", category: "simple", type: "Classification", problem: "Binary classification of linearly separable sensor readings.", explanation: "Simplest neural network. Guaranteed convergence for linearly separable data. Foundation for understanding deep learning.", tags: ["simple", "linear", "foundation"] },
+            { id: "naivebayes", name: "Naive Bayes", category: "simple", type: "Classification", problem: "Classify emails as spam or not-spam based on word frequencies.", explanation: "Extremely fast training and prediction. Works well with high-dimensional sparse data (text).", tags: ["fast", "text", "probabilistic"] },
+            { id: "knn", name: "K-Nearest Neighbors", category: "simple", type: "Both", problem: "Recommend similar products based on customer purchase history.", explanation: "Non-parametric - makes no assumptions about data distribution. Captures local patterns.", tags: ["non-parametric", "lazy", "instance-based"] },
+            { id: "perceptron", name: "Perceptron", category: "simple", type: "Classification", problem: "Binary classification of linearly separable sensor readings.", explanation: "Simplest neural network. Guaranteed convergence for linearly separable data.", tags: ["simple", "linear", "foundation"] },
             { id: "ridge", name: "Ridge Regression", category: "simple", type: "Regression", problem: "Predict salary based on many correlated job skills.", explanation: "Handles multicollinearity through L2 regularization. Shrinks coefficients but keeps all features.", tags: ["regularized", "L2", "multicollinearity"] },
             { id: "lasso", name: "Lasso Regression", category: "simple", type: "Regression", problem: "Identify key factors affecting crop yield from 100+ environmental variables.", explanation: "L1 regularization performs automatic feature selection by zeroing out irrelevant coefficients.", tags: ["regularized", "L1", "feature-selection"] },
             { id: "elasticnet", name: "Elastic Net", category: "simple", type: "Regression", problem: "Predict stock returns using thousands of correlated financial indicators.", explanation: "Combines L1 and L2 regularization. Handles correlated features better than Lasso alone.", tags: ["regularized", "hybrid", "flexible"] },
-
-            // Decision Tree Based
-            { id: "cart", name: "Decision Tree (CART)", category: "tree", type: "Both", problem: "Determine loan approval criteria based on income, credit score, and employment.", explanation: "Creates human-readable rules. Handles mixed data types. No scaling needed. Visual representation helps stakeholders.", tags: ["interpretable", "rules", "visual"] },
-            { id: "id3", name: "ID3", category: "tree", type: "Classification", problem: "Classify mushrooms as edible/poisonous based on categorical attributes.", explanation: "Uses information gain for splitting. Optimal for categorical features. Creates interpretable rule sets.", tags: ["categorical", "information-gain", "classic"] },
-            { id: "c45", name: "C4.5 / C5.0", category: "tree", type: "Classification", problem: "Medical diagnosis from patient symptoms and test results.", explanation: "Handles missing values natively. Supports both categorical and continuous attributes. Pruning reduces overfitting.", tags: ["robust", "pruning", "missing-values"] },
-            { id: "chaid", name: "CHAID", category: "tree", type: "Classification", problem: "Market segmentation based on demographic and behavioral data.", explanation: "Chi-square based splitting. Creates multi-way splits. Statistical significance testing built-in.", tags: ["statistical", "multi-way", "segmentation"] },
-            { id: "cit", name: "Conditional Inference Trees", category: "tree", type: "Both", problem: "Fair credit scoring avoiding biased variable selection.", explanation: "Unbiased variable selection through permutation tests. Statistically principled stopping criteria.", tags: ["unbiased", "statistical", "fair"] },
-            { id: "regtree", name: "Regression Tree", category: "tree", type: "Regression", problem: "Predict real estate prices with complex non-linear feature interactions.", explanation: "Captures non-linear relationships automatically. Handles interactions without explicit specification.", tags: ["non-linear", "interactions", "intuitive"] },
-            { id: "oblique", name: "Oblique Decision Tree", category: "tree", type: "Both", problem: "Classify images where classes are separated by diagonal boundaries.", explanation: "Splits on linear combinations of features. More compact trees. Better for non-axis-aligned data.", tags: ["compact", "diagonal", "efficient"] },
-
-            // Bagging Ensembles
-            { id: "rf", name: "Random Forest", category: "ensemble-bag", type: "Both", problem: "Predict customer lifetime value using hundreds of behavioral features.", explanation: "Reduces overfitting through bootstrap aggregation. Handles high-dimensional data. Provides feature importance.", tags: ["robust", "feature-importance", "versatile"] },
-            { id: "bagtree", name: "Bagged Decision Trees", category: "ensemble-bag", type: "Both", problem: "Stabilize volatile stock price predictions.", explanation: "Reduces variance of unstable base learners. Each tree trained on bootstrap sample.", tags: ["variance-reduction", "stable", "bootstrap"] },
-            { id: "extratrees", name: "Extra Trees", category: "ensemble-bag", type: "Both", problem: "Real-time fraud detection requiring fast training.", explanation: "Faster than Random Forest. More randomization reduces variance further. Good for large datasets.", tags: ["fast", "random", "scalable"] },
-            { id: "bagsvm", name: "Bagged SVM", category: "ensemble-bag", type: "Classification", problem: "Improve text classification accuracy on imbalanced data.", explanation: "Combines multiple SVMs trained on different subsets. Reduces sensitivity to outliers.", tags: ["robust", "text", "ensemble"] },
+            { id: "cart", name: "Decision Tree (CART)", category: "tree", type: "Both", problem: "Determine loan approval criteria based on income, credit score, and employment.", explanation: "Creates human-readable rules. Handles mixed data types. No scaling needed.", tags: ["interpretable", "rules", "visual"] },
+            { id: "id3", name: "ID3", category: "tree", type: "Classification", problem: "Classify mushrooms as edible/poisonous based on categorical attributes.", explanation: "Uses information gain for splitting. Optimal for categorical features.", tags: ["categorical", "information-gain", "classic"] },
+            { id: "c45", name: "C4.5 / C5.0", category: "tree", type: "Classification", problem: "Medical diagnosis from patient symptoms and test results.", explanation: "Handles missing values natively. Supports both categorical and continuous attributes.", tags: ["robust", "pruning", "missing-values"] },
+            { id: "chaid", name: "CHAID", category: "tree", type: "Classification", problem: "Market segmentation based on demographic and behavioral data.", explanation: "Chi-square based splitting. Creates multi-way splits. Statistical significance testing.", tags: ["statistical", "multi-way", "segmentation"] },
+            { id: "cit", name: "Conditional Inference Trees", category: "tree", type: "Both", problem: "Fair credit scoring avoiding biased variable selection.", explanation: "Unbiased variable selection through permutation tests.", tags: ["unbiased", "statistical", "fair"] },
+            { id: "regtree", name: "Regression Tree", category: "tree", type: "Regression", problem: "Predict real estate prices with complex non-linear feature interactions.", explanation: "Captures non-linear relationships automatically. Handles interactions.", tags: ["non-linear", "interactions", "intuitive"] },
+            { id: "oblique", name: "Oblique Decision Tree", category: "tree", type: "Both", problem: "Classify images where classes are separated by diagonal boundaries.", explanation: "Splits on linear combinations of features. More compact trees.", tags: ["compact", "diagonal", "efficient"] },
+            { id: "rf", name: "Random Forest", category: "ensemble-bag", type: "Both", problem: "Predict customer lifetime value using hundreds of behavioral features.", explanation: "Reduces overfitting through bootstrap aggregation. Provides feature importance.", tags: ["robust", "feature-importance", "versatile"] },
+            { id: "bagtree", name: "Bagged Decision Trees", category: "ensemble-bag", type: "Both", problem: "Stabilize volatile stock price predictions.", explanation: "Reduces variance of unstable base learners. Bootstrap sampling.", tags: ["variance-reduction", "stable", "bootstrap"] },
+            { id: "extratrees", name: "Extra Trees", category: "ensemble-bag", type: "Both", problem: "Real-time fraud detection requiring fast training.", explanation: "Faster than Random Forest. More randomization reduces variance.", tags: ["fast", "random", "scalable"] },
+            { id: "bagsvm", name: "Bagged SVM", category: "ensemble-bag", type: "Classification", problem: "Improve text classification accuracy on imbalanced data.", explanation: "Combines multiple SVMs trained on different subsets.", tags: ["robust", "text", "ensemble"] },
             { id: "pasting", name: "Pasting", category: "ensemble-bag", type: "Both", problem: "Large-scale classification where bootstrap isn't needed.", explanation: "Samples without replacement. Useful when dataset is large enough.", tags: ["no-replacement", "large-scale", "efficient"] },
-
-            // Boosting Ensembles
             { id: "adaboost", name: "AdaBoost", category: "ensemble-boost", type: "Classification", problem: "Face detection in images with many weak Haar features.", explanation: "Combines many weak learners into strong classifier. Focuses on hard examples.", tags: ["adaptive", "weak-learners", "classic"] },
-            { id: "gbm", name: "Gradient Boosting", category: "ensemble-boost", type: "Both", problem: "Kaggle competitions requiring maximum predictive accuracy.", explanation: "Sequentially corrects errors. Highly flexible loss functions. State-of-art tabular performance.", tags: ["sequential", "flexible", "powerful"] },
+            { id: "gbm", name: "Gradient Boosting", category: "ensemble-boost", type: "Both", problem: "Kaggle competitions requiring maximum predictive accuracy.", explanation: "Sequentially corrects errors. Highly flexible loss functions.", tags: ["sequential", "flexible", "powerful"] },
             { id: "xgboost", name: "XGBoost", category: "ensemble-boost", type: "Both", problem: "Click-through rate prediction at scale with missing values.", explanation: "Regularized gradient boosting. Handles sparse data efficiently. Industry standard.", tags: ["regularized", "fast", "industry-standard"] },
-            { id: "lightgbm", name: "LightGBM", category: "ensemble-boost", type: "Both", problem: "Train on 100M+ rows of e-commerce transaction data.", explanation: "Histogram-based splitting is memory efficient. Leaf-wise growth is faster.", tags: ["histogram", "scalable", "fast"] },
+            { id: "lightgbm", name: "LightGBM", category: "ensemble-boost", type: "Both", problem: "Train on 100M+ rows of e-commerce transaction data.", explanation: "Histogram-based splitting is memory efficient. Leaf-wise growth.", tags: ["histogram", "scalable", "fast"] },
             { id: "catboost", name: "CatBoost", category: "ensemble-boost", type: "Both", problem: "Predict insurance claims with many categorical variables.", explanation: "Native categorical feature handling. Ordered boosting reduces overfitting.", tags: ["categorical", "robust", "easy"] },
             { id: "histgbm", name: "Histogram-Based GBM", category: "ensemble-boost", type: "Both", problem: "Real-time predictions with very large training sets.", explanation: "Bins continuous features into histograms. Much faster training.", tags: ["binning", "fast", "scalable"] },
-            { id: "ngboost", name: "NGBoost", category: "ensemble-boost", type: "Regression", problem: "Predict delivery time with uncertainty estimates.", explanation: "Probabilistic predictions with uncertainty quantification. Outputs full predictive distribution.", tags: ["probabilistic", "uncertainty", "distribution"] },
-            { id: "dart", name: "DART", category: "ensemble-boost", type: "Both", problem: "Prevent later trees from dominating in long boosting sequences.", explanation: "Dropout regularization for gradient boosting. Reduces over-specialization.", tags: ["dropout", "regularized", "balanced"] },
-
-            // Weak Learners
-            { id: "stump", name: "Decision Stump", category: "weak", type: "Both", problem: "Base learner in AdaBoost for face detection.", explanation: "Single-split decision tree. Very fast training. Low variance. Perfect for boosting.", tags: ["simple", "fast", "boosting-base"] },
-            { id: "shallow", name: "Shallow Decision Tree", category: "weak", type: "Both", problem: "Base learner in gradient boosting for CTR prediction.", explanation: "Limited depth (2-6 levels). Captures simple interactions. Low variance.", tags: ["limited-depth", "interactions", "base-learner"] },
-            { id: "weaklinear", name: "Linear Model", category: "weak", type: "Both", problem: "Weak learner in boosting for high-dimensional sparse data.", explanation: "Simple linear combination. Fast computation. Works well combined with others.", tags: ["linear", "fast", "combinable"] },
-            { id: "threshold", name: "Threshold Classifier", category: "weak", type: "Classification", problem: "Simple threshold rules in ensemble for anomaly detection.", explanation: "Single feature threshold. Extremely fast. Useful when features have individual power.", tags: ["simple", "fast", "interpretable"] },
-
-            // Support Vector Machines
-            { id: "linearsvm", name: "Linear SVM", category: "svm", type: "Classification", problem: "Text classification with TF-IDF features (high-dimensional sparse).", explanation: "Optimal for high-dimensional spaces. Efficient for sparse data. Clear margin maximization.", tags: ["high-dimensional", "sparse", "margin"] },
-            { id: "rbfsvm", name: "SVM with RBF Kernel", category: "svm", type: "Classification", problem: "Classify handwritten digits with complex non-linear boundaries.", explanation: "Radial basis function captures local patterns. Infinite-dimensional feature space.", tags: ["non-linear", "kernel", "flexible"] },
-            { id: "polysvm", name: "SVM with Polynomial Kernel", category: "svm", type: "Classification", problem: "Image recognition where polynomial feature interactions matter.", explanation: "Explicit polynomial feature interactions. Degree controls complexity.", tags: ["polynomial", "interactions", "tunable"] },
+            { id: "ngboost", name: "NGBoost", category: "ensemble-boost", type: "Regression", problem: "Predict delivery time with uncertainty estimates.", explanation: "Probabilistic predictions with uncertainty quantification.", tags: ["probabilistic", "uncertainty", "distribution"] },
+            { id: "dart", name: "DART", category: "ensemble-boost", type: "Both", problem: "Prevent later trees from dominating in long boosting sequences.", explanation: "Dropout regularization for gradient boosting.", tags: ["dropout", "regularized", "balanced"] },
+            { id: "stump", name: "Decision Stump", category: "weak", type: "Both", problem: "Base learner in AdaBoost for face detection.", explanation: "Single-split decision tree. Very fast training. Perfect for boosting.", tags: ["simple", "fast", "boosting-base"] },
+            { id: "shallow", name: "Shallow Decision Tree", category: "weak", type: "Both", problem: "Base learner in gradient boosting for CTR prediction.", explanation: "Limited depth (2-6 levels). Captures simple interactions.", tags: ["limited-depth", "interactions", "base-learner"] },
+            { id: "weaklinear", name: "Linear Model", category: "weak", type: "Both", problem: "Weak learner in boosting for high-dimensional sparse data.", explanation: "Simple linear combination. Fast computation.", tags: ["linear", "fast", "combinable"] },
+            { id: "threshold", name: "Threshold Classifier", category: "weak", type: "Classification", problem: "Simple threshold rules in ensemble for anomaly detection.", explanation: "Single feature threshold. Extremely fast.", tags: ["simple", "fast", "interpretable"] },
+            { id: "linearsvm", name: "Linear SVM", category: "svm", type: "Classification", problem: "Text classification with TF-IDF features (high-dimensional sparse).", explanation: "Optimal for high-dimensional spaces. Efficient for sparse data.", tags: ["high-dimensional", "sparse", "margin"] },
+            { id: "rbfsvm", name: "SVM with RBF Kernel", category: "svm", type: "Classification", problem: "Classify handwritten digits with complex non-linear boundaries.", explanation: "Radial basis function captures local patterns.", tags: ["non-linear", "kernel", "flexible"] },
+            { id: "polysvm", name: "SVM with Polynomial Kernel", category: "svm", type: "Classification", problem: "Image recognition where polynomial feature interactions matter.", explanation: "Explicit polynomial feature interactions.", tags: ["polynomial", "interactions", "tunable"] },
             { id: "svr", name: "Support Vector Regression", category: "svm", type: "Regression", problem: "Robust regression for financial data with outliers.", explanation: "Epsilon-insensitive loss ignores small errors. Robust to outliers.", tags: ["robust", "epsilon-tube", "outlier-resistant"] },
-            { id: "ocsvm", name: "One-Class SVM", category: "svm", type: "Anomaly Detection", problem: "Detect fraudulent transactions (novelty detection).", explanation: "Learns boundary around normal data. Identifies outliers without labeled anomalies.", tags: ["anomaly", "unsupervised", "boundary"] },
-            { id: "nusvm", name: "Nu-SVM", category: "svm", type: "Classification", problem: "Classification with direct control over support vector ratio.", explanation: "Nu parameter controls margin errors and support vectors directly.", tags: ["parameterized", "intuitive", "controlled"] },
-
-            // Clustering
-            { id: "kmeans", name: "K-Means", category: "cluster", type: "Clustering", problem: "Segment customers into distinct groups for targeted marketing.", explanation: "Fast and scalable. Works well with spherical clusters. Simple to implement.", tags: ["fast", "scalable", "baseline"] },
-            { id: "kmeanspp", name: "K-Means++", category: "cluster", type: "Clustering", problem: "Improved customer segmentation with better initial centroids.", explanation: "Smart initialization reduces bad local optima. More consistent results.", tags: ["improved", "initialization", "stable"] },
-            { id: "minibatchkmeans", name: "Mini-Batch K-Means", category: "cluster", type: "Clustering", problem: "Cluster millions of web session logs in real-time.", explanation: "Stochastic updates enable massive scale. Online learning capable.", tags: ["scalable", "online", "streaming"] },
+            { id: "ocsvm", name: "One-Class SVM", category: "svm", type: "Anomaly Detection", problem: "Detect fraudulent transactions (novelty detection).", explanation: "Learns boundary around normal data.", tags: ["anomaly", "unsupervised", "boundary"] },
+            { id: "nusvm", name: "Nu-SVM", category: "svm", type: "Classification", problem: "Classification with direct control over support vector ratio.", explanation: "Nu parameter controls margin errors and support vectors.", tags: ["parameterized", "intuitive", "controlled"] },
+            { id: "kmeans", name: "K-Means", category: "cluster", type: "Clustering", problem: "Segment customers into distinct groups for targeted marketing.", explanation: "Fast and scalable. Works well with spherical clusters.", tags: ["fast", "scalable", "baseline"] },
+            { id: "kmeanspp", name: "K-Means++", category: "cluster", type: "Clustering", problem: "Improved customer segmentation with better initial centroids.", explanation: "Smart initialization reduces bad local optima.", tags: ["improved", "initialization", "stable"] },
+            { id: "minibatchkmeans", name: "Mini-Batch K-Means", category: "cluster", type: "Clustering", problem: "Cluster millions of web session logs in real-time.", explanation: "Stochastic updates enable massive scale.", tags: ["scalable", "online", "streaming"] },
             { id: "kmedoids", name: "K-Medoids (PAM)", category: "cluster", type: "Clustering", problem: "Cluster locations using driving distances (non-Euclidean).", explanation: "Uses actual data points as centers. Works with any distance metric.", tags: ["robust", "any-metric", "interpretable"] },
-            { id: "agglo", name: "Hierarchical Agglomerative", category: "cluster", type: "Clustering", problem: "Taxonomy creation showing relationships between products.", explanation: "Creates dendrogram showing cluster hierarchy. No need to specify K upfront.", tags: ["hierarchical", "dendrogram", "flexible-k"] },
-            { id: "divisive", name: "Hierarchical Divisive", category: "cluster", type: "Clustering", problem: "Top-down document organization into categories.", explanation: "Starts with all data, recursively splits. Good for major divisions first.", tags: ["top-down", "recursive", "structured"] },
+            { id: "agglo", name: "Hierarchical Agglomerative", category: "cluster", type: "Clustering", problem: "Taxonomy creation showing relationships between products.", explanation: "Creates dendrogram showing cluster hierarchy.", tags: ["hierarchical", "dendrogram", "flexible-k"] },
+            { id: "divisive", name: "Hierarchical Divisive", category: "cluster", type: "Clustering", problem: "Top-down document organization into categories.", explanation: "Starts with all data, recursively splits.", tags: ["top-down", "recursive", "structured"] },
             { id: "dbscan", name: "DBSCAN", category: "cluster", type: "Clustering", problem: "Identify geographic hotspots of crime incidents.", explanation: "Discovers arbitrary shaped clusters. Identifies noise automatically.", tags: ["density", "arbitrary-shape", "noise-robust"] },
-            { id: "hdbscan", name: "HDBSCAN", category: "cluster", type: "Clustering", problem: "Cluster social network communities of varying densities.", explanation: "Hierarchical DBSCAN. Handles varying density. State-of-art density clustering.", tags: ["hierarchical", "varying-density", "robust"] },
+            { id: "hdbscan", name: "HDBSCAN", category: "cluster", type: "Clustering", problem: "Cluster social network communities of varying densities.", explanation: "Hierarchical DBSCAN. Handles varying density.", tags: ["hierarchical", "varying-density", "robust"] },
             { id: "optics", name: "OPTICS", category: "cluster", type: "Clustering", problem: "Analyze spatial data with varying density regions.", explanation: "Creates reachability plot. Extracts clusters at multiple density levels.", tags: ["reachability", "multi-scale", "visual"] },
-            { id: "meanshift", name: "Mean Shift", category: "cluster", type: "Clustering", problem: "Image segmentation based on color similarity.", explanation: "Non-parametric, finds modes in density. Automatically determines number of clusters.", tags: ["mode-seeking", "automatic-k", "smooth"] },
+            { id: "meanshift", name: "Mean Shift", category: "cluster", type: "Clustering", problem: "Image segmentation based on color similarity.", explanation: "Non-parametric, finds modes in density.", tags: ["mode-seeking", "automatic-k", "smooth"] },
             { id: "gmm", name: "Gaussian Mixture Model", category: "cluster", type: "Clustering", problem: "Soft clustering of customer behaviors with probabilities.", explanation: "Probabilistic cluster assignments. Models elliptical clusters.", tags: ["probabilistic", "soft", "generative"] },
-            { id: "spectral", name: "Spectral Clustering", category: "cluster", type: "Clustering", problem: "Community detection in social networks.", explanation: "Uses graph Laplacian eigenstructure. Captures non-convex clusters.", tags: ["graph", "eigenvalues", "non-convex"] },
+            { id: "spectral", name: "Spectral Clustering", category: "cluster", type: "Clustering", problem: "Community detection in social networks.", explanation: "Uses graph Laplacian eigenstructure.", tags: ["graph", "eigenvalues", "non-convex"] },
             { id: "affinity", name: "Affinity Propagation", category: "cluster", type: "Clustering", problem: "Identify exemplar images in a photo collection.", explanation: "Automatically determines cluster count. Identifies exemplars.", tags: ["exemplars", "automatic-k", "message-passing"] },
-            { id: "birch", name: "BIRCH", category: "cluster", type: "Clustering", problem: "Cluster streaming sensor data incrementally.", explanation: "Incremental clustering with limited memory. Builds CF-tree.", tags: ["incremental", "memory-efficient", "streaming"] },
-
-            // Feedforward Networks
-            { id: "mlp", name: "Multi-Layer Perceptron", category: "nn-ff", type: "Both", problem: "Predict complex non-linear relationships in tabular data.", explanation: "Universal function approximator. Captures complex interactions. Flexible architecture.", tags: ["universal", "flexible", "foundation"] },
-            { id: "dnn", name: "Deep Neural Network", category: "nn-ff", type: "Both", problem: "Learn hierarchical features from raw sensor data.", explanation: "Multiple hidden layers learn hierarchical representations. Automatic feature engineering.", tags: ["hierarchical", "deep", "representation"] },
-            { id: "resnet", name: "ResNet", category: "nn-ff", type: "Classification", problem: "Image classification with 100+ layer networks.", explanation: "Skip connections enable very deep networks. Solves vanishing gradient problem.", tags: ["residual", "very-deep", "skip-connections"] },
-            { id: "densenet", name: "DenseNet", category: "nn-ff", type: "Classification", problem: "Medical image analysis requiring feature reuse.", explanation: "Dense connections between all layers. Excellent feature reuse.", tags: ["dense", "feature-reuse", "efficient"] },
-            { id: "efficientnet", name: "EfficientNet", category: "nn-ff", type: "Classification", problem: "Mobile deployment with accuracy/efficiency tradeoff.", explanation: "Compound scaling of depth/width/resolution. Best accuracy per FLOP.", tags: ["efficient", "scaling", "mobile"] },
-
-            // Convolutional Networks
-            { id: "cnn", name: "CNN (LeNet-style)", category: "nn-cnn", type: "Classification", problem: "Handwritten digit recognition.", explanation: "Local connectivity captures spatial patterns. Weight sharing reduces parameters.", tags: ["spatial", "weight-sharing", "classic"] },
-            { id: "vgg", name: "VGGNet", category: "nn-cnn", type: "Classification", problem: "Fine-grained image classification with simple architecture.", explanation: "Deep stack of small 3x3 filters. Simple, uniform architecture.", tags: ["simple", "uniform", "transfer-learning"] },
-            { id: "inception", name: "Inception/GoogLeNet", category: "nn-cnn", type: "Classification", problem: "Multi-scale object recognition in images.", explanation: "Parallel convolutions at multiple scales. Efficient computation.", tags: ["multi-scale", "efficient", "parallel"] },
-            { id: "unet", name: "U-Net", category: "nn-cnn", type: "Segmentation", problem: "Medical image segmentation (tumor boundaries).", explanation: "Encoder-decoder with skip connections. Precise localization.", tags: ["segmentation", "encoder-decoder", "medical"] },
+            { id: "birch", name: "BIRCH", category: "cluster", type: "Clustering", problem: "Cluster streaming sensor data incrementally.", explanation: "Incremental clustering with limited memory.", tags: ["incremental", "memory-efficient", "streaming"] },
+            { id: "mlp", name: "Multi-Layer Perceptron", category: "nn-ff", type: "Both", problem: "Predict complex non-linear relationships in tabular data.", explanation: "Universal function approximator. Captures complex interactions.", tags: ["universal", "flexible", "foundation"] },
+            { id: "dnn", name: "Deep Neural Network", category: "nn-ff", type: "Both", problem: "Learn hierarchical features from raw sensor data.", explanation: "Multiple hidden layers learn hierarchical representations.", tags: ["hierarchical", "deep", "representation"] },
+            { id: "resnet", name: "ResNet", category: "nn-ff", type: "Classification", problem: "Image classification with 100+ layer networks.", explanation: "Skip connections enable very deep networks.", tags: ["residual", "very-deep", "skip-connections"] },
+            { id: "densenet", name: "DenseNet", category: "nn-ff", type: "Classification", problem: "Medical image analysis requiring feature reuse.", explanation: "Dense connections between all layers.", tags: ["dense", "feature-reuse", "efficient"] },
+            { id: "efficientnet", name: "EfficientNet", category: "nn-ff", type: "Classification", problem: "Mobile deployment with accuracy/efficiency tradeoff.", explanation: "Compound scaling of depth/width/resolution.", tags: ["efficient", "scaling", "mobile"] },
+            { id: "cnn", name: "CNN (LeNet-style)", category: "nn-cnn", type: "Classification", problem: "Handwritten digit recognition.", explanation: "Local connectivity captures spatial patterns.", tags: ["spatial", "weight-sharing", "classic"] },
+            { id: "vgg", name: "VGGNet", category: "nn-cnn", type: "Classification", problem: "Fine-grained image classification with simple architecture.", explanation: "Deep stack of small 3x3 filters.", tags: ["simple", "uniform", "transfer-learning"] },
+            { id: "inception", name: "Inception/GoogLeNet", category: "nn-cnn", type: "Classification", problem: "Multi-scale object recognition in images.", explanation: "Parallel convolutions at multiple scales.", tags: ["multi-scale", "efficient", "parallel"] },
+            { id: "unet", name: "U-Net", category: "nn-cnn", type: "Segmentation", problem: "Medical image segmentation (tumor boundaries).", explanation: "Encoder-decoder with skip connections.", tags: ["segmentation", "encoder-decoder", "medical"] },
             { id: "yolo", name: "YOLO", category: "nn-cnn", type: "Detection", problem: "Real-time object detection in video streams.", explanation: "Single-shot detection. Extremely fast inference.", tags: ["real-time", "single-shot", "fast"] },
-            { id: "fasterrcnn", name: "Faster R-CNN", category: "nn-cnn", type: "Detection", problem: "High-accuracy object detection for autonomous driving.", explanation: "Region proposal network + classifier. Best accuracy for detection.", tags: ["two-stage", "accurate", "rpn"] },
-
-            // Recurrent Networks
+            { id: "fasterrcnn", name: "Faster R-CNN", category: "nn-cnn", type: "Detection", problem: "High-accuracy object detection for autonomous driving.", explanation: "Region proposal network + classifier.", tags: ["two-stage", "accurate", "rpn"] },
             { id: "rnn", name: "Vanilla RNN", category: "nn-rnn", type: "Sequence", problem: "Simple sequence modeling for short sequences.", explanation: "Processes sequential data. Hidden state captures history.", tags: ["sequential", "simple", "foundation"] },
-            { id: "lstm", name: "LSTM", category: "nn-rnn", type: "Sequence", problem: "Predict next word in sentence considering long context.", explanation: "Gated architecture solves vanishing gradient. Learns long-term dependencies.", tags: ["gated", "long-term", "standard"] },
-            { id: "gru", name: "GRU", category: "nn-rnn", type: "Sequence", problem: "Efficient sequence modeling for mobile deployment.", explanation: "Simplified LSTM with fewer parameters. Similar performance, faster training.", tags: ["efficient", "simplified", "fast"] },
-            { id: "bilstm", name: "Bidirectional LSTM", category: "nn-rnn", type: "Sequence", problem: "Named entity recognition using full sentence context.", explanation: "Processes sequence in both directions. Captures past and future context.", tags: ["bidirectional", "context", "ner"] },
-            { id: "seq2seq", name: "Encoder-Decoder LSTM", category: "nn-rnn", type: "Sequence", problem: "Machine translation (English to French).", explanation: "Encoder compresses input, decoder generates output. Variable length I/O.", tags: ["translation", "encoder-decoder", "variable-length"] },
-
-            // Transformers
-            { id: "transformer", name: "Transformer", category: "transformer", type: "Sequence", problem: "Parallel sequence processing for translation.", explanation: "Self-attention captures all pairwise relationships. Parallelizable.", tags: ["attention", "parallel", "foundation"] },
+            { id: "lstm", name: "LSTM", category: "nn-rnn", type: "Sequence", problem: "Predict next word in sentence considering long context.", explanation: "Gated architecture solves vanishing gradient.", tags: ["gated", "long-term", "standard"] },
+            { id: "gru", name: "GRU", category: "nn-rnn", type: "Sequence", problem: "Efficient sequence modeling for mobile deployment.", explanation: "Simplified LSTM with fewer parameters.", tags: ["efficient", "simplified", "fast"] },
+            { id: "bilstm", name: "Bidirectional LSTM", category: "nn-rnn", type: "Sequence", problem: "Named entity recognition using full sentence context.", explanation: "Processes sequence in both directions.", tags: ["bidirectional", "context", "ner"] },
+            { id: "seq2seq", name: "Encoder-Decoder LSTM", category: "nn-rnn", type: "Sequence", problem: "Machine translation (English to French).", explanation: "Encoder compresses input, decoder generates output.", tags: ["translation", "encoder-decoder", "variable-length"] },
+            { id: "transformer", name: "Transformer", category: "transformer", type: "Sequence", problem: "Parallel sequence processing for translation.", explanation: "Self-attention captures all pairwise relationships.", tags: ["attention", "parallel", "foundation"] },
             { id: "bert", name: "BERT", category: "transformer", type: "NLP", problem: "Sentiment analysis with bidirectional context understanding.", explanation: "Bidirectional pre-training. Fine-tune for downstream tasks.", tags: ["bidirectional", "pre-trained", "fine-tuning"] },
             { id: "gpt", name: "GPT", category: "transformer", type: "NLP", problem: "Text generation and completion tasks.", explanation: "Autoregressive language model. Excellent for generation.", tags: ["autoregressive", "generation", "scalable"] },
-            { id: "t5", name: "T5", category: "transformer", type: "NLP", problem: "Unified text-to-text framework for all NLP tasks.", explanation: "Frames all tasks as text generation. Single model for multiple tasks.", tags: ["unified", "text-to-text", "versatile"] },
-            { id: "vit", name: "Vision Transformer", category: "transformer", type: "Vision", problem: "Image classification without convolutions.", explanation: "Applies transformer to image patches. Competitive with CNNs at scale.", tags: ["vision", "patches", "scalable"] },
-            { id: "clip", name: "CLIP", category: "transformer", type: "Multimodal", problem: "Image search using natural language queries.", explanation: "Joint vision-language training. Zero-shot image classification.", tags: ["multimodal", "zero-shot", "contrastive"] },
-
-            // Generative Models
-            { id: "vae", name: "Variational Autoencoder", category: "generative", type: "Generation", problem: "Generate new molecular structures for drug discovery.", explanation: "Learns latent space representation. Enables interpolation and sampling.", tags: ["latent", "probabilistic", "smooth"] },
-            { id: "gan", name: "GAN", category: "generative", type: "Generation", problem: "Generate photorealistic human faces.", explanation: "Generator vs discriminator adversarial training. Produces sharp images.", tags: ["adversarial", "sharp", "creative"] },
-            { id: "stylegan", name: "StyleGAN", category: "generative", type: "Generation", problem: "High-resolution face generation with style control.", explanation: "Hierarchical style injection. State-of-art image quality.", tags: ["style", "high-res", "controllable"] },
-            { id: "diffusion", name: "Diffusion Model", category: "generative", type: "Generation", problem: "Text-to-image generation (DALL-E, Stable Diffusion).", explanation: "Iterative denoising process. Currently best image generation quality.", tags: ["denoising", "iterative", "sota"] },
-            { id: "flow", name: "Flow-based Model", category: "generative", type: "Generation", problem: "Density estimation with exact likelihood computation.", explanation: "Invertible transformations. Exact log-likelihood computation.", tags: ["invertible", "exact-likelihood", "tractable"] },
-
-            // Graph Neural Networks
-            { id: "gcn", name: "Graph Convolutional Network", category: "gnn", type: "Graph", problem: "Node classification in citation networks.", explanation: "Spectral convolution on graphs. Aggregates neighbor features.", tags: ["spectral", "aggregation", "nodes"] },
-            { id: "graphsage", name: "GraphSAGE", category: "gnn", type: "Graph", problem: "Inductive learning on dynamic social networks.", explanation: "Samples and aggregates neighborhoods. Works on unseen nodes.", tags: ["inductive", "sampling", "scalable"] },
-            { id: "gat", name: "Graph Attention Network", category: "gnn", type: "Graph", problem: "Learn importance of different neighbors in molecular graphs.", explanation: "Attention over neighbors. Learns relationship importance.", tags: ["attention", "weighted", "expressive"] },
-            { id: "mpnn", name: "Message Passing NN", category: "gnn", type: "Graph", problem: "Predict molecular properties from 3D structure.", explanation: "General framework for graph learning. Iterative message passing.", tags: ["message-passing", "general", "molecular"] },
-
-            // Pattern Matching
-            { id: "siamese", name: "Siamese Network", category: "pattern", type: "Similarity", problem: "Face verification (are these two faces the same person?).", explanation: "Twin networks with shared weights. Learns similarity metric.", tags: ["twin", "similarity", "one-shot"] },
-            { id: "triplet", name: "Triplet Network", category: "pattern", type: "Similarity", problem: "Learn product embeddings for visual search.", explanation: "Anchor-positive-negative training. Directly optimizes embedding space.", tags: ["triplet-loss", "embedding", "ranking"] },
+            { id: "t5", name: "T5", category: "transformer", type: "NLP", problem: "Unified text-to-text framework for all NLP tasks.", explanation: "Frames all tasks as text generation.", tags: ["unified", "text-to-text", "versatile"] },
+            { id: "vit", name: "Vision Transformer", category: "transformer", type: "Vision", problem: "Image classification without convolutions.", explanation: "Applies transformer to image patches.", tags: ["vision", "patches", "scalable"] },
+            { id: "clip", name: "CLIP", category: "transformer", type: "Multimodal", problem: "Image search using natural language queries.", explanation: "Joint vision-language training. Zero-shot classification.", tags: ["multimodal", "zero-shot", "contrastive"] },
+            { id: "vae", name: "Variational Autoencoder", category: "generative", type: "Generation", problem: "Generate new molecular structures for drug discovery.", explanation: "Learns latent space representation.", tags: ["latent", "probabilistic", "smooth"] },
+            { id: "gan", name: "GAN", category: "generative", type: "Generation", problem: "Generate photorealistic human faces.", explanation: "Generator vs discriminator adversarial training.", tags: ["adversarial", "sharp", "creative"] },
+            { id: "stylegan", name: "StyleGAN", category: "generative", type: "Generation", problem: "High-resolution face generation with style control.", explanation: "Hierarchical style injection. State-of-art quality.", tags: ["style", "high-res", "controllable"] },
+            { id: "diffusion", name: "Diffusion Model", category: "generative", type: "Generation", problem: "Text-to-image generation (DALL-E, Stable Diffusion).", explanation: "Iterative denoising process. Best image generation quality.", tags: ["denoising", "iterative", "sota"] },
+            { id: "flow", name: "Flow-based Model", category: "generative", type: "Generation", problem: "Density estimation with exact likelihood computation.", explanation: "Invertible transformations.", tags: ["invertible", "exact-likelihood", "tractable"] },
+            { id: "gcn", name: "Graph Convolutional Network", category: "gnn", type: "Graph", problem: "Node classification in citation networks.", explanation: "Spectral convolution on graphs.", tags: ["spectral", "aggregation", "nodes"] },
+            { id: "graphsage", name: "GraphSAGE", category: "gnn", type: "Graph", problem: "Inductive learning on dynamic social networks.", explanation: "Samples and aggregates neighborhoods.", tags: ["inductive", "sampling", "scalable"] },
+            { id: "gat", name: "Graph Attention Network", category: "gnn", type: "Graph", problem: "Learn importance of different neighbors in molecular graphs.", explanation: "Attention over neighbors.", tags: ["attention", "weighted", "expressive"] },
+            { id: "mpnn", name: "Message Passing NN", category: "gnn", type: "Graph", problem: "Predict molecular properties from 3D structure.", explanation: "General framework for graph learning.", tags: ["message-passing", "general", "molecular"] },
+            { id: "siamese", name: "Siamese Network", category: "pattern", type: "Similarity", problem: "Face verification (are these two faces the same person?).", explanation: "Twin networks with shared weights.", tags: ["twin", "similarity", "one-shot"] },
+            { id: "triplet", name: "Triplet Network", category: "pattern", type: "Similarity", problem: "Learn product embeddings for visual search.", explanation: "Anchor-positive-negative training.", tags: ["triplet-loss", "embedding", "ranking"] },
             { id: "lsh", name: "Locality Sensitive Hashing", category: "pattern", type: "Similarity", problem: "Approximate nearest neighbor search at scale.", explanation: "Hash-based similarity. Sub-linear search time.", tags: ["hashing", "approximate", "fast"] },
-            { id: "dtw", name: "Dynamic Time Warping", category: "pattern", type: "Pattern", problem: "Compare time series with different speeds/lengths.", explanation: "Elastic matching of sequences. Handles temporal distortions.", tags: ["elastic", "alignment", "time-series"] },
-            { id: "hmm", name: "Hidden Markov Model", category: "pattern", type: "Pattern", problem: "Speech recognition phoneme sequences.", explanation: "Models sequential hidden states. Handles variable-length sequences.", tags: ["hidden-states", "sequential", "probabilistic"] },
-            { id: "crf", name: "Conditional Random Field", category: "pattern", type: "Pattern", problem: "Named entity recognition with sequence constraints.", explanation: "Structured prediction with global normalization. Models label dependencies.", tags: ["structured", "sequential", "dependencies"] },
-            { id: "attention", name: "Attention Mechanism", category: "pattern", type: "Pattern", problem: "Focus on relevant parts of input for translation.", explanation: "Learns what to focus on. Dynamic weighting of inputs.", tags: ["focus", "dynamic", "weighting"] },
-            { id: "contrastive", name: "Contrastive Learning", category: "pattern", type: "Similarity", problem: "Self-supervised visual representation learning.", explanation: "Learn by comparing similar/dissimilar pairs. No labels needed.", tags: ["self-supervised", "pairs", "representation"] },
-
-            // Error Correction & Robustness
-            { id: "dropout", name: "Dropout Network", category: "robust", type: "Regularization", problem: "Prevent overfitting in deep networks.", explanation: "Randomly drops neurons during training. Implicit ensemble.", tags: ["regularization", "ensemble", "standard"] },
-            { id: "bnn", name: "Bayesian Neural Network", category: "robust", type: "Uncertainty", problem: "Medical diagnosis with confidence intervals.", explanation: "Uncertainty quantification. Know when model is uncertain.", tags: ["bayesian", "uncertainty", "principled"] },
-            { id: "mcdropout", name: "Monte Carlo Dropout", category: "robust", type: "Uncertainty", problem: "Approximate uncertainty without full Bayesian training.", explanation: "Multiple forward passes with dropout. Approximates Bayesian inference.", tags: ["practical", "approximate", "easy"] },
-            { id: "huber", name: "Robust Regression (Huber)", category: "robust", type: "Regression", problem: "Predict sales with occasional data entry errors.", explanation: "Less sensitive to outliers than OLS. Combines L1 and L2 loss.", tags: ["robust", "outliers", "hybrid-loss"] },
-            { id: "ransac", name: "RANSAC", category: "robust", type: "Regression", problem: "Fit line to points with many outliers.", explanation: "Random sampling ignores outliers. Finds model fitting inliers only.", tags: ["outlier-robust", "sampling", "vision"] },
-            { id: "advtrain", name: "Adversarial Training", category: "robust", type: "Defense", problem: "Train image classifier robust to adversarial examples.", explanation: "Train on adversarial examples. Improves robustness.", tags: ["adversarial", "defense", "security"] },
-            { id: "mdn", name: "Mixture Density Network", category: "robust", type: "Regression", problem: "Model multi-modal output distributions.", explanation: "Outputs mixture of distributions. Handles multiple possible outputs.", tags: ["multimodal", "mixture", "flexible"] },
-            { id: "quantile", name: "Quantile Regression", category: "robust", type: "Regression", problem: "Predict delivery time with confidence bounds.", explanation: "Predicts specific quantiles. Full predictive distribution.", tags: ["quantiles", "distribution", "bounds"] },
-
-            // Dimensionality Reduction
-            { id: "pca", name: "PCA", category: "dimred", type: "Linear", problem: "Reduce 1000 gene expression features to top components.", explanation: "Linear projection maximizing variance. Fast computation. Interpretable.", tags: ["linear", "variance", "interpretable"] },
-            { id: "kernelpca", name: "Kernel PCA", category: "dimred", type: "Non-linear", problem: "Non-linear dimensionality reduction for visualization.", explanation: "PCA in kernel-induced feature space. Captures non-linear structure.", tags: ["kernel", "non-linear", "flexible"] },
-            { id: "tsne", name: "t-SNE", category: "dimred", type: "Visualization", problem: "Visualize clusters in high-dimensional single-cell data.", explanation: "Preserves local structure. Excellent for visualization.", tags: ["local", "visualization", "clusters"] },
-            { id: "umap", name: "UMAP", category: "dimred", type: "Visualization", problem: "Fast visualization of million-point datasets.", explanation: "Faster than t-SNE, preserves more global structure. Scalable.", tags: ["fast", "global", "scalable"] },
-            { id: "lda", name: "LDA", category: "dimred", type: "Supervised", problem: "Reduce features for multi-class classification.", explanation: "Maximizes class separability. Supervised dimensionality reduction.", tags: ["supervised", "separability", "classification"] },
-            { id: "fa", name: "Factor Analysis", category: "dimred", type: "Latent", problem: "Identify underlying factors in survey responses.", explanation: "Models latent factors causing observations. Statistical model.", tags: ["latent", "statistical", "psychometrics"] },
-            { id: "ica", name: "ICA", category: "dimred", type: "Blind Source", problem: "Separate mixed audio signals (cocktail party problem).", explanation: "Finds statistically independent components. Blind source separation.", tags: ["independent", "separation", "non-gaussian"] },
-            { id: "nmf", name: "NMF", category: "dimred", type: "Parts-based", problem: "Topic modeling from document-term matrices.", explanation: "Non-negative factorization. Parts-based representation.", tags: ["non-negative", "parts", "topics"] },
-            { id: "isomap", name: "Isomap", category: "dimred", type: "Manifold", problem: "Preserve geodesic distances in manifold learning.", explanation: "Non-linear based on geodesic distances. Unfolds curved manifolds.", tags: ["geodesic", "manifold", "global"] },
-            { id: "lle", name: "LLE", category: "dimred", type: "Manifold", problem: "Unfold swiss roll manifold for analysis.", explanation: "Preserves local linear structure. Recovers manifold structure.", tags: ["local", "manifold", "reconstruction"] },
-
-            // Anomaly Detection
-            { id: "iforest", name: "Isolation Forest", category: "anomaly", type: "Anomaly", problem: "Detect fraudulent credit card transactions.", explanation: "Isolates anomalies through random partitioning. Fast training and inference.", tags: ["isolation", "fast", "scalable"] },
-            { id: "lof", name: "Local Outlier Factor", category: "anomaly", type: "Anomaly", problem: "Detect manufacturing defects in production line.", explanation: "Compares local density to neighbors. Detects local anomalies.", tags: ["local", "density", "neighbors"] },
-            { id: "ocsvm_anom", name: "One-Class SVM", category: "anomaly", type: "Anomaly", problem: "Network intrusion detection from normal traffic.", explanation: "Learns boundary around normal data. Kernel trick for complex boundaries.", tags: ["boundary", "kernel", "one-class"] },
-            { id: "ae_anom", name: "Autoencoder Anomaly", category: "anomaly", type: "Anomaly", problem: "Detect anomalous sensor readings in IoT.", explanation: "High reconstruction error indicates anomaly. Learns normal patterns.", tags: ["reconstruction", "deep", "patterns"] },
-            { id: "elliptic", name: "Elliptic Envelope", category: "anomaly", type: "Anomaly", problem: "Detect outliers assuming Gaussian distribution.", explanation: "Fits minimum covariance ellipsoid. Simple parametric approach.", tags: ["gaussian", "parametric", "simple"] },
-            { id: "copod", name: "COPOD", category: "anomaly", type: "Anomaly", problem: "Fast anomaly detection on very large datasets.", explanation: "Copula-based outlier detection. Parameter-free. Very fast.", tags: ["copula", "fast", "parameter-free"] },
-
-            // Time Series
-            { id: "arima", name: "ARIMA", category: "timeseries", type: "Forecasting", problem: "Forecast monthly airline passengers.", explanation: "Captures trends and autocorrelation. Statistical foundation. Interpretable.", tags: ["statistical", "autocorrelation", "baseline"] },
-            { id: "sarima", name: "SARIMA", category: "timeseries", type: "Forecasting", problem: "Forecast retail sales with holiday seasonality.", explanation: "ARIMA with seasonal components. Handles multiple seasonal patterns.", tags: ["seasonal", "statistical", "standard"] },
-            { id: "ets", name: "Exponential Smoothing", category: "timeseries", type: "Forecasting", problem: "Short-term demand forecasting for inventory.", explanation: "Weighted average of past values. Simple and effective.", tags: ["smoothing", "simple", "fast"] },
-            { id: "prophet", name: "Prophet", category: "timeseries", type: "Forecasting", problem: "Business forecasting with holidays and changepoints.", explanation: "Handles missing data and outliers. Automatic seasonality detection.", tags: ["automatic", "holidays", "user-friendly"] },
-            { id: "var", name: "VAR", category: "timeseries", type: "Multivariate", problem: "Model relationships between economic indicators.", explanation: "Multivariate time series. Captures cross-correlations.", tags: ["multivariate", "cross-correlation", "economic"] },
-            { id: "garch", name: "GARCH", category: "timeseries", type: "Volatility", problem: "Model stock market volatility clustering.", explanation: "Captures volatility clustering. Time-varying variance.", tags: ["volatility", "finance", "variance"] },
-            { id: "tft", name: "Temporal Fusion Transformer", category: "timeseries", type: "Deep", problem: "Multi-horizon forecasting with interpretable attention.", explanation: "Transformer for time series. Handles multiple time scales.", tags: ["transformer", "interpretable", "multi-horizon"] },
-            { id: "nbeats", name: "N-BEATS", category: "timeseries", type: "Deep", problem: "Pure deep learning time series forecasting.", explanation: "Interpretable deep learning. Trend and seasonality decomposition.", tags: ["deep", "interpretable", "decomposition"] },
-            { id: "deepar", name: "DeepAR", category: "timeseries", type: "Probabilistic", problem: "Probabilistic demand forecasting across many products.", explanation: "Autoregressive RNN. Probabilistic forecasts. Many related series.", tags: ["probabilistic", "autoregressive", "amazon"] },
-
-            // Reinforcement Learning
-            { id: "qlearning", name: "Q-Learning", category: "rl", type: "Value-based", problem: "Train agent to navigate grid world.", explanation: "Learns action values. Off-policy learning. Foundation of deep RL.", tags: ["value", "off-policy", "foundation"] },
-            { id: "dqn", name: "DQN", category: "rl", type: "Value-based", problem: "Play Atari games from raw pixels.", explanation: "Q-learning with neural networks. Experience replay for stability.", tags: ["deep", "experience-replay", "breakthrough"] },
-            { id: "ddqn", name: "Double DQN", category: "rl", type: "Value-based", problem: "Reduce overestimation in game playing.", explanation: "Separate networks for selection/evaluation. Reduces overestimation.", tags: ["double", "stable", "improved"] },
-            { id: "duelingdqn", name: "Dueling DQN", category: "rl", type: "Value-based", problem: "Improve sample efficiency in complex environments.", explanation: "Separate state value and advantage. Better generalization.", tags: ["dueling", "efficient", "architecture"] },
-            { id: "pg", name: "Policy Gradient", category: "rl", type: "Policy-based", problem: "Learn continuous control policies.", explanation: "Directly optimizes policy. Handles continuous actions.", tags: ["policy", "continuous", "direct"] },
-            { id: "a3c", name: "A3C/A2C", category: "rl", type: "Actor-Critic", problem: "Parallel training for robot locomotion.", explanation: "Combines value and policy learning. Parallel training.", tags: ["parallel", "actor-critic", "efficient"] },
-            { id: "ppo", name: "PPO", category: "rl", type: "Actor-Critic", problem: "Stable training for complex robotics tasks.", explanation: "Clipped objective for stability. Easy to tune. Standard for control.", tags: ["stable", "clipped", "standard"] },
-            { id: "sac", name: "SAC", category: "rl", type: "Actor-Critic", problem: "Sample-efficient robot learning.", explanation: "Maximum entropy RL. Better exploration. State-of-art efficiency.", tags: ["entropy", "exploration", "efficient"] },
-            { id: "td3", name: "TD3", category: "rl", type: "Actor-Critic", problem: "Stable continuous control with function approximation.", explanation: "Twin critics reduce overestimation. Delayed policy updates.", tags: ["twin", "delayed", "stable"] },
-
-            // Recommendation Systems
-            { id: "cf", name: "Collaborative Filtering", category: "recommend", type: "Recommendation", problem: "Netflix movie recommendations based on similar users.", explanation: "Uses user-item interactions. No content features needed.", tags: ["user-based", "item-based", "classic"] },
-            { id: "mf", name: "Matrix Factorization", category: "recommend", type: "Recommendation", problem: "Discover latent factors in user-movie ratings.", explanation: "Learns user/item embeddings. Handles sparse data.", tags: ["embeddings", "latent", "netflix-prize"] },
-            { id: "svdpp", name: "SVD++", category: "recommend", type: "Recommendation", problem: "Improve accuracy using implicit feedback.", explanation: "Combines explicit and implicit signals. Better than pure SVD.", tags: ["implicit", "hybrid", "improved"] },
-            { id: "contentbased", name: "Content-Based Filtering", category: "recommend", type: "Recommendation", problem: "Recommend articles based on reading history.", explanation: "Uses item features. Cold start for new items. Interpretable.", tags: ["features", "cold-start", "interpretable"] },
-            { id: "ncf", name: "Neural Collaborative Filtering", category: "recommend", type: "Recommendation", problem: "Deep learning for user-item interactions.", explanation: "Non-linear interaction modeling. Combines multiple objectives.", tags: ["deep", "non-linear", "flexible"] },
-            { id: "fm", name: "Factorization Machines", category: "recommend", type: "Recommendation", problem: "Recommendations with rich feature interactions.", explanation: "Models all pairwise interactions. Handles sparse features.", tags: ["interactions", "sparse", "general"] },
-            { id: "twotower", name: "Two-Tower Model", category: "recommend", type: "Recommendation", problem: "Large-scale retrieval (YouTube recommendations).", explanation: "Separate user and item towers. Efficient retrieval.", tags: ["retrieval", "scalable", "youtube"] },
+            { id: "dtw", name: "Dynamic Time Warping", category: "pattern", type: "Pattern", problem: "Compare time series with different speeds/lengths.", explanation: "Elastic matching of sequences.", tags: ["elastic", "alignment", "time-series"] },
+            { id: "hmm", name: "Hidden Markov Model", category: "pattern", type: "Pattern", problem: "Speech recognition phoneme sequences.", explanation: "Models sequential hidden states.", tags: ["hidden-states", "sequential", "probabilistic"] },
+            { id: "crf", name: "Conditional Random Field", category: "pattern", type: "Pattern", problem: "Named entity recognition with sequence constraints.", explanation: "Structured prediction with global normalization.", tags: ["structured", "sequential", "dependencies"] },
+            { id: "attention", name: "Attention Mechanism", category: "pattern", type: "Pattern", problem: "Focus on relevant parts of input for translation.", explanation: "Learns what to focus on.", tags: ["focus", "dynamic", "weighting"] },
+            { id: "contrastive", name: "Contrastive Learning", category: "pattern", type: "Similarity", problem: "Self-supervised visual representation learning.", explanation: "Learn by comparing similar/dissimilar pairs.", tags: ["self-supervised", "pairs", "representation"] },
+            { id: "dropout", name: "Dropout Network", category: "robust", type: "Regularization", problem: "Prevent overfitting in deep networks.", explanation: "Randomly drops neurons during training.", tags: ["regularization", "ensemble", "standard"] },
+            { id: "bnn", name: "Bayesian Neural Network", category: "robust", type: "Uncertainty", problem: "Medical diagnosis with confidence intervals.", explanation: "Uncertainty quantification.", tags: ["bayesian", "uncertainty", "principled"] },
+            { id: "mcdropout", name: "Monte Carlo Dropout", category: "robust", type: "Uncertainty", problem: "Approximate uncertainty without full Bayesian training.", explanation: "Multiple forward passes with dropout.", tags: ["practical", "approximate", "easy"] },
+            { id: "huber", name: "Robust Regression (Huber)", category: "robust", type: "Regression", problem: "Predict sales with occasional data entry errors.", explanation: "Less sensitive to outliers than OLS.", tags: ["robust", "outliers", "hybrid-loss"] },
+            { id: "ransac", name: "RANSAC", category: "robust", type: "Regression", problem: "Fit line to points with many outliers.", explanation: "Random sampling ignores outliers.", tags: ["outlier-robust", "sampling", "vision"] },
+            { id: "advtrain", name: "Adversarial Training", category: "robust", type: "Defense", problem: "Train image classifier robust to adversarial examples.", explanation: "Train on adversarial examples.", tags: ["adversarial", "defense", "security"] },
+            { id: "mdn", name: "Mixture Density Network", category: "robust", type: "Regression", problem: "Model multi-modal output distributions.", explanation: "Outputs mixture of distributions.", tags: ["multimodal", "mixture", "flexible"] },
+            { id: "quantile", name: "Quantile Regression", category: "robust", type: "Regression", problem: "Predict delivery time with confidence bounds.", explanation: "Predicts specific quantiles.", tags: ["quantiles", "distribution", "bounds"] },
+            { id: "pca", name: "PCA", category: "dimred", type: "Linear", problem: "Reduce 1000 gene expression features to top components.", explanation: "Linear projection maximizing variance.", tags: ["linear", "variance", "interpretable"] },
+            { id: "kernelpca", name: "Kernel PCA", category: "dimred", type: "Non-linear", problem: "Non-linear dimensionality reduction for visualization.", explanation: "PCA in kernel-induced feature space.", tags: ["kernel", "non-linear", "flexible"] },
+            { id: "tsne", name: "t-SNE", category: "dimred", type: "Visualization", problem: "Visualize clusters in high-dimensional single-cell data.", explanation: "Preserves local structure.", tags: ["local", "visualization", "clusters"] },
+            { id: "umap", name: "UMAP", category: "dimred", type: "Visualization", problem: "Fast visualization of million-point datasets.", explanation: "Faster than t-SNE, preserves more global structure.", tags: ["fast", "global", "scalable"] },
+            { id: "lda", name: "LDA", category: "dimred", type: "Supervised", problem: "Reduce features for multi-class classification.", explanation: "Maximizes class separability.", tags: ["supervised", "separability", "classification"] },
+            { id: "fa", name: "Factor Analysis", category: "dimred", type: "Latent", problem: "Identify underlying factors in survey responses.", explanation: "Models latent factors.", tags: ["latent", "statistical", "psychometrics"] },
+            { id: "ica", name: "ICA", category: "dimred", type: "Blind Source", problem: "Separate mixed audio signals (cocktail party problem).", explanation: "Finds statistically independent components.", tags: ["independent", "separation", "non-gaussian"] },
+            { id: "nmf", name: "NMF", category: "dimred", type: "Parts-based", problem: "Topic modeling from document-term matrices.", explanation: "Non-negative factorization.", tags: ["non-negative", "parts", "topics"] },
+            { id: "isomap", name: "Isomap", category: "dimred", type: "Manifold", problem: "Preserve geodesic distances in manifold learning.", explanation: "Non-linear based on geodesic distances.", tags: ["geodesic", "manifold", "global"] },
+            { id: "lle", name: "LLE", category: "dimred", type: "Manifold", problem: "Unfold swiss roll manifold for analysis.", explanation: "Preserves local linear structure.", tags: ["local", "manifold", "reconstruction"] },
+            { id: "iforest", name: "Isolation Forest", category: "anomaly", type: "Anomaly", problem: "Detect fraudulent credit card transactions.", explanation: "Isolates anomalies through random partitioning.", tags: ["isolation", "fast", "scalable"] },
+            { id: "lof", name: "Local Outlier Factor", category: "anomaly", type: "Anomaly", problem: "Detect manufacturing defects in production line.", explanation: "Compares local density to neighbors.", tags: ["local", "density", "neighbors"] },
+            { id: "ocsvm_anom", name: "One-Class SVM", category: "anomaly", type: "Anomaly", problem: "Network intrusion detection from normal traffic.", explanation: "Learns boundary around normal data.", tags: ["boundary", "kernel", "one-class"] },
+            { id: "ae_anom", name: "Autoencoder Anomaly", category: "anomaly", type: "Anomaly", problem: "Detect anomalous sensor readings in IoT.", explanation: "High reconstruction error indicates anomaly.", tags: ["reconstruction", "deep", "patterns"] },
+            { id: "elliptic", name: "Elliptic Envelope", category: "anomaly", type: "Anomaly", problem: "Detect outliers assuming Gaussian distribution.", explanation: "Fits minimum covariance ellipsoid.", tags: ["gaussian", "parametric", "simple"] },
+            { id: "copod", name: "COPOD", category: "anomaly", type: "Anomaly", problem: "Fast anomaly detection on very large datasets.", explanation: "Copula-based outlier detection.", tags: ["copula", "fast", "parameter-free"] },
+            { id: "arima", name: "ARIMA", category: "timeseries", type: "Forecasting", problem: "Forecast monthly airline passengers.", explanation: "Captures trends and autocorrelation.", tags: ["statistical", "autocorrelation", "baseline"] },
+            { id: "sarima", name: "SARIMA", category: "timeseries", type: "Forecasting", problem: "Forecast retail sales with holiday seasonality.", explanation: "ARIMA with seasonal components.", tags: ["seasonal", "statistical", "standard"] },
+            { id: "ets", name: "Exponential Smoothing", category: "timeseries", type: "Forecasting", problem: "Short-term demand forecasting for inventory.", explanation: "Weighted average of past values.", tags: ["smoothing", "simple", "fast"] },
+            { id: "prophet", name: "Prophet", category: "timeseries", type: "Forecasting", problem: "Business forecasting with holidays and changepoints.", explanation: "Handles missing data and outliers.", tags: ["automatic", "holidays", "user-friendly"] },
+            { id: "var", name: "VAR", category: "timeseries", type: "Multivariate", problem: "Model relationships between economic indicators.", explanation: "Multivariate time series.", tags: ["multivariate", "cross-correlation", "economic"] },
+            { id: "garch", name: "GARCH", category: "timeseries", type: "Volatility", problem: "Model stock market volatility clustering.", explanation: "Captures volatility clustering.", tags: ["volatility", "finance", "variance"] },
+            { id: "tft", name: "Temporal Fusion Transformer", category: "timeseries", type: "Deep", problem: "Multi-horizon forecasting with interpretable attention.", explanation: "Transformer for time series.", tags: ["transformer", "interpretable", "multi-horizon"] },
+            { id: "nbeats", name: "N-BEATS", category: "timeseries", type: "Deep", problem: "Pure deep learning time series forecasting.", explanation: "Interpretable deep learning.", tags: ["deep", "interpretable", "decomposition"] },
+            { id: "deepar", name: "DeepAR", category: "timeseries", type: "Probabilistic", problem: "Probabilistic demand forecasting across many products.", explanation: "Autoregressive RNN. Probabilistic forecasts.", tags: ["probabilistic", "autoregressive", "amazon"] },
+            { id: "qlearning", name: "Q-Learning", category: "rl", type: "Value-based", problem: "Train agent to navigate grid world.", explanation: "Learns action values. Off-policy learning.", tags: ["value", "off-policy", "foundation"] },
+            { id: "dqn", name: "DQN", category: "rl", type: "Value-based", problem: "Play Atari games from raw pixels.", explanation: "Q-learning with neural networks.", tags: ["deep", "experience-replay", "breakthrough"] },
+            { id: "ddqn", name: "Double DQN", category: "rl", type: "Value-based", problem: "Reduce overestimation in game playing.", explanation: "Separate networks for selection/evaluation.", tags: ["double", "stable", "improved"] },
+            { id: "duelingdqn", name: "Dueling DQN", category: "rl", type: "Value-based", problem: "Improve sample efficiency in complex environments.", explanation: "Separate state value and advantage.", tags: ["dueling", "efficient", "architecture"] },
+            { id: "pg", name: "Policy Gradient", category: "rl", type: "Policy-based", problem: "Learn continuous control policies.", explanation: "Directly optimizes policy.", tags: ["policy", "continuous", "direct"] },
+            { id: "a3c", name: "A3C/A2C", category: "rl", type: "Actor-Critic", problem: "Parallel training for robot locomotion.", explanation: "Combines value and policy learning.", tags: ["parallel", "actor-critic", "efficient"] },
+            { id: "ppo", name: "PPO", category: "rl", type: "Actor-Critic", problem: "Stable training for complex robotics tasks.", explanation: "Clipped objective for stability.", tags: ["stable", "clipped", "standard"] },
+            { id: "sac", name: "SAC", category: "rl", type: "Actor-Critic", problem: "Sample-efficient robot learning.", explanation: "Maximum entropy RL. Better exploration.", tags: ["entropy", "exploration", "efficient"] },
+            { id: "td3", name: "TD3", category: "rl", type: "Actor-Critic", problem: "Stable continuous control with function approximation.", explanation: "Twin critics reduce overestimation.", tags: ["twin", "delayed", "stable"] },
+            { id: "cf", name: "Collaborative Filtering", category: "recommend", type: "Recommendation", problem: "Netflix movie recommendations based on similar users.", explanation: "Uses user-item interactions.", tags: ["user-based", "item-based", "classic"] },
+            { id: "mf", name: "Matrix Factorization", category: "recommend", type: "Recommendation", problem: "Discover latent factors in user-movie ratings.", explanation: "Learns user/item embeddings.", tags: ["embeddings", "latent", "netflix-prize"] },
+            { id: "svdpp", name: "SVD++", category: "recommend", type: "Recommendation", problem: "Improve accuracy using implicit feedback.", explanation: "Combines explicit and implicit signals.", tags: ["implicit", "hybrid", "improved"] },
+            { id: "contentbased", name: "Content-Based Filtering", category: "recommend", type: "Recommendation", problem: "Recommend articles based on reading history.", explanation: "Uses item features.", tags: ["features", "cold-start", "interpretable"] },
+            { id: "ncf", name: "Neural Collaborative Filtering", category: "recommend", type: "Recommendation", problem: "Deep learning for user-item interactions.", explanation: "Non-linear interaction modeling.", tags: ["deep", "non-linear", "flexible"] },
+            { id: "fm", name: "Factorization Machines", category: "recommend", type: "Recommendation", problem: "Recommendations with rich feature interactions.", explanation: "Models all pairwise interactions.", tags: ["interactions", "sparse", "general"] },
+            { id: "twotower", name: "Two-Tower Model", category: "recommend", type: "Recommendation", problem: "Large-scale retrieval (YouTube recommendations).", explanation: "Separate user and item towers.", tags: ["retrieval", "scalable", "youtube"] },
             { id: "widedeep", name: "Wide & Deep", category: "recommend", type: "Recommendation", problem: "Combine memorization and generalization.", explanation: "Wide for memorization, deep for generalization.", tags: ["hybrid", "google", "memorization"] }
         ];
 
-        // Color map for categories
         const colorMap = {};
         categories.forEach(cat => colorMap[cat.id] = cat.color);
 
-        // State
-        let simulation;
-        let svg, g;
-        let nodes, links;
-        let currentView = 'force';
-        let selectedCategory = null;
-        let selectedNode = null;
-        let zoom;
+        let simulation, svg, g, nodes, links, zoom;
+        let currentView = 'force', selectedCategory = null, selectedNode = null;
+        let isMobile = window.innerWidth <= 768, legendCollapsed = isMobile;
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            initGraph();
-            initLegend();
-            initEventListeners();
-            updateStats();
-            
+            initGraph(); initLegend(); initEventListeners(); updateStats();
+            if (isMobile) document.getElementById('legend').classList.add('collapsed');
             setTimeout(() => {
                 document.getElementById('loading').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('loading').style.display = 'none';
-                }, 500);
+                setTimeout(() => document.getElementById('loading').style.display = 'none', 500);
             }, 1000);
         });
 
         function initGraph() {
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-
-            svg = d3.select('#graph-container')
-                .append('svg')
-                .attr('width', width)
-                .attr('height', height);
-
-            // Add glow filter
+            const width = window.innerWidth, height = window.innerHeight;
+            svg = d3.select('#graph-container').append('svg').attr('width', width).attr('height', height);
             const defs = svg.append('defs');
-            const filter = defs.append('filter')
-                .attr('id', 'glow');
-            filter.append('feGaussianBlur')
-                .attr('stdDeviation', '3')
-                .attr('result', 'coloredBlur');
+            const filter = defs.append('filter').attr('id', 'glow');
+            filter.append('feGaussianBlur').attr('stdDeviation', '3').attr('result', 'coloredBlur');
             const feMerge = filter.append('feMerge');
             feMerge.append('feMergeNode').attr('in', 'coloredBlur');
             feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
-
-            // Zoom behavior
-            zoom = d3.zoom()
-                .scaleExtent([0.2, 4])
-                .on('zoom', (event) => {
-                    g.attr('transform', event.transform);
-                });
-
-            svg.call(zoom);
-
+            zoom = d3.zoom().scaleExtent([0.2, 4]).on('zoom', (event) => g.attr('transform', event.transform));
+            svg.call(zoom).on('dblclick.zoom', null);
             g = svg.append('g');
-
-            // Create links data (connect models in same category)
-            const linkData = [];
-            const categoryModels = {};
-            models.forEach(m => {
-                if (!categoryModels[m.category]) categoryModels[m.category] = [];
-                categoryModels[m.category].push(m.id);
-            });
-
-            Object.values(categoryModels).forEach(catModels => {
-                for (let i = 0; i < catModels.length - 1; i++) {
-                    linkData.push({ source: catModels[i], target: catModels[i + 1] });
-                }
-            });
-
-            // Create links
-            links = g.append('g')
-                .selectAll('line')
-                .data(linkData)
-                .enter()
-                .append('line')
-                .attr('class', 'link');
-
-            // Create nodes
-            nodes = g.append('g')
-                .selectAll('.node')
-                .data(models)
-                .enter()
-                .append('g')
-                .attr('class', 'node')
-                .call(d3.drag()
-                    .on('start', dragStarted)
-                    .on('drag', dragged)
-                    .on('end', dragEnded));
-
-            nodes.append('circle')
-                .attr('r', d => 8 + Math.random() * 6)
-                .attr('fill', d => colorMap[d.category])
-                .attr('filter', 'url(#glow)')
-                .style('opacity', 0.9);
-
-            nodes.append('text')
-                .text(d => d.name.length > 12 ? d.name.substring(0, 10) + '...' : d.name)
-                .attr('dy', 25)
-                .style('opacity', 0.8);
-
-            // Events
-            nodes.on('click', (event, d) => {
-                event.stopPropagation();
-                showDetail(d);
-            });
-
-            nodes.on('mouseenter', (event, d) => {
-                showTooltip(event, d);
-                highlightConnections(d);
-            });
-
-            nodes.on('mouseleave', () => {
-                hideTooltip();
-                if (!selectedCategory) resetHighlight();
-            });
-
-            // Initialize simulation
+            const linkData = [], categoryModels = {};
+            models.forEach(m => { if (!categoryModels[m.category]) categoryModels[m.category] = []; categoryModels[m.category].push(m.id); });
+            Object.values(categoryModels).forEach(catModels => { for (let i = 0; i < catModels.length - 1; i++) linkData.push({ source: catModels[i], target: catModels[i + 1] }); });
+            links = g.append('g').selectAll('line').data(linkData).enter().append('line').attr('class', 'link');
+            const nodeRadius = isMobile ? 10 : 8;
+            nodes = g.append('g').selectAll('.node').data(models).enter().append('g').attr('class', 'node')
+                .call(d3.drag().on('start', dragStarted).on('drag', dragged).on('end', dragEnded));
+            nodes.append('circle').attr('r', d => nodeRadius + Math.random() * 4).attr('fill', d => colorMap[d.category]).attr('filter', 'url(#glow)').style('opacity', 0.9);
+            nodes.append('text').text(d => d.name.length > 10 ? d.name.substring(0, 8) + '...' : d.name).attr('dy', isMobile ? 22 : 25).style('opacity', 0.8);
+            nodes.on('click', (event, d) => { event.stopPropagation(); showDetail(d); });
+            if (!isMobile) {
+                nodes.on('mouseenter', (event, d) => { showTooltip(event, d); highlightConnections(d); });
+                nodes.on('mouseleave', () => { hideTooltip(); if (!selectedCategory) resetHighlight(); });
+            }
+            const chargeStrength = isMobile ? -100 : -150, linkDistance = isMobile ? 40 : 50;
             simulation = d3.forceSimulation(models)
-                .force('link', d3.forceLink(linkData).id(d => d.id).distance(50).strength(0.3))
-                .force('charge', d3.forceManyBody().strength(-150))
+                .force('link', d3.forceLink(linkData).id(d => d.id).distance(linkDistance).strength(0.3))
+                .force('charge', d3.forceManyBody().strength(chargeStrength))
                 .force('center', d3.forceCenter(width / 2, height / 2))
-                .force('collision', d3.forceCollide().radius(30))
+                .force('collision', d3.forceCollide().radius(isMobile ? 25 : 30))
                 .on('tick', ticked);
-
-            // Click on background to deselect
-            svg.on('click', () => {
-                closeDetail();
-                selectedCategory = null;
-                resetHighlight();
-                updateLegend();
-            });
+            svg.on('click', () => { closeDetail(); selectedCategory = null; resetHighlight(); updateLegend(); });
         }
 
         function ticked() {
-            links
-                .attr('x1', d => d.source.x)
-                .attr('y1', d => d.source.y)
-                .attr('x2', d => d.target.x)
-                .attr('y2', d => d.target.y);
-
+            links.attr('x1', d => d.source.x).attr('y1', d => d.source.y).attr('x2', d => d.target.x).attr('y2', d => d.target.y);
             nodes.attr('transform', d => `translate(${d.x},${d.y})`);
         }
 
-        function dragStarted(event, d) {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            d.fx = d.x;
-            d.fy = d.y;
-        }
-
-        function dragged(event, d) {
-            d.fx = event.x;
-            d.fy = event.y;
-        }
-
-        function dragEnded(event, d) {
-            if (!event.active) simulation.alphaTarget(0);
-            d.fx = null;
-            d.fy = null;
-        }
+        function dragStarted(event, d) { if (!event.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; }
+        function dragged(event, d) { d.fx = event.x; d.fy = event.y; }
+        function dragEnded(event, d) { if (!event.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; }
 
         function initLegend() {
             const container = document.getElementById('legend-items');
-            
             categories.forEach(cat => {
                 const count = models.filter(m => m.category === cat.id).length;
                 const item = document.createElement('div');
-                item.className = 'legend-item';
-                item.dataset.category = cat.id;
-                item.innerHTML = `
-                    <div class="legend-dot" style="background: ${cat.color}; color: ${cat.color};"></div>
-                    <span class="legend-text">${cat.name}</span>
-                    <span class="legend-count">${count}</span>
-                `;
-                item.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    toggleCategory(cat.id);
-                });
+                item.className = 'legend-item'; item.dataset.category = cat.id;
+                item.innerHTML = `<div class="legend-dot" style="background: ${cat.color}; color: ${cat.color};"></div><span class="legend-text">${cat.name}</span><span class="legend-count">${count}</span>`;
+                item.addEventListener('click', (e) => { e.stopPropagation(); toggleCategory(cat.id); if (isMobile) toggleLegend(); });
                 container.appendChild(item);
             });
         }
 
+        function toggleLegend() {
+            legendCollapsed = !legendCollapsed;
+            const legend = document.getElementById('legend'), toggle = document.getElementById('legend-toggle');
+            if (legendCollapsed) { legend.classList.add('collapsed'); toggle.classList.remove('active'); toggle.innerHTML = '☰'; }
+            else { legend.classList.remove('collapsed'); toggle.classList.add('active'); toggle.innerHTML = '✕'; }
+        }
+
         function updateLegend() {
             document.querySelectorAll('.legend-item').forEach(item => {
-                if (selectedCategory === null) {
-                    item.classList.remove('active', 'dimmed');
-                } else if (item.dataset.category === selectedCategory) {
-                    item.classList.add('active');
-                    item.classList.remove('dimmed');
-                } else {
-                    item.classList.remove('active');
-                    item.classList.add('dimmed');
-                }
+                if (selectedCategory === null) item.classList.remove('active', 'dimmed');
+                else if (item.dataset.category === selectedCategory) { item.classList.add('active'); item.classList.remove('dimmed'); }
+                else { item.classList.remove('active'); item.classList.add('dimmed'); }
             });
         }
 
         function toggleCategory(catId) {
-            if (selectedCategory === catId) {
-                selectedCategory = null;
-                resetHighlight();
-            } else {
-                selectedCategory = catId;
-                filterByCategory(catId);
-            }
-            updateLegend();
-            updateStats();
+            if (selectedCategory === catId) { selectedCategory = null; resetHighlight(); }
+            else { selectedCategory = catId; filterByCategory(catId); }
+            updateLegend(); updateStats();
         }
 
         function filterByCategory(catId) {
-            nodes.classed('dimmed', d => d.category !== catId);
-            nodes.classed('highlighted', d => d.category === catId);
+            nodes.classed('dimmed', d => d.category !== catId).classed('highlighted', d => d.category === catId);
             links.classed('dimmed', d => d.source.category !== catId || d.target.category !== catId);
         }
 
         function highlightConnections(node) {
-            nodes.classed('dimmed', d => d.category !== node.category);
-            nodes.classed('highlighted', d => d.id === node.id);
-            links.classed('highlighted', d => 
-                (d.source.id === node.id || d.target.id === node.id));
-            links.classed('dimmed', d => 
-                d.source.category !== node.category || d.target.category !== node.category);
+            nodes.classed('dimmed', d => d.category !== node.category).classed('highlighted', d => d.id === node.id);
+            links.classed('highlighted', d => d.source.id === node.id || d.target.id === node.id).classed('dimmed', d => d.source.category !== node.category || d.target.category !== node.category);
         }
 
-        function resetHighlight() {
-            nodes.classed('dimmed', false).classed('highlighted', false);
-            links.classed('dimmed', false).classed('highlighted', false);
-        }
+        function resetHighlight() { nodes.classed('dimmed', false).classed('highlighted', false); links.classed('dimmed', false).classed('highlighted', false); }
 
         function showTooltip(event, d) {
-            const tooltip = document.getElementById('tooltip');
-            const cat = categories.find(c => c.id === d.category);
-            tooltip.innerHTML = `
-                <div class="tooltip-title">${d.name}</div>
-                <div class="tooltip-category" style="color: ${cat.color}">${cat.name}</div>
-            `;
-            tooltip.style.left = (event.pageX + 15) + 'px';
-            tooltip.style.top = (event.pageY + 15) + 'px';
-            tooltip.classList.add('visible');
+            if (isMobile) return;
+            const tooltip = document.getElementById('tooltip'), cat = categories.find(c => c.id === d.category);
+            tooltip.innerHTML = `<div class="tooltip-title">${d.name}</div><div class="tooltip-category" style="color: ${cat.color}">${cat.name}</div>`;
+            tooltip.style.left = (event.pageX + 15) + 'px'; tooltip.style.top = (event.pageY + 15) + 'px'; tooltip.classList.add('visible');
         }
 
-        function hideTooltip() {
-            document.getElementById('tooltip').classList.remove('visible');
-        }
+        function hideTooltip() { document.getElementById('tooltip').classList.remove('visible'); }
 
         function showDetail(model) {
             selectedNode = model;
-            const panel = document.getElementById('detail-panel');
-            const cat = categories.find(c => c.id === model.category);
-            
-            // Find related models
-            const related = models.filter(m => m.category === model.category && m.id !== model.id).slice(0, 5);
-            
+            const panel = document.getElementById('detail-panel'), cat = categories.find(c => c.id === model.category);
+            const related = models.filter(m => m.category === model.category && m.id !== model.id).slice(0, 4);
             document.getElementById('panel-content').innerHTML = `
-                <div class="panel-category" style="background: ${cat.color}20; color: ${cat.color}; border: 1px solid ${cat.color}40;">
-                    ${cat.name}
-                </div>
+                <div class="panel-category" style="background: ${cat.color}20; color: ${cat.color}; border: 1px solid ${cat.color}40;">${cat.name}</div>
                 <h2 class="panel-title">${model.name}</h2>
-                <div class="panel-type">
-                    <span class="panel-type-badge">${model.type}</span>
-                </div>
-                
-                <div class="panel-section">
-                    <h4>Sample Problem</h4>
-                    <p class="panel-problem">${model.problem}</p>
-                </div>
-                
-                <div class="panel-section">
-                    <h4>Why Best Suited</h4>
-                    <p>${model.explanation}</p>
-                </div>
-                
-                <div class="panel-section">
-                    <h4>Key Attributes</h4>
-                    <div class="panel-tags">
-                        ${model.tags.map(tag => `<span class="panel-tag">${tag}</span>`).join('')}
-                    </div>
-                </div>
-                
-                ${related.length > 0 ? `
-                <div class="panel-section">
-                    <h4>Related Models</h4>
-                    <div class="related-models">
-                        ${related.map(r => `
-                            <div class="related-model" onclick="showDetail(models.find(m => m.id === '${r.id}'))">
-                                <div class="related-dot" style="background: ${cat.color}"></div>
-                                <span class="related-name">${r.name}</span>
-                                <span class="related-arrow">→</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-                ` : ''}
-            `;
-            
+                <div class="panel-type"><span class="panel-type-badge">${model.type}</span></div>
+                <div class="panel-section"><h4>Sample Problem</h4><p class="panel-problem">${model.problem}</p></div>
+                <div class="panel-section"><h4>Why Best Suited</h4><p>${model.explanation}</p></div>
+                <div class="panel-section"><h4>Key Attributes</h4><div class="panel-tags">${model.tags.map(tag => `<span class="panel-tag">${tag}</span>`).join('')}</div></div>
+                ${related.length > 0 ? `<div class="panel-section"><h4>Related Models</h4><div class="related-models">${related.map(r => `<div class="related-model" onclick="showDetail(models.find(m => m.id === '${r.id}'))"><div class="related-dot" style="background: ${cat.color}"></div><span class="related-name">${r.name}</span><span class="related-arrow">→</span></div>`).join('')}</div></div>` : ''}`;
             panel.classList.add('open');
         }
 
-        function closeDetail() {
-            document.getElementById('detail-panel').classList.remove('open');
-            selectedNode = null;
-        }
+        function closeDetail() { document.getElementById('detail-panel').classList.remove('open'); selectedNode = null; }
 
         function initEventListeners() {
-            // Search
+            document.getElementById('legend-toggle').addEventListener('click', (e) => { e.stopPropagation(); toggleLegend(); });
             document.getElementById('search').addEventListener('input', (e) => {
                 const query = e.target.value.toLowerCase();
-                if (query === '') {
-                    resetHighlight();
-                    if (selectedCategory) filterByCategory(selectedCategory);
-                    updateStats();
-                    return;
-                }
-                
-                nodes.classed('dimmed', d => 
-                    !d.name.toLowerCase().includes(query) && 
-                    !d.category.toLowerCase().includes(query) &&
-                    !d.tags.some(t => t.toLowerCase().includes(query))
-                );
-                nodes.classed('highlighted', d => 
-                    d.name.toLowerCase().includes(query) || 
-                    d.tags.some(t => t.toLowerCase().includes(query))
-                );
+                if (query === '') { resetHighlight(); if (selectedCategory) filterByCategory(selectedCategory); updateStats(); return; }
+                nodes.classed('dimmed', d => !d.name.toLowerCase().includes(query) && !d.category.toLowerCase().includes(query) && !d.tags.some(t => t.toLowerCase().includes(query)));
+                nodes.classed('highlighted', d => d.name.toLowerCase().includes(query) || d.tags.some(t => t.toLowerCase().includes(query)));
                 updateStats();
             });
-
-            // View toggle
+            if (isMobile) document.getElementById('search').addEventListener('focus', () => { if (!legendCollapsed) toggleLegend(); });
             document.querySelectorAll('.view-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    changeView(btn.dataset.view);
-                });
+                btn.addEventListener('click', () => { document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); changeView(btn.dataset.view); });
             });
-
-            // Close panel
             document.getElementById('panel-close').addEventListener('click', closeDetail);
-
-            // Zoom controls
-            document.getElementById('zoom-in').addEventListener('click', () => {
-                svg.transition().call(zoom.scaleBy, 1.5);
-            });
-            document.getElementById('zoom-out').addEventListener('click', () => {
-                svg.transition().call(zoom.scaleBy, 0.67);
-            });
-            document.getElementById('zoom-reset').addEventListener('click', () => {
-                svg.transition().call(zoom.transform, d3.zoomIdentity);
-            });
-
-            // Keyboard
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    closeDetail();
-                    selectedCategory = null;
-                    resetHighlight();
-                    updateLegend();
-                    document.getElementById('search').value = '';
-                    updateStats();
-                }
-            });
-
-            // Window resize
+            document.getElementById('zoom-in').addEventListener('click', () => svg.transition().duration(300).call(zoom.scaleBy, 1.5));
+            document.getElementById('zoom-out').addEventListener('click', () => svg.transition().duration(300).call(zoom.scaleBy, 0.67));
+            document.getElementById('zoom-reset').addEventListener('click', () => svg.transition().duration(300).call(zoom.transform, d3.zoomIdentity));
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeDetail(); selectedCategory = null; resetHighlight(); updateLegend(); document.getElementById('search').value = ''; updateStats(); } });
+            let resizeTimeout;
             window.addEventListener('resize', () => {
-                const width = window.innerWidth;
-                const height = window.innerHeight;
-                svg.attr('width', width).attr('height', height);
-                simulation.force('center', d3.forceCenter(width / 2, height / 2));
-                simulation.alpha(0.3).restart();
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    const width = window.innerWidth, height = window.innerHeight, wasMobile = isMobile;
+                    isMobile = width <= 768;
+                    svg.attr('width', width).attr('height', height);
+                    simulation.force('center', d3.forceCenter(width / 2, height / 2)).alpha(0.3).restart();
+                    if (isMobile !== wasMobile && isMobile && !legendCollapsed) toggleLegend();
+                }, 250);
             });
+            document.getElementById('graph-container').addEventListener('touchmove', (e) => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
         }
 
         function changeView(view) {
             currentView = view;
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-
+            const width = window.innerWidth, height = window.innerHeight;
             simulation.stop();
-
             if (view === 'force') {
-                simulation
-                    .force('link', d3.forceLink().id(d => d.id).distance(50).strength(0.3))
-                    .force('charge', d3.forceManyBody().strength(-150))
-                    .force('center', d3.forceCenter(width / 2, height / 2))
-                    .force('x', null)
-                    .force('y', null)
-                    .alpha(1)
-                    .restart();
+                simulation.force('link', d3.forceLink().id(d => d.id).distance(isMobile ? 40 : 50).strength(0.3))
+                    .force('charge', d3.forceManyBody().strength(isMobile ? -100 : -150))
+                    .force('center', d3.forceCenter(width / 2, height / 2)).force('x', null).force('y', null).alpha(1).restart();
             } else if (view === 'radial') {
-                const categoryAngles = {};
-                categories.forEach((cat, i) => {
-                    categoryAngles[cat.id] = (i / categories.length) * 2 * Math.PI - Math.PI / 2;
-                });
-
-                models.forEach(d => {
-                    const angle = categoryAngles[d.category];
-                    const radius = 250 + Math.random() * 100;
-                    d.targetX = width / 2 + Math.cos(angle) * radius;
-                    d.targetY = height / 2 + Math.sin(angle) * radius;
-                });
-
-                simulation
-                    .force('link', null)
-                    .force('charge', d3.forceManyBody().strength(-30))
-                    .force('center', null)
-                    .force('x', d3.forceX(d => d.targetX).strength(0.5))
-                    .force('y', d3.forceY(d => d.targetY).strength(0.5))
-                    .alpha(1)
-                    .restart();
+                const categoryAngles = {}; categories.forEach((cat, i) => categoryAngles[cat.id] = (i / categories.length) * 2 * Math.PI - Math.PI / 2);
+                const radius = isMobile ? 180 : 250;
+                models.forEach(d => { const angle = categoryAngles[d.category], r = radius + Math.random() * (isMobile ? 60 : 100); d.targetX = width / 2 + Math.cos(angle) * r; d.targetY = height / 2 + Math.sin(angle) * r; });
+                simulation.force('link', null).force('charge', d3.forceManyBody().strength(-30)).force('center', null)
+                    .force('x', d3.forceX(d => d.targetX).strength(0.5)).force('y', d3.forceY(d => d.targetY).strength(0.5)).alpha(1).restart();
             } else if (view === 'cluster') {
-                const cols = 5;
-                const catPositions = {};
-                categories.forEach((cat, i) => {
-                    const col = i % cols;
-                    const row = Math.floor(i / cols);
-                    catPositions[cat.id] = {
-                        x: 400 + col * 220,
-                        y: 180 + row * 200
-                    };
-                });
-
-                models.forEach(d => {
-                    const pos = catPositions[d.category];
-                    d.targetX = pos.x + (Math.random() - 0.5) * 120;
-                    d.targetY = pos.y + (Math.random() - 0.5) * 80;
-                });
-
-                simulation
-                    .force('link', null)
-                    .force('charge', d3.forceManyBody().strength(-20))
-                    .force('center', null)
-                    .force('x', d3.forceX(d => d.targetX).strength(0.8))
-                    .force('y', d3.forceY(d => d.targetY).strength(0.8))
-                    .alpha(1)
-                    .restart();
+                const cols = isMobile ? 3 : 5, spacing = isMobile ? 140 : 220, startX = isMobile ? 100 : 400, startY = isMobile ? 150 : 180;
+                const catPositions = {}; categories.forEach((cat, i) => { catPositions[cat.id] = { x: startX + (i % cols) * spacing, y: startY + Math.floor(i / cols) * (isMobile ? 120 : 200) }; });
+                models.forEach(d => { const pos = catPositions[d.category]; d.targetX = pos.x + (Math.random() - 0.5) * (isMobile ? 80 : 120); d.targetY = pos.y + (Math.random() - 0.5) * (isMobile ? 50 : 80); });
+                simulation.force('link', null).force('charge', d3.forceManyBody().strength(-20)).force('center', null)
+                    .force('x', d3.forceX(d => d.targetX).strength(0.8)).force('y', d3.forceY(d => d.targetY).strength(0.8)).alpha(1).restart();
             }
         }
 
         function updateStats() {
             document.getElementById('model-count').textContent = models.length;
             document.getElementById('category-count').textContent = categories.length;
-            
-            const visibleCount = document.querySelectorAll('.node:not(.dimmed)').length;
-            document.getElementById('visible-count').textContent = visibleCount || models.length;
+            document.getElementById('visible-count').textContent = document.querySelectorAll('.node:not(.dimmed)').length || models.length;
         }
     </script>
 </body>
