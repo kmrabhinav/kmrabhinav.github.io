@@ -8,6 +8,14 @@ header:
 
 Welcome to **Abhinav's Personal Blog**!
 
+Use direct links to go to the content pages. Hyperlinks will be enabled after gathering the critical mass.
+
+<div align="center" style="margin-top:2em;">
+  <img src="/assets/images/blog-banner.jpg" alt="Blog Banner" style="width:80%;" />
+</div>
+
+---
+
 ## Navigation
 
 ### Academics
@@ -50,8 +58,3 @@ Welcome to **Abhinav's Personal Blog**!
 
 ### Utilities
 - [Site Map](/sitemap.html)
-
-
-<div align="center" style="margin-top:2em;">
-  <img src="/assets/images/blog-banner.jpg" alt="Blog Banner" style="width:80%;" />
-</div>
