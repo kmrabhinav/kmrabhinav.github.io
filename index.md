@@ -8,10 +8,6 @@ header:
 
 Welcome to **Abhinav's Personal Blog**!
 
-
-<div>
-<div>
-
 ## Navigation
 
 ### Academics
@@ -54,8 +50,8 @@ Welcome to **Abhinav's Personal Blog**!
 
 ### Utilities
 - [Site Map](/sitemap.html)
-</div>
+
+
 <div align="center" style="margin-top:2em;">
   <img src="/assets/images/blog-banner.jpg" alt="Blog Banner" style="width:80%;" />
-</div>
 </div>
