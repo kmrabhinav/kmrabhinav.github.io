@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nvidia GPU AI Lab - Use Cases Detailed Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-dark: #0f172a;
+            --secondary-dark: #1e293b;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --text-light: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --card-bg: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .legend {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .legend-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-payer {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
+        }
+
+        .badge-provider {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+
+        .badge-cross {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--accent-purple);
+            border: 1px solid var(--accent-purple);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 40px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            font-size: 14px;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th {
+            padding: 20px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: white;
+            border-bottom: 2px solid var(--accent-blue);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 20px 16px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .use-case-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--accent-blue);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .domain-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 5px;
+        }
+
+        .cell-content {
+            line-height: 1.7;
+            color: var(--text-muted);
+        }
+
+        .cell-content strong {
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .highlight {
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        .tech-stack {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .tech-item {
+            display: block;
+            padding: 4px 0;
+            color: var(--text-muted);
+        }
+
+        .tech-item::before {
+            content: '▸ ';
+            color: var(--accent-green);
+            font-weight: bold;
+        }
+
+        .hardware-spec {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 3px solid var(--accent-green);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .hardware-spec strong {
+            color: var(--accent-green);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .data-requirements {
+            list-style: none;
+            padding: 0;
+        }
+
+        .data-requirements li {
+            padding: 6px 0;
+            padding-left: 20px;
+            position: relative;
+            color: var(--text-muted);
+        }
+
+        .data-requirements li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--accent-green);
+            font-weight: bold;
+        }
+
+        .metric-value {
+            color: var(--accent-orange);
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .section-divider {
+            margin: 60px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .section-divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .section-divider span {
+            background: var(--primary-dark);
+            padding: 0 20px;
+            position: relative;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
+        }
+
+        .notes-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        .notes-section h3 {
+            color: var(--accent-blue);
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .notes-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .notes-section li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            color: var(--text-muted);
+            line-height: 1.8;
+        }
+
+        .notes-section li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--accent-blue);
+            font-weight: bold;
+        }
+
+        @media (max-width: 1200px) {
+            body {
+                padding: 20px 10px;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+            th, td {
+                padding: 15px 12px;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+
+            thead {
+                background: #1e40af !important;
+            }
+
+            .table-wrapper {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Nvidia GPU AI Lab - Use Cases Detailed Analysis</h1>
+            <p class="subtitle">Comprehensive breakdown of 12 flagship use cases with implementation specifications for showcase/pilot deployments</p>
+        </header>
+
+        <div class="legend">
+            <div class="legend-item">
+                <span class="legend-badge badge-payer">Payer</span>
+                <span>Health Plans & Insurance</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-badge badge-provider">Provider</span>
+                <span>Hospitals & Health Systems</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-badge badge-cross">Cross-Cutting</span>
+                <span>Both Payer & Provider</span>
+            </div>
+        </div>
+
+        <!-- PAYER USE CASES -->
+        <div class="section-divider">
+            <span>Payer Use Cases</span>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="min-width: 180px;">Use Case</th>
+                        <th style="min-width: 250px;">Current Challenge</th>
+                        <th style="min-width: 350px;">Hypothesis (Solution, Why Nvidia On-Prem, Value)</th>
+                        <th style="min-width: 250px;">Nvidia Software Stack</th>
+                        <th style="min-width: 220px;">Targeted Business Efficiency/Results</th>
+                        <th style="min-width: 220px;">Hardware Sizing (Showcase/Pilot)</th>
+                        <th style="min-width: 250px;">Required Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Use Case 1 -->
+                    <tr>
+                        <td>
+                            <span class="use-case-name">Multi-Modal Claims Fraud Detection</span>
+                            <span class="domain-badge badge-payer">Payer</span>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                Traditional rule-based systems catch only 30-40% of sophisticated fraud. <strong>False positive rates of 60-70%</strong> overwhelm investigators. Organized fraud rings adapt quickly to detection rules. <strong>$68B annual healthcare fraud</strong> in the US with limited detection capabilities.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                <strong>Solution:</strong> Graph Neural Networks (GNN) analyzing provider-member-pharmacy networks combined with Transformer models on claims narratives and clinical notes to detect anomalous patterns.
+                                <br><br>
+                                <strong>Why On-Prem:</strong> Process 10M+ claims daily with <100ms latency. PHI-sensitive network analysis cannot use cloud. Training on 5+ years of proprietary fraud patterns requires data sovereignty.
+                                <br><br>
+                                <strong>Value:</strong> <span class="highlight">$50M annual savings</span> for large payers, 3x improvement in fraud detection rate, 50% reduction in false positives.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-item">RAPIDS cuGraph (network analysis)</span>
+                                <span class="tech-item">PyTorch + DGL (GNN training)</span>
+                                <span class="tech-item">Triton Inference Server</span>
+                                <span class="tech-item">RAPIDS cuDF (data prep)</span>
+                                <span class="tech-item">TensorRT (optimization)</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                • <span class="metric-value">$50M+</span> annual fraud prevention<br>
+                                • <span class="metric-value">3x</span> detection accuracy<br>
+                                • <span class="metric-value">50%</span> false positive reduction<br>
+                                • <span class="metric-value">10M</span> claims/day throughput<br>
+                                • <span class="metric-value"><100ms</span> scoring latency
+                            </div>
+                        </td>
+                        <td>
+                            <div class="hardware-spec">
+                                <strong>Showcase Setup:</strong>
+                                2x NVIDIA A100 40GB<br>
+                                128GB System RAM<br>
+                                10TB NVMe Storage<br>
+                                <br>
+                                <strong>Purpose:</strong> Process 500K claims/day pilot, train GNN on 1-year historical data
+                            </div>
+                        </td>
+                        <td>
+                            <ul class="data-requirements">
+                                <li>3-5 years claims history (medical, pharmacy, dental)</li>
+                                <li>Provider network graph (NPI, TIN, addresses)</li>
+                                <li>Member demographics & enrollment</li>
+                                <li>Historical fraud cases (labeled data)</li>
+                                <li>CPT/ICD-10 code hierarchies</li>
+                                <li>Pharmacy dispense data</li>
+                            </ul>
+                        </td>
+                    </tr>
+
+                    <!-- Use Case 2 -->
+                    <tr>
+                        <td>
+                            <span class="use-case-name">Clinical Documentation Intelligence (CDI)</span>
+                            <span class="domain-badge badge-payer">Payer</span>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                Under-coding costs Medicare Advantage plans <strong>$3-5B annually</strong> in risk-adjusted revenue. Manual chart review captures only 15-20% of HCC gaps. Traditional NLP misses 40% of relevant diagnoses due to clinical language complexity and ambiguity.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                <strong>Solution:</strong> Fine-tune 7B-13B parameter clinical LLMs (BioGPT, ClinicalBERT, Meditron) on 500M+ proprietary clinical notes to identify HCC coding opportunities, RAF score gaps, and documentation improvement needs.
+                                <br><br>
+                                <strong>Why On-Prem:</strong> Fine-tuning on PHI requires on-prem. Process 100K member charts daily. Model IP protection—custom clinical LLM is competitive advantage.
+                                <br><br>
+                                <strong>Value:</strong> <span class="highlight">$15M annual revenue recovery</span>, 92% accuracy in HCC detection, 5x faster than manual review.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-item">NeMo Framework (LLM fine-tuning)</span>
+                                <span class="tech-item">PyTorch + Hugging Face</span>
+                                <span class="tech-item">DeepSpeed (distributed training)</span>
+                                <span class="tech-item">Triton Inference Server</span>
+                                <span class="tech-item">TensorRT-LLM (optimization)</span>
+                                <span class="tech-item">RAPIDS cuDF (preprocessing)</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                • <span class="metric-value">$15M</span> revenue recovery/year<br>
+                                • <span class="metric-value">92%</span> HCC detection accuracy<br>
+                                • <span class="metric-value">100K</span> charts analyzed/day<br>
+                                • <span class="metric-value">5x</span> faster vs manual review<br>
+                                • <span class="metric-value">15%</span> RAF score improvement
+                            </div>
+                        </td>
+                        <td>
+                            <div class="hardware-spec">
+                                <strong>Showcase Setup:</strong>
+                                4x NVIDIA A100 80GB<br>
+                                256GB System RAM<br>
+                                20TB NVMe Storage<br>
+                                <br>
+                                <strong>Purpose:</strong> Fine-tune 7B model, process 10K charts/day pilot
+                            </div>
+                        </td>
+                        <td>
+                            <ul class="data-requirements">
+                                <li>Clinical notes (progress, H&P, discharge summaries)</li>
+                                <li>Current RAF scores & HCC codes</li>
+                                <li>Historical coding patterns</li>
+                                <li>ICD-10 to HCC mappings</li>
+                                <li>Member demographics & comorbidities</li>
+                                <li>Claims-based diagnoses</li>
+                            </ul>
+                        </td>
+                    </tr>
+
+                    <!-- Use Case 3 -->
+                    <tr>
+                        <td>
+                            <span class="use-case-name">Real-Time Prior Authorization</span>
+                            <span class="domain-badge badge-payer">Payer</span>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                PA turnaround time averages <strong>3-5 days</strong>, causing member/provider dissatisfaction. Manual review of clinical guidelines across 1000+ procedures. 30% of PAs are for routine procedures that could be auto-approved. <strong>$31B in administrative waste</strong> from PA processes industry-wide.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                <strong>Solution:</strong> Multi-modal RAG system consuming member claims history + clinical practice guidelines + medical literature to provide evidence-based PA decisions with supporting citations in <30 seconds.
+                                <br><br>
+                                <strong>Why On-Prem:</strong> Real-time clinical decision support requires <30s latency. Cannot send PHI to cloud for RAG retrieval. Process thousands of concurrent PA requests.
+                                <br><br>
+                                <strong>Value:</strong> <span class="highlight">$8M cost reduction</span>, 95% reduction in turnaround time, 40% auto-approval rate for routine procedures.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-item">NeMo Framework (LLM serving)</span>
+                                <span class="tech-item">Triton Inference Server</span>
+                                <span class="tech-item">RAPIDS cuDF (data aggregation)</span>
+                                <span class="tech-item">Vector database (FAISS GPU)</span>
+                                <span class="tech-item">TensorRT-LLM</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                • <span class="metric-value"><30 sec</span> decision time<br>
+                                • <span class="metric-value">$8M</span> annual cost savings<br>
+                                • <span class="metric-value">40%</span> auto-approval rate<br>
+                                • <span class="metric-value">95%</span> turnaround reduction<br>
+                                • <span class="metric-value">98%</span> member satisfaction
+                            </div>
+                        </td>
+                        <td>
+                            <div class="hardware-spec">
+                                <strong>Showcase Setup:</strong>
+                                2x NVIDIA A100 40GB<br>
+                                128GB System RAM<br>
+                                15TB NVMe Storage<br>
+                                <br>
+                                <strong>Purpose:</strong> Handle 500 concurrent PAs, 5K PA requests/day
+                            </div>
+                        </td>
+                        <td>
+                            <ul class="data-requirements">
+                                <li>Clinical practice guidelines (CPG)</li>
+                                <li>Medical policy documents</li>
+                                <li>Member claims history (3 years)</li>
+                                <li>Formulary/coverage policies</li>
+                                <li>Historical PA decisions (outcomes)</li>
+                                <li>Peer-reviewed medical literature</li>
+                            </ul>
+                        </td>
+                    </tr>
+
+                    <!-- Use Case 4 -->
+                    <tr>
+                        <td>
+                            <span class="use-case-name">Predictive Member Risk Stratification</span>
+                            <span class="domain-badge badge-payer">Payer</span>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                Traditional risk models use <strong>only 20-30 features</strong> and miss 60% of high-cost members. Cannot process temporal patterns in longitudinal data. Static models cannot adapt to emerging health trends. Top 5% of members drive 50% of costs but are identified too late.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                <strong>Solution:</strong> Temporal attention models (Transformers, LSTM) processing 50K+ sparse features per member across 5 years of claims, clinical, pharmacy, and SDOH data to predict high-cost trajectories 12+ months in advance.
+                                <br><br>
+                                <strong>Why On-Prem:</strong> Training on 10M members × 50K features requires massive sparse matrix computation. Monthly batch scoring of entire population. Model retraining with fresh data quarterly.
+                                <br><br>
+                                <strong>Value:</strong> <span class="highlight">$12M in avoidable costs</span>, 3x improvement in high-risk member identification, enable proactive interventions.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-item">RAPIDS cuML (XGBoost/RF on GPU)</span>
+                                <span class="tech-item">PyTorch (temporal models)</span>
+                                <span class="tech-item">cuDF (feature engineering)</span>
+                                <span class="tech-item">Triton Inference Server</span>
+                                <span class="tech-item">RAPIDS cuGraph (comorbidity networks)</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                • <span class="metric-value">$12M</span> avoidable costs/year<br>
+                                • <span class="metric-value">3x</span> high-risk identification<br>
+                                • <span class="metric-value">10M</span> members scored monthly<br>
+                                • <span class="metric-value">85%</span> prediction accuracy<br>
+                                • <span class="metric-value">12 months</span> advance warning
+                            </div>
+                        </td>
+                        <td>
+                            <div class="hardware-spec">
+                                <strong>Showcase Setup:</strong>
+                                4x NVIDIA A100 40GB<br>
+                                256GB System RAM<br>
+                                30TB NVMe Storage<br>
+                                <br>
+                                <strong>Purpose:</strong> Train on 1M members, score 100K members/batch
+                            </div>
+                        </td>
+                        <td>
+                            <ul class="data-requirements">
+                                <li>5 years claims (medical, pharmacy, dental)</li>
+                                <li>Lab results (A1C, lipids, eGFR)</li>
+                                <li>Vital signs (BP, BMI, weight trends)</li>
+                                <li>SDOH data (census, housing, food access)</li>
+                                <li>Chronic condition indicators</li>
+                                <li>Healthcare utilization patterns</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PROVIDER USE CASES -->
+        <div class="section-divider">
+            <span>Provider Use Cases</span>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="min-width: 180px;">Use Case</th>
+                        <th style="min-width: 250px;">Current Challenge</th>
+                        <th style="min-width: 350px;">Hypothesis (Solution, Why Nvidia On-Prem, Value)</th>
+                        <th style="min-width: 250px;">Nvidia Software Stack</th>
+                        <th style="min-width: 220px;">Targeted Business Efficiency/Results</th>
+                        <th style="min-width: 220px;">Hardware Sizing (Showcase/Pilot)</th>
+                        <th style="min-width: 250px;">Required Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Use Case 5 -->
+                    <tr>
+                        <td>
+                            <span class="use-case-name">AI-Assisted Radiology</span>
+                            <span class="domain-badge badge-provider">Provider</span>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                Radiologist shortage of <strong>30,000+ providers</strong> in the US. Average study interpretation time: 6-8 minutes. 30% missed findings on initial reads. Radiologist burnout rate >50%. <strong>1 billion imaging studies</strong> performed annually with limited AI support.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                <strong>Solution:</strong> Ensemble of specialized 3D CNNs for chest CT (lung nodule, pneumonia, emphysema), brain MRI (ICH, tumor, stroke), bone X-ray (fracture detection), and mammography (breast cancer screening). Real-time inference with automated triage.
+                                <br><br>
+                                <strong>Why On-Prem:</strong> PACS integration requires <30s latency for 300+ slice CT scans. HIPAA compliance for imaging PHI. 24/7 uptime SLA. Cloud egress costs for 40GB+ studies prohibitive.
+                                <br><br>
+                                <strong>Value:</strong> <span class="highlight">$10M productivity gain</span>, 25% faster turnaround, 40% reduction in missed findings, radiologist satisfaction improvement.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-item">MONAI Core (training)</span>
+                                <span class="tech-item">MONAI Deploy (inference)</span>
+                                <span class="tech-item">Triton Inference Server</span>
+                                <span class="tech-item">NVIDIA DALI (data loading)</span>
+                                <span class="tech-item">TensorRT (optimization)</span>
+                                <span class="tech-item">DICOM integration toolkit</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                • <span class="metric-value">$10M</span> productivity value/year<br>
+                                • <span class="metric-value"><30 sec</span> per CT study<br>
+                                • <span class="metric-value">50K+</span> studies/month<br>
+                                • <span class="metric-value">40%</span> fewer missed findings<br>
+                                • <span class="metric-value">25%</span> faster turnaround
+                            </div>
+                        </td>
+                        <td>
+                            <div class="hardware-spec">
+                                <strong>Showcase Setup:</strong>
+                                2x NVIDIA A100 80GB<br>
+                                128GB System RAM<br>
+                                50TB GPUDirect Storage<br>
+                                <br>
+                                <strong>Purpose:</strong> Process 5K studies/week, 5 concurrent modalities
+                            </div>
+                        </td>
+                        <td>
+                            <ul class="data-requirements">
+                                <li>10K+ annotated chest CT scans</li>
+                                <li>5K+ brain MRI with labels</li>
+                                <li>15K+ chest X-rays (normal/abnormal)</li>
+                                <li>DICOM metadata & image series</li>
+                                <li>Radiologist reports (ground truth)</li>
+                                <li>Patient demographics & history</li>
+                            </ul>
+                        </td>
+                    </tr>
+
+                    <!-- Use Case 6 -->
+                    <tr>
+                        <td>
+                            <span class="use-case-name">Digital Pathology Whole Slide Image Analysis</span>
+                            <span class="domain-badge badge-provider">Provider</span>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                Pathologist shortage worsening (15% vacancy rate). Single whole slide image = <strong>40GB at 40x magnification</strong> = 100K+ tile patches. Inter-observer variability in tumor grading: 20-30%. Biomarker quantification is manual and time-intensive. Digital pathology adoption <10% in US.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                <strong>Solution:</strong> Vision Transformers (ViT) trained on gigapixel WSIs for cancer detection, tumor grading (Gleason, Bloom-Richardson), mitosis counting, and biomarker quantification (PD-L1, HER2, Ki-67). Multi-resolution patch-based inference.
+                                <br><br>
+                                <strong>Why On-Prem:</strong> Each WSI requires processing 10K+ tiles with GPU inference. Training on petabyte-scale image archives. Tissue images are extremely sensitive PHI. Real-time feedback during case review.
+                                <br><br>
+                                <strong>Value:</strong> <span class="highlight">$8M in productivity and quality improvement</span>, 50% reduction in turnaround time, objective quantification of biomarkers.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-item">MONAI Core (WSI pipeline)</span>
+                                <span class="tech-item">PyTorch + timm (ViT models)</span>
+                                <span class="tech-item">NVIDIA DALI (tile extraction)</span>
+                                <span class="tech-item">Triton Inference Server</span>
+                                <span class="tech-item">cuCIM (image processing)</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                • <span class="metric-value">$8M</span> value creation/year<br>
+                                • <span class="metric-value">50%</span> turnaround reduction<br>
+                                • <span class="metric-value">95%</span> cancer detection accuracy<br>
+                                • <span class="metric-value">2K</span> slides analyzed/month<br>
+                                • <span class="metric-value">90%</span> concordance with experts
+                            </div>
+                        </td>
+                        <td>
+                            <div class="hardware-spec">
+                                <strong>Showcase Setup:</strong>
+                                4x NVIDIA A100 80GB<br>
+                                256GB System RAM<br>
+                                100TB NVMe Storage<br>
+                                <br>
+                                <strong>Purpose:</strong> Process 200 WSI/week, train models on 5K slides
+                            </div>
+                        </td>
+                        <td>
+                            <ul class="data-requirements">
+                                <li>5K+ annotated WSI (H&E, IHC)</li>
+                                <li>Cancer diagnoses (confirmed cases)</li>
+                                <li>Tumor grade annotations</li>
+                                <li>Biomarker quantification results</li>
+                                <li>Patient outcomes (survival data)</li>
+                                <li>Slide metadata (tissue type, stain)</li>
+                            </ul>
+                        </td>
+                    </tr>
+
+                    <!-- Use Case 7 -->
+                    <tr>
+                        <td>
+                            <span class="use-case-name">Real-Time Surgical Video Analytics</span>
+                            <span class="domain-badge badge-provider">Provider</span>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                Surgical complications cost <strong>$17B annually</strong>. No objective, real-time assessment of surgical skill or technique. Post-hoc video review is time-intensive. Training surgeons lack quantitative feedback. Adverse events often not recognized until after procedure. 4K surgical video at 60fps = massive data streams.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                <strong>Solution:</strong> Video understanding transformers (TimeSformer, VideoMAE) for real-time instrument detection, surgical phase recognition, anatomical landmark identification, and automated skill assessment. Feed real-time alerts for critical steps.
+                                <br><br>
+                                <strong>Why On-Prem:</strong> Process 4K video at 60fps with <100ms latency for real-time OR feedback. Surgical videos are highly sensitive PHI. Need 24/7 availability in operating rooms. Cannot tolerate network latency.
+                                <br><br>
+                                <strong>Value:</strong> <span class="highlight">$6M in quality and training improvements</span>, 20% reduction in complications, objective skill assessment for training.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-item">PyTorch (3D CNN, Transformers)</span>
+                                <span class="tech-item">NVIDIA DALI (video decoding)</span>
+                                <span class="tech-item">TensorRT (real-time optimization)</span>
+                                <span class="tech-item">Triton Inference Server</span>
+                                <span class="tech-item">DeepStream SDK (video analytics)</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                • <span class="metric-value">$6M</span> quality impact/year<br>
+                                • <span class="metric-value"><100ms</span> inference latency<br>
+                                • <span class="metric-value">20%</span> complication reduction<br>
+                                • <span class="metric-value">500+</span> procedures analyzed/month<br>
+                                • <span class="metric-value">92%</span> phase recognition accuracy
+                            </div>
+                        </td>
+                        <td>
+                            <div class="hardware-spec">
+                                <strong>Showcase Setup:</strong>
+                                2x NVIDIA A100 40GB<br>
+                                128GB System RAM<br>
+                                30TB NVMe Storage<br>
+                                <br>
+                                <strong>Purpose:</strong> Support 5 concurrent ORs, process 50 procedures/week
+                            </div>
+                        </td>
+                        <td>
+                            <ul class="data-requirements">
+                                <li>500+ annotated surgical videos</li>
+                                <li>Surgical phase labels (per frame)</li>
+                                <li>Instrument annotations</li>
+                                <li>Complication/adverse event data</li>
+                                <li>Surgeon skill assessments (expert ratings)</li>
+                                <li>Procedure metadata (type, duration)</li>
+                            </ul>
+                        </td>
+                    </tr>
+
+                    <!-- Use Case 8 -->
+                    <tr>
+                        <td>
+                            <span class="use-case-name">Genomic Variant Analysis</span>
+                            <span class="domain-badge badge-provider">Provider</span>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                Whole genome sequencing analysis takes <strong>30+ hours on CPU</strong>, limiting clinical utility. 99.9% cost reduction in sequencing but analysis is bottleneck. 4-5 million variants per genome require clinical interpretation. Precision medicine adoption limited by turnaround time. Only 5% of rare diseases have genetic diagnosis.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                <strong>Solution:</strong> NVIDIA Parabricks for GPU-accelerated GATK pipeline (alignment, variant calling, annotation) reducing 30X WGS from 30+ hours to <1 hour. Deep learning for variant pathogenicity prediction and drug-protein interaction modeling.
+                                <br><br>
+                                <strong>Why On-Prem:</strong> Genomic data is extremely sensitive PHI. Need to process dozens of genomes weekly. Training custom variant prediction models on proprietary clinical outcomes. Cloud costs prohibitive at scale.
+                                <br><br>
+                                <strong>Value:</strong> <span class="highlight">$5M efficiency gain</span>, enable same-day genomic results, 30x performance improvement, expand precision medicine programs.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-item">NVIDIA Parabricks (GATK pipeline)</span>
+                                <span class="tech-item">RAPIDS cuDF (variant analysis)</span>
+                                <span class="tech-item">PyTorch (pathogenicity models)</span>
+                                <span class="tech-item">AlphaFold (protein structure)</span>
+                                <span class="tech-item">RAPIDS cuML (variant prioritization)</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                • <span class="metric-value">30x</span> speed improvement<br>
+                                • <span class="metric-value">$5M</span> efficiency gain/year<br>
+                                • <span class="metric-value"><1 hour</span> for 30X WGS<br>
+                                • <span class="metric-value">100+</span> genomes/month capacity<br>
+                                • <span class="metric-value">Same-day</span> results enable acute care
+                            </div>
+                        </td>
+                        <td>
+                            <div class="hardware-spec">
+                                <strong>Showcase Setup:</strong>
+                                2x NVIDIA A100 80GB<br>
+                                256GB System RAM<br>
+                                50TB NVMe Storage<br>
+                                <br>
+                                <strong>Purpose:</strong> Process 20 WGS/week, train variant models
+                            </div>
+                        </td>
+                        <td>
+                            <ul class="data-requirements">
+                                <li>Raw FASTQ sequencing files</li>
+                                <li>Reference genome (GRCh38)</li>
+                                <li>Clinical phenotype data</li>
+                                <li>Family pedigrees (trio analysis)</li>
+                                <li>Variant databases (ClinVar, COSMIC)</li>
+                                <li>Patient outcomes & drug response</li>
+                            </ul>
+                        </td>
+                    </tr>
+
+                    <!-- Use Case 9 -->
+                    <tr>
+                        <td>
+                            <span class="use-case-name">ICU Early Warning System</span>
+                            <span class="domain-badge badge-provider">Provider</span>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                Sepsis kills <strong>270,000 Americans annually</strong>. Traditional scoring systems (SIRS, qSOFA) have 50-60% sensitivity. ICU deterioration events often not recognized until 2-6 hours after onset. Manual vital sign monitoring misses subtle trends. False alarm rates >90% lead to alert fatigue.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                <strong>Solution:</strong> Temporal convolutional networks and LSTMs processing high-frequency multivariate time-series (vitals, labs, ventilator settings, medications, nursing notes) to predict sepsis, cardiac arrest, respiratory failure 2-48 hours before clinical manifestation. Continuous real-time scoring.
+                                <br><br>
+                                <strong>Why On-Prem:</strong> Real-time monitoring of 1000+ ICU beds requires low-latency inference on streaming data. Cannot tolerate network interruptions. PHI sensitivity of continuous patient data streams.
+                                <br><br>
+                                <strong>Value:</strong> <span class="highlight">$7M in lives saved and cost reduction</span>, 40% earlier detection, 25% reduction in ICU mortality.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-item">PyTorch (TCN, LSTM models)</span>
+                                <span class="tech-item">Triton Inference Server</span>
+                                <span class="tech-item">RAPIDS cuDF (real-time feature eng.)</span>
+                                <span class="tech-item">Kafka (data streaming)</span>
+                                <span class="tech-item">TensorRT (optimization)</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                • <span class="metric-value">$7M</span> lives + costs saved/year<br>
+                                • <span class="metric-value">2-48 hrs</span> advance warning<br>
+                                • <span class="metric-value">1000+</span> beds monitored<br>
+                                • <span class="metric-value">40%</span> earlier detection<br>
+                                • <span class="metric-value">25%</span> ICU mortality reduction
+                            </div>
+                        </td>
+                        <td>
+                            <div class="hardware-spec">
+                                <strong>Showcase Setup:</strong>
+                                2x NVIDIA A100 40GB<br>
+                                128GB System RAM<br>
+                                20TB NVMe Storage<br>
+                                <br>
+                                <strong>Purpose:</strong> Monitor 100 ICU beds, process 1M+ data points/hour
+                            </div>
+                        </td>
+                        <td>
+                            <ul class="data-requirements">
+                                <li>High-frequency vital signs (1-min intervals)</li>
+                                <li>Laboratory values (real-time)</li>
+                                <li>Ventilator settings & waveforms</li>
+                                <li>Medication administration records</li>
+                                <li>Nursing assessments & notes</li>
+                                <li>Historical ICU outcomes (labeled events)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- CROSS-CUTTING USE CASES -->
+        <div class="section-divider">
+            <span>Cross-Cutting Use Cases</span>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="min-width: 180px;">Use Case</th>
+                        <th style="min-width: 250px;">Current Challenge</th>
+                        <th style="min-width: 350px;">Hypothesis (Solution, Why Nvidia On-Prem, Value)</th>
+                        <th style="min-width: 250px;">Nvidia Software Stack</th>
+                        <th style="min-width: 220px;">Targeted Business Efficiency/Results</th>
+                        <th style="min-width: 220px;">Hardware Sizing (Showcase/Pilot)</th>
+                        <th style="min-width: 250px;">Required Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Use Case 10 -->
+                    <tr>
+                        <td>
+                            <span class="use-case-name">Healthcare Foundation Model Fine-Tuning</span>
+                            <span class="domain-badge badge-cross">Cross-Cutting</span>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                Generic LLMs (GPT-4, Claude) hallucinate on medical facts (15-20% error rate). Lack domain knowledge for clinical coding, guidelines, rare diseases. <strong>Cannot be fine-tuned on proprietary clinical data in cloud</strong> due to PHI restrictions. Cloud LLM inference costs $0.01-0.03 per 1K tokens at scale.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                <strong>Solution:</strong> Fine-tune open-source healthcare LLMs (LLaMA-3 70B, Mistral, Meditron, BioGPT) on 500M+ proprietary clinical notes, medical literature, and claims data using parameter-efficient techniques (LoRA, QLoRA) to create custom models for medical coding, clinical decision support, and patient communication.
+                                <br><br>
+                                <strong>Why On-Prem:</strong> Cannot fine-tune on PHI in cloud. Model IP is competitive advantage. Inference cost at 10M+ daily requests makes on-prem economically necessary. Need 32K+ context for longitudinal patient records.
+                                <br><br>
+                                <strong>Value:</strong> <span class="highlight">$20M annual value</span> across coding accuracy, clinical decision support, 70% cost reduction vs cloud LLM APIs.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-item">NeMo Framework (LLM training)</span>
+                                <span class="tech-item">DeepSpeed + FSDP (distributed)</span>
+                                <span class="tech-item">LoRA/QLoRA (PEFT)</span>
+                                <span class="tech-item">TensorRT-LLM (optimization)</span>
+                                <span class="tech-item">Triton Inference Server</span>
+                                <span class="tech-item">vLLM (high-throughput serving)</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                • <span class="metric-value">$20M</span> annual value<br>
+                                • <span class="metric-value">95%</span> medical coding accuracy<br>
+                                • <span class="metric-value">70%</span> cost reduction vs cloud API<br>
+                                • <span class="metric-value">10M+</span> inferences/day<br>
+                                • <span class="metric-value">32K</span> context window support
+                            </div>
+                        </td>
+                        <td>
+                            <div class="hardware-spec">
+                                <strong>Showcase Setup:</strong>
+                                8x NVIDIA A100 80GB<br>
+                                512GB System RAM<br>
+                                50TB NVMe Storage<br>
+                                <br>
+                                <strong>Purpose:</strong> Fine-tune 70B model, serve 100K inferences/day
+                            </div>
+                        </td>
+                        <td>
+                            <ul class="data-requirements">
+                                <li>500M+ clinical notes (de-identified for training)</li>
+                                <li>Medical literature corpus (PubMed)</li>
+                                <li>ICD-10/CPT coding examples (1M+)</li>
+                                <li>Clinical practice guidelines</li>
+                                <li>Patient Q&A datasets</li>
+                                <li>Medical terminology ontologies</li>
+                            </ul>
+                        </td>
+                    </tr>
+
+                    <!-- Use Case 11 -->
+                    <tr>
+                        <td>
+                            <span class="use-case-name">Federated Learning Across Health Systems</span>
+                            <span class="domain-badge badge-cross">Cross-Cutting</span>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                Clinical data is siloed across competing health systems. <strong>Cannot share patient data</strong> due to HIPAA, competitive concerns. Single-institution datasets lack statistical power for rare diseases. Multi-site clinical trials take 5-7 years. Collaborative research limited by data governance barriers.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                <strong>Solution:</strong> NVIDIA FLARE enables training high-quality models across 10+ health systems without data sharing. Each site trains locally on their GPUs, only model updates are shared (encrypted). Enables unprecedented scale (millions of patients) while maintaining data sovereignty and HIPAA compliance.
+                                <br><br>
+                                <strong>Why On-Prem:</strong> Each participating site requires local GPU infrastructure. Data never leaves institutional boundaries. Differential privacy and secure aggregation require local compute.
+                                <br><br>
+                                <strong>Value:</strong> <span class="highlight">$15M model value</span>, enable rare disease research, 10x larger training datasets, accelerate clinical discovery.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-item">NVIDIA FLARE (federated learning)</span>
+                                <span class="tech-item">PyTorch + TensorFlow</span>
+                                <span class="tech-item">Homomorphic encryption</span>
+                                <span class="tech-item">Differential privacy (DP-SGD)</span>
+                                <span class="tech-item">MONAI (medical imaging federation)</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                • <span class="metric-value">$15M</span> model value creation<br>
+                                • <span class="metric-value">10+</span> health systems connected<br>
+                                • <span class="metric-value">10x</span> larger datasets<br>
+                                • <span class="metric-value">5M+</span> patient records (aggregate)<br>
+                                • <span class="metric-value">Zero</span> data breaches (by design)
+                            </div>
+                        </td>
+                        <td>
+                            <div class="hardware-spec">
+                                <strong>Showcase Setup (per site):</strong>
+                                2x NVIDIA A100 40GB<br>
+                                128GB System RAM<br>
+                                20TB Storage<br>
+                                <br>
+                                <strong>Purpose:</strong> 3-5 sites for pilot, train federated disease prediction model
+                            </div>
+                        </td>
+                        <td>
+                            <ul class="data-requirements">
+                                <li>Local EHR data (per institution)</li>
+                                <li>Standardized data schemas (FHIR/OMOP)</li>
+                                <li>Approved research protocols (IRB)</li>
+                                <li>Secure network connectivity</li>
+                                <li>Data governance agreements</li>
+                                <li>Use case definition (disease cohorts)</li>
+                            </ul>
+                        </td>
+                    </tr>
+
+                    <!-- Use Case 12 -->
+                    <tr>
+                        <td>
+                            <span class="use-case-name">Medical Image Reconstruction & Enhancement</span>
+                            <span class="domain-badge badge-cross">Cross-Cutting</span>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                CT scans expose patients to <strong>2-10 mSv radiation</strong> (equivalent to 100+ chest X-rays). MRI scans take 30-60 minutes causing patient discomfort and low throughput. Low-dose/fast scans have insufficient image quality for diagnosis. Trade-off between patient safety and diagnostic accuracy.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                <strong>Solution:</strong> Generative AI models (GANs, diffusion models, super-resolution networks) to reconstruct diagnostic-quality images from low-dose CT scans and rapid MRI sequences. Train models to denoise and enhance images while preserving diagnostic features.
+                                <br><br>
+                                <strong>Why On-Prem:</strong> Real-time reconstruction during scanning requires <10s latency. PACS integration. Training on millions of imaging studies requires on-prem compute. Cannot send raw imaging data to cloud.
+                                <br><br>
+                                <strong>Value:</strong> <span class="highlight">$9M patient safety value</span>, 50% radiation dose reduction, 40% faster MRI scans, higher patient throughput.
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-item">MONAI (medical image processing)</span>
+                                <span class="tech-item">PyTorch (GAN, diffusion models)</span>
+                                <span class="tech-item">NVIDIA DALI (preprocessing)</span>
+                                <span class="tech-item">TensorRT (real-time inference)</span>
+                                <span class="tech-item">Triton Inference Server</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-content">
+                                • <span class="metric-value">$9M</span> patient safety value/year<br>
+                                • <span class="metric-value">50%</span> radiation dose reduction<br>
+                                • <span class="metric-value">40%</span> faster MRI acquisition<br>
+                                • <span class="metric-value">30%</span> throughput increase<br>
+                                • <span class="metric-value">Diagnostic</span> quality maintained
+                            </div>
+                        </td>
+                        <td>
+                            <div class="hardware-spec">
+                                <strong>Showcase Setup:</strong>
+                                2x NVIDIA A100 80GB<br>
+                                256GB System RAM<br>
+                                40TB GPUDirect Storage<br>
+                                <br>
+                                <strong>Purpose:</strong> Train models, process 1K studies/week
+                            </div>
+                        </td>
+                        <td>
+                            <ul class="data-requirements">
+                                <li>Paired low-dose/standard-dose CT scans</li>
+                                <li>Fast/standard MRI sequences (paired)</li>
+                                <li>10K+ training image sets</li>
+                                <li>Radiologist quality assessments</li>
+                                <li>Diagnostic outcomes (validation)</li>
+                                <li>Scanner parameters & protocols</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Implementation Notes -->
+        <div class="notes-section">
+            <h3>Implementation Notes & Considerations</h3>
+            <ul>
+                <li><strong>Showcase vs Production:</strong> Hardware sizing provided is for pilot/showcase implementations processing 10-20% of production volumes. Production deployments typically require 3-5x the GPU capacity for redundancy, peak load handling, and 24/7 uptime SLA.</li>
+                <li><strong>Data Requirements:</strong> All datasets must be properly de-identified per HIPAA Safe Harbor or Expert Determination methods. For training, aim for 10K+ samples per use case. Validation sets should be 20-30% of total data, held out from training.</li>
+                <li><strong>Latency Requirements:</strong> Real-time use cases (surgical video, ICU monitoring, PA) require <100ms p99 latency. Batch processing use cases (risk stratification, fraud detection) can tolerate minutes to hours.</li>
+                <li><strong>Model Governance:</strong> All production models require version control, A/B testing, performance monitoring, bias audits, and regulatory compliance documentation (FDA 510(k) for diagnostic AI if applicable).</li>
+                <li><strong>Integration Complexity:</strong> PACS, EHR, claims systems integration is often the longest part of deployment (3-6 months). Plan for HL7/FHIR interfaces, DICOM connectivity, and database ETL pipelines.</li>
+                <li><strong>Talent Requirements:</strong> Each use case requires 2-4 FTEs: ML engineers (model development), MLOps engineers (deployment/monitoring), data engineers (ETL pipelines), domain experts (clinical/claims SMEs).</li>
+                <li><strong>Cost Considerations:</strong> Total cost of ownership includes hardware ($500K-2M per use case), software licenses ($50-100K/year), personnel ($500K-1M/year), and facilities/power ($50-100K/year). ROI calculations must account for 3-year TCO.</li>
+                <li><strong>Regulatory Path:</strong> Clinical diagnostic AI requires FDA clearance (510(k) or De Novo). Administrative use cases (fraud, coding, PA) do not require FDA approval but need internal validation and bias testing.</li>
+                <li><strong>Success Metrics:</strong> Define clear KPIs before pilot launch: accuracy/AUC, latency, throughput, cost per inference, false positive/negative rates, user satisfaction, and financial impact. Track weekly during pilot.</li>
+                <li><strong>Risk Mitigation:</strong> Start with highest-value, lowest-risk use cases (radiology AI, fraud detection). Achieve early wins before tackling complex use cases (federated learning, surgical video). Phased rollout minimizes risk.</li>
+            </ul>
+        </div>
+
+        <div class="notes-section" style="margin-top: 30px;">
+            <h3>Hardware Scaling Guidelines</h3>
+            <ul>
+                <li><strong>Development/Prototyping (Phase 1):</strong> 2-4x L40S or RTX 6000 Ada workstations sufficient for initial algorithm development and small-scale testing. Investment: $50-100K.</li>
+                <li><strong>Pilot/Showcase (Phase 2):</strong> Hardware sizing in table above supports 100-500 patients/day or 1K-5K studies/week. Validates technical feasibility and ROI. Investment: $300-500K per use case.</li>
+                <li><strong>Production Deployment (Phase 3):</strong> Requires 3-5x pilot capacity for redundancy and peak load. Add high-availability configuration, load balancing, and disaster recovery. Investment: $1-2M per use case.</li>
+                <li><strong>Multi-Use Case Consolidation:</strong> Shared GPU clusters can serve multiple use cases with orchestration (Kubernetes). Reduces per-use-case hardware costs by 40-50% through resource pooling.</li>
+            </ul>
+        </div>
+
+    </div>
+</body>
+</html>
