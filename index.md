@@ -46,6 +46,9 @@ Use direct links to go to the content pages. Hyperlinks will be enabled after ga
 - **Organization**
   - [Enterprise Ontology Graph](/strategy/Org/enterprise_ontology_graph.html)
   - [Organization Structure](/strategy/Org/org_strugture.html)
+  - [AI Worksation build options]
+    - [Analysis](/strategy/AIWorkstation/budgetworkstation.html)
+    - [Options](/strategy/AIWorkstation/workstation-guide.html)
 
 ### Technology
 - [AI](/tech/ai.md)
