@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Workstation Build Guide | India 2024</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=JetBrains+Mono:wght@400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #141923;
+            --bg-tertiary: #1e2530;
+            --text-primary: #e8edf4;
+            --text-secondary: #9aa5b8;
+            --text-tertiary: #6b7689;
+            --accent-blue: #00d9ff;
+            --accent-cyan: #00ffcc;
+            --accent-orange: #ff6b35;
+            --accent-purple: #b794f6;
+            --border-color: #2a3441;
+            --warning-bg: rgba(255, 107, 53, 0.1);
+            --warning-border: rgba(255, 107, 53, 0.3);
+            --success-bg: rgba(0, 255, 204, 0.1);
+            --success-border: rgba(0, 255, 204, 0.3);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #fafbfc;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f4f6f8;
+            --text-primary: #1a1f2e;
+            --text-secondary: #4a5568;
+            --text-tertiary: #718096;
+            --accent-blue: #0066cc;
+            --accent-cyan: #00997a;
+            --accent-orange: #d94d1a;
+            --accent-purple: #7c3aed;
+            --border-color: #e2e8f0;
+            --warning-bg: rgba(217, 77, 26, 0.08);
+            --warning-border: rgba(217, 77, 26, 0.2);
+            --success-bg: rgba(0, 153, 122, 0.08);
+            --success-border: rgba(0, 153, 122, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+
+        header {
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 40px;
+            margin-bottom: 60px;
+            position: relative;
+            animation: slideDown 0.6s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 12px rgba(0, 255, 204, 0.2);
+        }
+
+        h1 {
+            font-family: 'Space Mono', monospace;
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            letter-spacing: 0.03em;
+        }
+
+        h2 {
+            font-family: 'Space Mono', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 60px 0 24px;
+            color: var(--accent-cyan);
+            border-left: 4px solid var(--accent-cyan);
+            padding-left: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 40px 0 20px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .callout {
+            background: var(--warning-bg);
+            border-left: 4px solid var(--warning-border);
+            padding: 24px;
+            margin: 32px 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 15px;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .callout strong {
+            color: var(--accent-orange);
+            font-weight: 600;
+        }
+
+        .spec-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 32px 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            animation: fadeIn 0.7s ease;
+        }
+
+        .spec-table thead {
+            background: var(--bg-tertiary);
+        }
+
+        .spec-table th {
+            padding: 16px;
+            text-align: left;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .spec-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .spec-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .spec-table tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        .spec-table tbody tr:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .spec-table strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .config-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+            margin: 40px 0;
+            position: relative;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .config-card:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 8px 24px rgba(0, 217, 255, 0.15);
+        }
+
+        .config-card h3 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .price-tag {
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-purple));
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .component-list {
+            margin: 24px 0;
+        }
+
+        .component-item {
+            display: grid;
+            grid-template-columns: 140px 1fr 100px;
+            gap: 16px;
+            padding: 16px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            margin-bottom: 12px;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .component-item:hover {
+            background: var(--bg-primary);
+            transform: translateX(4px);
+        }
+
+        .component-label {
+            font-weight: 700;
+            color: var(--accent-cyan);
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .component-value {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .component-price {
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .performance-note {
+            background: var(--success-bg);
+            border-left: 4px solid var(--success-border);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .total-row {
+            display: grid;
+            grid-template-columns: 140px 1fr 100px;
+            gap: 16px;
+            padding: 20px 16px;
+            background: var(--bg-primary);
+            border-radius: 6px;
+            margin-top: 16px;
+            align-items: center;
+            border: 2px solid var(--accent-cyan);
+        }
+
+        .total-row .component-label {
+            font-size: 15px;
+        }
+
+        .total-row .component-price {
+            font-size: 18px;
+            color: var(--accent-cyan);
+        }
+
+        code {
+            background: var(--bg-tertiary);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--accent-blue);
+        }
+
+        ul {
+            margin: 20px 0;
+            padding-left: 24px;
+        }
+
+        li {
+            margin: 12px 0;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .component-item {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+
+            .theme-toggle {
+                position: static;
+                margin-bottom: 20px;
+                display: block;
+            }
+        }
+
+        .conclusion-box {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(183, 148, 246, 0.1));
+            border: 2px solid var(--accent-blue);
+            border-radius: 12px;
+            padding: 32px;
+            margin: 60px 0 40px;
+            animation: fadeIn 1s ease;
+        }
+
+        .conclusion-box h2 {
+            margin-top: 0;
+            border: none;
+            padding: 0;
+            color: var(--accent-blue);
+        }
+
+        .footnote {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            font-style: italic;
+            margin-top: 60px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+            <h1>AI Workstation Build Guide</h1>
+            <p class="subtitle">LLM Inference & Medical Imaging | India Market | December 2024</p>
+        </header>
+
+        <div class="callout">
+            <strong>CRITICAL CONSTRAINT:</strong> Running 120B parameter models is not feasible within INR 200,000. A 120B dense model requires 60-120GB+ VRAM even with aggressive 4-bit quantization—far exceeding any consumer GPU's capacity. However, a capable POC workstation for <strong>30-40B quantized models</strong> and comprehensive medical imaging workloads is achievable within budget, with a clear upgrade path toward larger models.
+        </div>
+
+        <p>This guide provides three configuration options: a budget-compliant build, a stretch-budget build with RTX 4080 Super, and a high-performance recommendation with RTX 4090 that exceeds budget but delivers the expandability and VRAM needed for serious LLM work.</p>
+
+        <h2>The 120B Model Problem: VRAM Math Doesn't Lie</h2>
+
+        <p>The fundamental challenge is memory. At INT4/GPTQ quantization, a 120B parameter model requires approximately <strong>60-70GB of VRAM</strong> plus 20% overhead for KV cache—totaling around 75-85GB during inference. The RTX 4090's 24GB is the largest consumer GPU available, handling at most 30-40B quantized models comfortably or 70B with heavy degradation.</p>
+
+        <table class="spec-table">
+            <thead>
+                <tr>
+                    <th>Quantization Level</th>
+                    <th>120B Model Size</th>
+                    <th>GPU Requirements</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>FP16</strong></td>
+                    <td>~240GB</td>
+                    <td>4× A100 80GB</td>
+                </tr>
+                <tr>
+                    <td><strong>INT8</strong></td>
+                    <td>~120GB</td>
+                    <td>2× A100 80GB</td>
+                </tr>
+                <tr>
+                    <td><strong>INT4/GPTQ</strong></td>
+                    <td>~60-70GB</td>
+                    <td>Not achievable on consumer hardware</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>Medical imaging requirements are far more modest. MONAI, nnU-Net, and TotalSegmentator run effectively on <strong>16-24GB VRAM</strong>—making the GPU choice primarily about LLM capability rather than radiology workloads.</p>
+
+        <h2>Configuration Option A: Budget-Compliant Build at ₹187,029</h2>
+
+        <div class="config-card">
+            <h3>
+                Best Value Configuration
+                <span class="price-tag">₹187,029</span>
+            </h3>
+            
+            <p>This configuration maximizes capability within the strict INR 200,000 constraint. The RTX 4070 Ti Super with 16GB VRAM handles models up to <strong>13-20B parameters</strong> with quantization and covers all medical imaging POC requirements comfortably.</p>
+
+            <div class="component-list">
+                <div class="component-item">
+                    <div class="component-label">GPU</div>
+                    <div class="component-value">MSI RTX 4070 Ti Super Ventus 3X OC 16GB</div>
+                    <div class="component-price">₹73,000</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-label">CPU</div>
+                    <div class="component-value">AMD Ryzen 7 7700X (8C/16T, AVX-512)</div>
+                    <div class="component-price">₹27,985</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-label">Motherboard</div>
+                    <div class="component-value">MSI X670E Gaming Plus WiFi</div>
+                    <div class="component-price">₹19,999</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-label">RAM</div>
+                    <div class="component-value">G.Skill Ripjaws S5 64GB DDR5-6000 CL32</div>
+                    <div class="component-price">₹19,045</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-label">Storage</div>
+                    <div class="component-value">Samsung 990 Pro 2TB NVMe</div>
+                    <div class="component-price">₹18,000</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-label">PSU</div>
+                    <div class="component-value">Corsair RM1000x ATX 3.0 (1000W)</div>
+                    <div class="component-price">₹17,000</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-label">Case</div>
+                    <div class="component-value">Corsair 4000D Airflow</div>
+                    <div class="component-price">₹12,000</div>
+                </div>
+                <div class="total-row">
+                    <div class="component-label">TOTAL</div>
+                    <div class="component-value"></div>
+                    <div class="component-price">₹187,029</div>
+                </div>
+            </div>
+
+            <div class="performance-note">
+                <strong>Performance Expectations:</strong> LLaMA 3 8B Q4 at ~82 tokens/sec | Mistral 7B FP16 inference | Medical CT/MRI segmentation with TotalSegmentator at ~30-60 seconds per scan | Maximum practical model size: approximately 20B quantized
+            </div>
+        </div>
+
+        <h2>Configuration Option B: Stretch Build with RTX 4080 Super at ₹227,893</h2>
+
+        <div class="config-card">
+            <h3>
+                Enhanced Performance
+                <span class="price-tag">₹227,893</span>
+            </h3>
+            
+            <p>Exceeding budget by ₹27,893, this build delivers meaningful LLM performance improvements and handles models up to <strong>25-30B parameters</strong> quantized. The 16GB VRAM remains limiting, but faster Tensor cores improve inference speed by ~25%.</p>
+
+            <div class="component-list">
+                <div class="component-item">
+                    <div class="component-label">GPU</div>
+                    <div class="component-value">ZOTAC RTX 4080 Super Trinity OC 16GB</div>
+                    <div class="component-price">₹98,999</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-label">CPU</div>
+                    <div class="component-value">AMD Ryzen 9 7900X (12C/24T, 5.6GHz)</div>
+                    <div class="component-price">₹34,850</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-label">Motherboard</div>
+                    <div class="component-value">MSI X670E Gaming Plus WiFi</div>
+                    <div class="component-price">₹19,999</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-label">RAM</div>
+                    <div class="component-value">G.Skill Ripjaws S5 64GB DDR5-6000 CL32</div>
+                    <div class="component-price">₹19,045</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-label">Storage</div>
+                    <div class="component-value">Samsung 990 Pro 2TB NVMe</div>
+                    <div class="component-price">₹18,000</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-label">PSU</div>
+                    <div class="component-value">Corsair RM1000x ATX 3.0 (1000W)</div>
+                    <div class="component-price">₹17,000</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-label">Case</div>
+                    <div class="component-value">Corsair 4000D Airflow</div>
+                    <div class="component-price">₹12,000</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-label">Cooling</div>
+                    <div class="component-value">240mm AIO (Corsair H100i or similar)</div>
+                    <div class="component-price">₹8,000</div>
+                </div>
+                <div class="total-row">
+                    <div class="component-label">TOTAL</div>
+                    <div class="component-value"></div>
+                    <div class="component-price">₹227,893</div>
+                </div>
+            </div>
+
+            <div class="performance-note">
+                <strong>Key Improvements:</strong> The Ryzen 9 7900X's 12 cores significantly accelerate data preprocessing and tokenization, while the larger L3 cache improves CPU offloading performance when model weights exceed GPU VRAM.
+            </div>
+        </div>
+
+        <h2>Configuration Option C: High-Performance Build with RTX 4090 at ₹293,425</h2>
+
+        <div class="config-card">
+            <h3>
+                Maximum Capability
+                <span class="price-tag">₹293,425</span>
+            </h3>
+            
+            <p>This configuration substantially exceeds budget but represents the minimum viable hardware for approaching larger LLM workloads. The RTX 4090's <strong>24GB VRAM</strong> enables 30-40B quantized models with headroom, and dual-GPU expansion to 48GB combined becomes possible—sufficient for 70B quantized models.</p>
+
+            <div class="component-list">
+                <div class="component-item">
+                    <div class="component-label">GPU</div>
+                    <div class="component-value">INNO3D RTX 4090 Gaming X3 24GB</div>
+                    <div class="component-price">₹148,945</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-label">CPU</div>
+                    <div class="component-value">AMD Ryzen 9 7900X (12C/24T)</div>
+                    <div class="component-price">₹34,850</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-label">Motherboard</div>
+                    <div class="component-value">ASUS TUF Gaming X670E-Plus WiFi</div>
+                    <div class="component-price">₹32,585</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-label">RAM</div>
+                    <div class="component-value">64GB DDR5-6000 (2×32GB)</div>
+                    <div class="component-price">₹19,045</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-label">Storage</div>
+                    <div class="component-value">Samsung 990 Pro 2TB NVMe</div>
+                    <div class="component-price">₹18,000</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-label">PSU</div>
+                    <div class="component-value">Corsair HX1200 Platinum (1200W)</div>
+                    <div class="component-price">₹25,000</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-label">Case</div>
+                    <div class="component-value">Lian Li Lancool III (full tower)</div>
+                    <div class="component-price">₹15,000</div>
+                </div>
+                <div class="total-row">
+                    <div class="component-label">TOTAL</div>
+                    <div class="component-value"></div>
+                    <div class="component-price">₹293,425</div>
+                </div>
+            </div>
+
+            <div class="performance-note">
+                <strong>Performance Benchmarks:</strong> LLaMA 3 8B Q4 at 127.7 tokens/sec | 70B Q4 runs at 9-12 tokens/sec with partial CPU offload | TotalSegmentator completes CT segmentation in 30 seconds | A second RTX 4090 can be added later for 48GB combined VRAM, enabling 70B models at ~19 tokens/sec via tensor parallelism
+            </div>
+        </div>
+
+        <h2>Component Selection Rationale</h2>
+
+        <h3>GPU Analysis: Stark Trade-offs</h3>
+        
+        <p>The RTX 4090's 24GB VRAM and 1,008 GB/s memory bandwidth make it the only consumer card capable of running 30-40B models comfortably. The 4080 Super and 4070 Ti Super share 16GB VRAM—adequate for medical imaging but limiting for LLMs. Professional RTX A4000/A5000 cards offer no advantage at their price points; the A6000 (48GB) at ₹375,000+ is impractical for this budget.</p>
+
+        <table class="spec-table">
+            <thead>
+                <tr>
+                    <th>GPU</th>
+                    <th>VRAM</th>
+                    <th>Memory Bandwidth</th>
+                    <th>LLaMA 8B Q4</th>
+                    <th>Max Model</th>
+                    <th>Price (₹)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>RTX 4070 Ti Super</strong></td>
+                    <td>16GB</td>
+                    <td>672 GB/s</td>
+                    <td>82 tok/s</td>
+                    <td>~13-20B Q4</td>
+                    <td>73,000</td>
+                </tr>
+                <tr>
+                    <td><strong>RTX 4080 Super</strong></td>
+                    <td>16GB</td>
+                    <td>736 GB/s</td>
+                    <td>106 tok/s</td>
+                    <td>~20-25B Q4</td>
+                    <td>99,000</td>
+                </tr>
+                <tr>
+                    <td><strong>RTX 4090</strong></td>
+                    <td>24GB</td>
+                    <td>1,008 GB/s</td>
+                    <td>128 tok/s</td>
+                    <td>~30-40B Q4</td>
+                    <td>149,000</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>AMD AM5 Platform: Best Foundation for AI</h3>
+
+        <p>Native AVX-512 support accelerates CPU-based inference operations by 15-20% compared to Intel consumer chips where AVX-512 is disabled. The platform guarantees CPU upgrade support through 2027+ (Zen 5, Zen 6), while Intel's LGA1700 is a dead-end socket.</p>
+
+        <h3>64GB DDR5: Minimum Viable RAM</h3>
+
+        <p>When GPU VRAM is insufficient, models offload layers to system memory—DDR5's higher bandwidth (up to 200% improvement over DDR4 for certain AI workloads) directly accelerates this process. The Ryzen platform's support for 192GB RAM on select motherboards enables future expansion.</p>
+
+        <h2>Multi-GPU Expandability Considerations</h2>
+
+        <p>Running 120B models eventually requires multi-GPU configurations. RTX 40-series cards lack NVLink, but tensor parallelism via PCIe works effectively with frameworks like <code>vLLM</code> and <code>ExLlamaV2</code>. Two RTX 4090s (48GB combined) can run 70B quantized models at ~19 tokens/sec—still short of 120B requirements but a practical ceiling for consumer hardware.</p>
+
+        <table class="spec-table">
+            <thead>
+                <tr>
+                    <th>Multi-GPU Config</th>
+                    <th>Combined VRAM</th>
+                    <th>70B Q4 Performance</th>
+                    <th>Approx. Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>2× RTX 4090</strong></td>
+                    <td>48GB</td>
+                    <td>19 tok/s</td>
+                    <td>₹298,000 (GPUs only)</td>
+                </tr>
+                <tr>
+                    <td><strong>2× RTX 4080 Super</strong></td>
+                    <td>32GB</td>
+                    <td>OOM for 70B</td>
+                    <td>₹198,000 (GPUs only)</td>
+                </tr>
+                <tr>
+                    <td><strong>Single RTX A6000</strong></td>
+                    <td>48GB</td>
+                    <td>14.6 tok/s</td>
+                    <td>₹375,000+</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Medical Imaging Workload Analysis</h2>
+
+        <p>For oncology and radiology POC workloads, even the budget configuration provides substantial headroom. The major frameworks have modest requirements compared to large LLMs.</p>
+
+        <ul>
+            <li><strong>MONAI Toolkit</strong> requires 16GB VRAM minimum (48GB recommended only for VISTA-3D and largest models)</li>
+            <li><strong>nnU-Net</strong> needs just 11GB minimum for training and 4GB for inference—the M preset uses ~9GB, L preset ~24GB</li>
+            <li><strong>TotalSegmentator</strong> benchmarked on RTX 3090 completes 1.5mm resolution CT segmentation in 30-60 seconds using 8-12GB VRAM</li>
+        </ul>
+
+        <p>All three configurations handle these medical imaging workloads without limitation. The GPU choice should therefore be driven primarily by LLM requirements and budget rather than radiology needs.</p>
+
+        <h2>PSU and Thermal Requirements</h2>
+
+        <p>The RTX 4090 draws 450W TDP with transient spikes to 600W+. Combined with a high-end CPU (170W+ under load) and system overhead, total power draw reaches 800-1000W during inference operations. ATX 3.0 power supplies with native 12VHPWR connectors handle transient spikes up to 3× nominal load—critical for stable operation.</p>
+
+        <table class="spec-table">
+            <thead>
+                <tr>
+                    <th>Configuration</th>
+                    <th>Recommended PSU</th>
+                    <th>Wattage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>RTX 4070 Ti Super + Ryzen 7</td>
+                    <td>Corsair RM850x</td>
+                    <td>850W</td>
+                </tr>
+                <tr>
+                    <td>RTX 4080 Super + Ryzen 9</td>
+                    <td>Corsair RM1000x</td>
+                    <td>1000W</td>
+                </tr>
+                <tr>
+                    <td>RTX 4090 + Ryzen 9</td>
+                    <td>Corsair HX1200</td>
+                    <td>1200W</td>
+                </tr>
+                <tr>
+                    <td>Future dual GPU</td>
+                    <td>Corsair HX1500i</td>
+                    <td>1500W+</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Recommended Purchasing Channels in India</h2>
+
+        <p>Significant price variation exists between Indian retailers. <strong>EliteHubs</strong> consistently offers the best GPU and motherboard prices—RTX 4090 at ₹148,945 versus ₹255,000+ on Amazon India. For specific components:</p>
+
+        <div class="grid-2">
+            <div class="performance-note">
+                <strong>Best Retailers:</strong>
+                <ul style="margin-top: 12px;">
+                    <li><strong>GPUs:</strong> EliteHubs, Computech Store</li>
+                    <li><strong>CPUs:</strong> Computech Store, Shivam IT</li>
+                    <li><strong>Motherboards/RAM:</strong> EliteHubs, MD Computers</li>
+                    <li><strong>Storage/PSU:</strong> Vedant Computers, PC Studio, PrimeABGB</li>
+                </ul>
+            </div>
+            <div class="callout">
+                <strong>AVOID:</strong> Amazon and Flipkart for GPUs—prices often run 30-80% higher than specialty retailers.
+            </div>
+        </div>
+
+        <div class="conclusion-box">
+            <h2>Practical Path Forward</h2>
+            
+            <p><strong>For strict INR 200,000 adherence:</strong> Option A delivers a capable POC workstation for medical imaging and models up to 20B parameters. It cannot run 120B models—no consumer hardware within this budget can.</p>
+
+            <p><strong>For serious LLM development:</strong> Stretch to Option C with the RTX 4090. The ₹80,000+ budget increase purchases 8GB additional VRAM, 50% higher memory bandwidth, and 55% faster inference—differences that fundamentally change what models are practical to run. The expandability to dual GPUs creates a viable path toward 70B models.</p>
+
+            <p><strong>For 120B models specifically:</strong> The honest answer is that consumer hardware is insufficient. Options include: (1) using quantized 70B models as a proxy during POC development, (2) hybrid inference with partial CPU offloading accepting 1-2 tokens/sec speeds, (3) cloud API access for 120B+ inference, or (4) substantially larger budget for used datacenter GPUs (2× A100 80GB at ₹800,000+).</p>
+
+            <p style="margin-bottom: 0;">The recommended path is <strong>Option C with the RTX 4090</strong>, acknowledging budget overrun, combined with cloud API usage for 120B model validation during POC. This balances local development capability, expandability, and practical access to larger models when required.</p>
+        </div>
+
+        <p class="footnote">
+            Configuration pricing current as of December 2024. Indian market prices fluctuate; verify current rates before purchase. Performance benchmarks derived from community testing on similar hardware configurations.
+        </p>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+</body>
+</html>

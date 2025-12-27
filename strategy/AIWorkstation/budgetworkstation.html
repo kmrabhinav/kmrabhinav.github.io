@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategic Architectural Specification for High-Performance Biomedical AI Workstation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        h3 {
+            color: #16a085;
+            margin-top: 25px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul, ol {
+            margin-bottom: 15px;
+            padding-left: 25px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+        strong {
+            color: #e74c3c;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #34495e;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        code {
+            background-color: #eee;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+       .container {
+            background-color: #fff;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Strategic Architectural Specification for High-Performance Biomedical AI Workstation: Optimizing for 120B Parameter LLMs and Volumetric Imaging within constrained Budgetary Frameworks</h1>
+
+    <h2>1. Executive Summary</h2>
+    <p>This comprehensive research report presents a rigorous architectural specification and procurement strategy for a dedicated high-performance workstation engineered to bridge the computational gap between Proof-of-Concept (POC) execution of 120-billion parameter Large Language Models (LLMs) and high-fidelity medical image processing. The primary objective is to deliver a viable system configuration within a strictly defined budget of INR 200,000, while adhering to the critical requirement of a robust upgrade path for future scalability.</p>
+    <p>The analysis reveals that the intersection of two distinct workloads—LLM inference and medical image segmentation—creates a complex optimization problem. Large Language Models, particularly those in the 120B parameter class like <code>gpt-oss-120b</code>, act as memory-bound workloads that necessitate massive capacity and high throughput to store and access model weights. Conversely, medical image processing frameworks such as MONAI (Medical Open Network for AI) and 3D Slicer impose heavy demands on GPU compute capability (CUDA cores) and memory bandwidth for handling high-resolution volumetric data (CT/MRI). Standard consumer-grade hardware configurations typically fail to satisfy this dual mandate due to insufficient Video Random Access Memory (VRAM) and restricted PCIe lane configurations.</p>
+    <p>The proposed solution necessitates a departure from conventional "off-the-shelf" procurement strategies. By synthesizing data on hardware physics, software optimization techniques (quantization, hybrid inference), and the specific dynamics of the Indian computer hardware market, this report advocates for a <strong>Hybrid Compute Architecture</strong>. This architecture leverages the cost-efficiency of the secondary market for enterprise-grade consumer GPUs—specifically the NVIDIA GeForce RTX 3090—integrated with a modern AMD AM5 platform that supports PCIe bifurcation. This combination enables the immediate execution of quantized 120B models via CPU-GPU offloading and provides the necessary bandwidth for medical imaging, all while reserving architectural headroom for a dual-GPU configuration in the future.</p>
+    <p>The recommended configuration centers on a <strong>used NVIDIA RTX 3090 24GB GPU</strong> paired with an <strong>AMD Ryzen 9 7900</strong> processor and a substantial <strong>96GB of DDR5 system memory</strong>. This specific alignment of components addresses the critical bottleneck of VRAM capacity, mitigates the latency of CPU-based inference through AVX-512 acceleration, and fits within the INR 200,000 ceiling. The report further details a risk-managed procurement strategy involving trusted Indian vendors such as Suraj Technology and community marketplaces like Zoukart and Techenclave, ensuring that the theoretical performance benefits are realizable in a practical, economically viable build.</p>
+
+    <h2>2. Computational Theory and Workload Characterization</h2>
+    <p>To engineer a system capable of handling "POC grade" 120B LLMs and professional medical imaging, it is imperative to first deconstruct the fundamental computational physics governing these workloads. Understanding the bottlenecks at the silicon level allows for precise component selection that avoids the common pitfalls of balanced consumer PC builds, which are often optimized for gaming rather than high-performance computing (HPC).</p>
+
+    <h3>2.1. The Physics of Large Language Model Inference</h3>
+    <p>The execution of a 120-billion parameter model on a workstation represents a significant challenge in memory management. An LLM operates by sequentially predicting the next token based on the preceding context. This process involves matrix-vector multiplication where the model's weights (parameters) must be loaded from memory into the compute units.</p>
+
+    <p><strong>Memory Capacity as the Primary Constraint</strong><br>
+    In its native Half Precision (FP16) format, a 120B model requires 2 bytes per parameter. Consequently, the model alone necessitates approximately <strong>240 GB of VRAM</strong> to load the weights.[1] This requirement places the workload firmly in the domain of enterprise data center hardware, such as clusters of NVIDIA A100 (80GB) or H100 GPUs, which are economically inaccessible for this project. To run such a model on a workstation with a budget of INR 200,000, one must utilize <strong>Quantization</strong>.</p>
+
+    <p>Quantization reduces the precision of the model weights from 16-bit floating-point numbers to lower-bit integers, drastically reducing the memory footprint with minimal degradation in perplexity (reasoning capability).</p>
+    <ul>
+        <li><strong>4-bit Quantization (Q4_K_M):</strong> This is the industry standard for local inference. It compresses the model size to approximately <strong>70GB to 75GB</strong>.[2, 3]</li>
+        <li><strong>Context Overhead:</strong> Beyond the model weights, memory is required for the KV (Key-Value) cache, which stores the attention mechanism's state for the active conversation. For a context window of 4,096 to 8,192 tokens, an additional <strong>2GB to 8GB</strong> of memory is required.[4]</li>
+    </ul>
+
+    <p><strong>The Hybrid Inference Architecture</strong><br>
+    Even with quantization, a 75GB model exceeds the 24GB VRAM capacity of the finest consumer GPU available, the RTX 3090 (or RTX 4090). This necessitates a <strong>Split-Memory Strategy</strong>, also known as CPU Offloading. In this architecture, the model is partitioned:</p>
+    <ol>
+        <li><strong>GPU Layers:</strong> As many layers as possible (typically 30-35 layers for a 120B model) are loaded into the GPU's ultra-fast VRAM (GDDR6X).</li>
+        <li><strong>CPU Layers:</strong> The remaining layers (approximately 80+) reside in the system RAM (DDR5).</li>
+    </ol>
+
+    <p>During inference, the computation flows sequentially through the layers. When the GPU finishes processing its layers, the data is transferred over the PCIe bus to the CPU, which processes the remaining layers using system RAM. This transition introduces a significant bandwidth bottleneck. The GPU memory operates at <strong>936 GB/s</strong> (RTX 3090), whereas dual-channel DDR5 system memory operates at approximately <strong>50-70 GB/s</strong>. This disparity means that while the GPU portion of the inference is instantaneous, the CPU portion is bounded by memory bandwidth, resulting in generation speeds of <strong>2-5 tokens per second (t/s)</strong>.[5, 6] While this is too slow for a real-time chatbot experience, it is perfectly acceptable for "POC grade" research, automated analysis, and batch processing tasks specified in the user request.</p>
+
+    <h3>2.2. Medical Image Computing: Throughput and Bandwidth</h3>
+    <p>Unlike the sequential nature of LLMs, medical image processing is inherently parallel. Workflows involving frameworks like <strong>MONAI (Medical Open Network for AI)</strong> and <strong>3D Slicer</strong> generally involve operations on 3D volumetric datasets (Voxels) derived from CT or MRI scans.</p>
+
+    <p><strong>The Bandwidth Imperative</strong><br>
+    Medical imaging tasks, such as volumetric segmentation (e.g., separating a tumor from healthy tissue using VISTA-3D or UNet models), involve processing massive 3D matrices (tensors). A standard high-resolution CT scan might be a 512x512x512 voxel array. Processing these volumes requires high memory bandwidth to feed the CUDA cores efficiently.<br>
+    Research indicates a critical divergence in modern GPU architecture that affects this workload. The newer <strong>NVIDIA RTX 4060 Ti 16GB</strong>, despite having a substantial VRAM buffer, utilizes a narrow <strong>128-bit memory bus</strong>, resulting in a memory bandwidth of only <strong>288 GB/s</strong>.[7] In stark contrast, the older <strong>RTX 3090</strong> utilizes a <strong>384-bit memory bus</strong>, delivering <strong>936 GB/s</strong> of bandwidth.[8]</p>
+
+    <p><strong>Architectural Consequence:</strong><br>
+    For deep learning training and heavy 3D rendering in MONAI, the bandwidth limitation of the 4060 Ti becomes a severe choke point. Benchmarks suggest that the RTX 3090 can be up to <strong>2x faster</strong> in training loops and inference for large medical models compared to the 4060 Ti, purely due to the ability to move data in and out of the compute units more rapidly.[8] Furthermore, complex 3D visualizations in 3D Slicer rely on volume rendering techniques that scale linearly with memory bandwidth.[9] Therefore, for medical imaging, raw bandwidth is as critical as capacity.</p>
+
+    <p><strong>Software Stack Dependencies</strong><br>
+    The medical AI ecosystem is predominantly built on <strong>NVIDIA CUDA</strong>. Libraries like MONAI, PyTorch, and ITK/VTK (the backbone of 3D Slicer) are heavily optimized for CUDA acceleration.[10, 11] While Apple's Metal Performance Shaders (MPS) have made strides, they still lack support for specific 3D operators required in advanced medical research (e.g., certain 3D convolutions or deformable registration algorithms), often forcing a fallback to the CPU, which drastically slows down the workflow.[12, 13] This reinforces the necessity of an NVIDIA-based architecture for this specific use case.</p>
+
+    <h2>3. Architectural Platform Analysis and Selection</h2>
+    <p>To satisfy the constraints of budget (INR 200,000) and capability (120B LLM + Medical AI), three primary hardware platforms were evaluated.</p>
+
+    <h3>3.1. Option A: Apple Mac Mini (M4 Pro) - The Unified Memory Contender</h3>
+    <p>The Mac Mini with the M4 Pro chip utilizes a Unified Memory Architecture (UMA), where the CPU and GPU share a single pool of high-speed memory.</p>
+    <ul>
+        <li><strong>Advantages:</strong> A Mac Mini configured with 64GB of RAM allows the GPU to access the entire memory pool. This is highly efficient for inference, as it eliminates the PCIe bus bottleneck found in PC architectures.</li>
+        <li><strong>Disadvantages:</strong>
+            <ul>
+                <li><strong>Cost Prohibitive:</strong> A configuration with 64GB of Unified Memory (essential for approaching large models) costs approximately <strong>INR 2,41,000</strong>.[14] This exceeds the total budget before factoring in peripherals.</li>
+                <li><strong>Capacity Ceiling:</strong> 64GB is insufficient for a 75GB quantized 120B model without heavy swapping to the SSD, which degrades performance to unusable levels.</li>
+                <li><strong>Software Friction:</strong> As noted, the lack of full CUDA support creates friction in professional medical imaging workflows.[12]</li>
+                <li><strong>Zero Upgrade Path:</strong> The memory and GPU are soldered to the SoC. There is no possibility of adding a second GPU or increasing RAM later, violating the "strong upgrade path" requirement.</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h3>3.2. Option B: Intel LGA1700 (13th/14th Gen) - The Dead End</h3>
+    <ul>
+        <li><strong>Disadvantages:</strong> The LGA1700 platform has reached the end of its lifecycle. Investing in a Core i7-13700K or i9-14900K offers no path for future CPU upgrades without replacing the motherboard. Furthermore, consumer Intel platforms often struggle with stability when populating all four DIMM slots with high-density DDR5 memory (e.g., 128GB or 192GB), which is a critical requirement for this build.[15]</li>
+    </ul>
+
+    <h3>3.3. Option C: AMD AM5 (Ryzen 7000/9000) - The Strategic Choice</h3>
+    <p>The AMD AM5 platform emerges as the optimal foundation for this workstation.</p>
+    <ul>
+        <li><strong>Longevity:</strong> AMD has committed to multi-year support for the AM5 socket, ensuring that the user can upgrade to Ryzen 9000 or future generations without changing the motherboard.</li>
+        <li><strong>AVX-512 Support:</strong> Crucially, Ryzen 7000 series CPUs support <strong>AVX-512</strong> instruction sets. Modern inference engines like <code>llama.cpp</code> heavily utilize AVX-512 to accelerate the CPU-based portion of the inference pipeline.[5] This makes the Ryzen 9 7900 significantly more efficient at processing the "offloaded" layers of the 120B model compared to older architectures or standard consumer implementations.</li>
+        <li><strong>PCIe Connectivity:</strong> The AM5 platform supports PCIe Gen 5.0, providing bandwidth for future storage and GPU upgrades.</li>
+        <li><strong>Bifurcation Support:</strong> Select AM5 motherboards allow the primary x16 PCIe slot to be split into <strong>x8/x8</strong> modes. This is the keystone feature for the "upgrade path" requirement, enabling the addition of a second GPU in the future to double VRAM capacity.[16]</li>
+    </ul>
+    <p><strong>Conclusion:</strong> The <strong>AMD AM5 platform</strong> is selected as the architectural basis for this workstation.</p>
+
+    <h2>4. Component Selection and Procurement Strategy</h2>
+    <p>This section details the specific components selected to meet the technical requirements within the INR 200,000 budget, leveraging the nuances of the Indian hardware market.</p>
+
+    <h3>4.1. The GPU: Used NVIDIA GeForce RTX 3090 24GB</h3>
+    <p>The GPU is the most critical component. A new RTX 4090 (24GB) costs ~INR 1,80,000, consuming the entire budget. The RTX 4060 Ti (16GB) lacks the bandwidth for medical imaging and the VRAM for effective LLM offloading. Therefore, the <strong>used market</strong> is the only viable route.</p>
+    <ul>
+        <li><strong>Technical Rationale:</strong> The RTX 3090 offers <strong>24GB of GDDR6X VRAM</strong> and <strong>936 GB/s bandwidth</strong>. This capacity allows for the storage of approximately 35 layers of a quantized 120B model, significantly reducing the load on the slower system RAM. For medical imaging, the 384-bit bus width ensures that 512^3 voxel datasets do not bottleneck the compute cores.[8]</li>
+        <li><strong>Indian Market Availability:</strong> Used RTX 3090 cards are currently trading between <strong>INR 50,000 and INR 65,000</strong> in India.[17, 18, 19]</li>
+        <li><strong>Trusted Procurement Sources:</strong>
+            <ul>
+                <li><strong>Zoukart:</strong> A well-known community marketplace for used hardware. Users report successful transactions using the "Admin Method," where a trusted middleman holds funds until the buyer verifies the product.[20, 21]</li>
+                <li><strong>Suraj Technology (Delhi/NCR):</strong> A vendor frequently cited in Indian tech communities for bulk imports of used hardware. Reviews suggest reliability for budget workstation components, though due diligence (stress testing) is always recommended.[22, 23]</li>
+                <li><strong>Chenoy Trade Centre (CTC), Hyderabad:</strong> For users in Hyderabad, shops like <strong>Vishal Peripherals</strong> and others in the CTC complex act as hubs for both new and used hardware. Physical verification is a major advantage here.[24, 25]</li>
+                <li><strong>LebyoPC:</strong> An online vendor specializing in pre-owned GPUs with testing warranties (typically 30-90 days), offering a balance between individual sellers and retail security.[26]</li>
+            </ul>
+        </li>
+        <li><strong>Target Model:</strong> <strong>Zotac Trinity</strong> or <strong>Asus TUF Gaming</strong>. These models generally have robust coolers and are widely available. Avoid "blower" style cards unless a server-rack chassis is planned due to noise and thermal throttling.</li>
+        <li><strong>Allocated Budget:</strong> <strong>INR 55,000</strong></li>
+    </ul>
+
+    <h3>4.2. The CPU: AMD Ryzen 9 7900 (Non-X)</h3>
+    <ul>
+        <li><strong>Technical Rationale:</strong>
+            <ul>
+                <li><strong>12 Cores / 24 Threads:</strong> While GPU is king for inference, preprocessing medical data (DICOM conversion, NIfTI formatting) is heavily CPU-dependent. The 12 cores provide ample throughput for these tasks.</li>
+                <li><strong>AVX-512:</strong> As established, this feature accelerates the CPU-portion of the split-memory LLM inference.[5]</li>
+                <li><strong>Thermal Efficiency:</strong> The non-X version has a 65W TDP, running significantly cooler than the 7900X. This allows for the use of a cost-effective air cooler rather than an expensive AIO liquid cooler, redirecting funds to RAM and GPU.</li>
+            </ul>
+        </li>
+        <li><strong>Procurement:</strong> Widely available on platforms like MDComputers, Vedant Computers, and Amazon India.</li>
+        <li><strong>Allocated Budget:</strong> <strong>INR 34,000</strong>.[27]</li>
+    </ul>
+
+    <h3>4.3. The Motherboard: The Bifurcation Enabler</h3>
+    <p>This component dictates the upgrade path. Most budget B650 motherboards feature one PCIe x16 slot wired to the CPU, while the second "x16" slot is electrically x4 and wired to the chipset. This is insufficient for a dual-GPU setup, as the second card would be severely bottlenecked.</p>
+    <ul>
+        <li><strong>Requirement:</strong> A motherboard that supports <strong>x8/x8 PCIe Bifurcation</strong>. This allows the primary x16 slot to split its bandwidth, granting 8 dedicated CPU lanes to a second GPU in the future.</li>
+        <li><strong>Selected Model:</strong> <strong>ASUS ProArt B650-Creator</strong>
+            <ul>
+                <li><strong>Why:</strong> This board is specifically engineered for workstation use. Documentation confirms it supports x8/x8 lane bifurcation on its first two PCIe slots.[28, 29] This feature ensures that when a second RTX 3090 is added, both cards will operate with direct CPU access, maximizing bandwidth for parallel processing and NVLink (if supported/bridged) or simple multi-gpu inference.</li>
+                <li><strong>Alternative:</strong> <strong>MSI PRO X670-P WIFI</strong>. While also capable, verifying the exact bifurcation behavior in BIOS can be trickier compared to the explicitly marketed workstation features of the ProArt series.[30, 31]</li>
+            </ul>
+        </li>
+        <li><strong>Allocated Budget:</strong> <strong>INR 25,000</strong>.[32, 33]</li>
+    </ul>
+
+    <h3>4.4. System Memory (RAM): 96GB DDR5 (2x48GB)</h3>
+    <p>Standard memory configurations (32GB/64GB) are mathematically insufficient.</p>
+    <ul>
+        <li><strong>The Math:</strong> A 120B Q4 quantized model requires ~75GB. The OS and display overhead require ~4-6GB. Medical imaging tools like 3D Slicer require ~16-32GB for smooth manipulation of large datasets.</li>
+        <li><strong>The Problem with 128GB:</strong> Using 4 sticks of 32GB (128GB total) on the AM5 platform places immense stress on the memory controller, often forcing speeds down to 3600MHz. This drastic reduction in bandwidth would cripple the CPU-based portion of the LLM inference, reducing token generation to a crawl.</li>
+        <li><strong>The Solution:</strong> <strong>96GB Non-Binary Memory (2x48GB)</strong>. Kits from Corsair and Crucial utilize 24Gb DRAM chips, allowing for high density with only two modules. This configuration maintains stability at higher speeds (<strong>5200-5600 MT/s</strong>), providing the necessary bandwidth for the CPU to feed data to the inference engine efficiently.[34, 35]</li>
+        <li><strong>Selected Model:</strong> <strong>Corsair Vengeance 96GB (2x48GB) DDR5 5600MHz</strong> or <strong>Crucial Pro 96GB</strong>.</li>
+        <li><strong>Allocated Budget:</strong> <strong>INR 34,000</strong>.[35, 36]</li>
+    </ul>
+
+    <h3>4.5. Storage: High-Throughput NVMe</h3>
+    <p>Loading a 75GB model file into memory takes time. Slow storage results in frustratingly long startup latencies for every inference session.</p>
+    <ul>
+        <li><strong>Selected Model:</strong> <strong>Kingston KC3000 2TB</strong> or <strong>WD Black SN850X 2TB</strong>.
+            <ul>
+                <li><strong>Performance:</strong> Both drives utilize the PCIe Gen 4.0 interface to deliver read speeds exceeding <strong>7,000 MB/s</strong>. This ensures that the massive model files and gigabytes of DICOM data are loaded into RAM in seconds rather than minutes.</li>
+                <li><strong>Capacity:</strong> 2TB is the recommended minimum. Medical datasets are voluminous; a single study can be hundreds of megabytes, and derived 3D models can be gigabytes.</li>
+            </ul>
+        </li>
+        <li><strong>Allocated Budget:</strong> <strong>INR 13,500</strong>.[37, 38]</li>
+    </ul>
+
+    <h3>4.6. Power Supply Unit (PSU): 1000W Gold</h3>
+    <p>The RTX 3090 is notorious for "transient spikes"—microsecond bursts where power draw can exceed 500W. A substandard PSU will trigger over-current protection (OCP) and crash the system.</p>
+    <ul>
+        <li><strong>Selected Model:</strong> <strong>Deepcool PQ1000M 1000W 80+ Gold</strong>.
+            <ul>
+                <li><strong>Why:</strong> This unit is based on the highly reputable <strong>Seasonic Focus</strong> platform, known for its ability to handle transient loads effectively. 1000W provides the necessary headroom for the current system and supports the addition of a second GPU (likely with some power limiting optimization) in the future.</li>
+            </ul>
+        </li>
+        <li><strong>Allocated Budget:</strong> <strong>INR 12,000</strong>.[39]</li>
+    </ul>
+
+    <h3>4.7. Chassis and Cooling</h3>
+    <ul>
+        <li><strong>Case:</strong> <strong>Lian Li Lancool 216</strong>. This case is widely praised for its exceptional airflow, which is critical for keeping a used RTX 3090 (which runs hot) cool. It supports E-ATX boards and has room for multi-GPU setups.</li>
+        <li><strong>Cooler:</strong> <strong>Deepcool AK620 Zero Dark</strong>. A dual-tower air cooler that rivals liquid coolers in performance. It is more than capable of handling the 65W Ryzen 9 7900 and eliminates the failure points of liquid cooling (pump failure, leaks).</li>
+        <li><strong>Allocated Budget:</strong> <strong>INR 14,000</strong> (Case ~8.5k + Cooler ~5.5k).[40, 41]</li>
+    </ul>
+
+    <h2>5. Comprehensive Bill of Materials (BOM)</h2>
+    <p>The following table summarizes the optimized component list, pricing estimates based on current Indian market data, and sourcing channels.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Component Category</th>
+                <th>Specific Selection</th>
+                <th>Estimated Price (INR)</th>
+                <th>Sourcing Channel & Rationale</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>GPU</strong></td>
+                <td><strong>Used NVIDIA RTX 3090 24GB</strong></td>
+                <td>₹55,000</td>
+                <td><strong>Zoukart / Suraj Technology / LebyoPC.</strong> Essential for 24GB VRAM and 936 GB/s bandwidth.</td>
+            </tr>
+            <tr>
+                <td><strong>CPU</strong></td>
+                <td><strong>AMD Ryzen 9 7900</strong></td>
+                <td>₹34,000</td>
+                <td><strong>MDComputers / Amazon.</strong> 12-Core efficiency, AVX-512 for LLM acceleration.</td>
+            </tr>
+            <tr>
+                <td><strong>Motherboard</strong></td>
+                <td><strong>ASUS ProArt B650-Creator</strong></td>
+                <td>₹25,000</td>
+                <td><strong>Micro Center India / Vedant.</strong> Validated x8/x8 bifurcation for dual-GPU upgrade path.</td>
+            </tr>
+            <tr>
+                <td><strong>Memory</strong></td>
+                <td><strong>96GB (2x48GB) DDR5 5600MHz</strong></td>
+                <td>₹34,000</td>
+                <td><strong>PrimeABGB / Computech.</strong> High density non-binary RAM for model offloading stability.</td>
+            </tr>
+            <tr>
+                <td><strong>Storage</strong></td>
+                <td><strong>Kingston KC3000 2TB Gen4</strong></td>
+                <td>₹13,500</td>
+                <td><strong>OnlySSD / Vedant.</strong> 7000MB/s speeds for rapid model and dataset loading.</td>
+            </tr>
+            <tr>
+                <td><strong>Power Supply</strong></td>
+                <td><strong>Deepcool PQ1000M 1000W Gold</strong></td>
+                <td>₹12,000</td>
+                <td><strong>EliteHubs / Amazon.</strong> Seasonic OEM platform to handle 3090 transient spikes.</td>
+            </tr>
+            <tr>
+                <td><strong>Chassis</strong></td>
+                <td><strong>Lian Li Lancool 216</strong></td>
+                <td>₹8,500</td>
+                <td><strong>EzPz Solutions / MDComputers.</strong> Superior airflow for thermal management.</td>
+            </tr>
+            <tr>
+                <td><strong>CPU Cooler</strong></td>
+                <td><strong>Deepcool AK620 Zero Dark</strong></td>
+                <td>₹5,500</td>
+                <td><strong>Amazon / Vedant.</strong> Robust air cooling for sustained workstation loads.</td>
+            </tr>
+            <tr>
+                <td><strong>Total Estimated Cost</strong></td>
+                <td></td>
+                <td><strong>₹1,87,500</strong></td>
+                <td><strong>Remains ~₹12,500 below the ₹2,00,000 limit.</strong></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p><em>Note: The remaining buffer of ~₹12,500 serves as a contingency for shipping costs, potential price fluctuations in the used GPU market, or the addition of a secondary 4TB HDD for cold storage of medical archives.</em></p>
+
+    <h2>6. Technical Implementation and System Optimization</h2>
+    <p>Hardware procurement is only the first phase. The viability of this workstation relies heavily on specific software configurations to harmonize the split-memory architecture.</p>
+
+    <h3>6.1. Optimizing 120B LLM Inference</h3>
+    <p>Running a model of this magnitude on "prosumer" hardware requires the use of <strong>llama.cpp</strong> or <strong>Ollama</strong>, which are optimized for hybrid CPU-GPU inference.</p>
+    <ol>
+        <li><strong>Quantization Strategy:</strong> Users must utilize the <strong>GGUF</strong> format. Specifically, the <code>gpt-oss-120b-Q4_K_M.gguf</code> quantization is recommended. This file size is approximately 72GB.</li>
+        <li><strong>Layer Offloading Configuration:</strong>
+            <ul>
+                <li>The RTX 3090 provides 24GB of VRAM. After accounting for OS overhead (approx. 600MB-1GB on a headless Linux server, or 2GB on Windows), roughly 22GB is available for the model.</li>
+                <li><strong>Configuration:</strong> Using the <code>--n-gpu-layers</code> flag in llama.cpp, users should offload approximately <strong>30 to 35 layers</strong> to the GPU.</li>
+                <li><strong>The CPU's Role:</strong> The remaining ~80 layers will reside in the 96GB system RAM. The Ryzen 9 7900 will process these layers using its AVX-512 instructions.</li>
+            </ul>
+        </li>
+        <li><strong>Performance Expectations:</strong>
+            <ul>
+                <li><strong>Prefill (Prompt Processing):</strong> This phase is parallelizable and will benefit from the GPU's initial ingest, offering reasonable speed.</li>
+                <li><strong>Decode (Token Generation):</strong> This phase is memory-bandwidth bound. Since a significant portion of the model is in system RAM, the generation speed will be limited by the DDR5 bandwidth (~60 GB/s). Users should expect a generation speed of <strong>2 to 4 tokens per second</strong>. While slower than a pure GPU setup, this is fully functional for POC testing, chain-of-thought verification, and automated agentic workflows.[5, 6]</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h3>6.2. Medical Imaging Stack Configuration</h3>
+    <p>For medical image analysis, the software stack must be configured to prioritize the GPU.</p>
+    <ol>
+        <li><strong>CUDA Toolkit Compatibility:</strong> Ensure the installed NVIDIA drivers and CUDA Toolkit version match the requirements of the specific MONAI release (e.g., CUDA 12.x for MONAI v1.3+).</li>
+        <li><strong>3D Slicer Configuration:</strong>
+            <ul>
+                <li>In 3D Slicer settings, ensure "Volume Rendering" is set to use the GPU.</li>
+                <li>The 24GB VRAM allows for the loading of multiple high-resolution series simultaneously, a capability that 8GB or 12GB cards lack.</li>
+            </ul>
+        </li>
+        <li><strong>MONAI Inference:</strong>
+            <ul>
+                <li>For segmentation tasks on large volumes (e.g., 512x512x512), use <strong>Sliding Window Inference</strong> (a standard MONAI feature). This technique breaks the large volume into smaller chunks that fit within the GPU memory, processes them, and stitches the results back together. The RTX 3090's capacity allows for larger window sizes, reducing the number of "stitches" and speeding up the overall process.[10]</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h3>6.3. Operating System Recommendation</h3>
+    <p><strong>Linux (Ubuntu 22.04/24.04 LTS)</strong> is strongly recommended over Windows 11.</p>
+    <ul>
+        <li><strong>VRAM Efficiency:</strong> Linux desktop environments (or headless modes) consume significantly less VRAM than Windows, freeing up more precious GPU memory for the LLM layers.</li>
+        <li><strong>Software Support:</strong> The majority of AI and medical imaging research tools are "Linux-first," offering easier installation and better stability for libraries like PyTorch and MONAI.</li>
+    </ul>
+
+    <h2>7. Future Expansion Strategy (The Upgrade Path)</h2>
+    <p>The chosen architecture is not a dead end; it is a foundation for a Phase 2 workstation.</p>
+    <ol>
+        <li><strong>Dual GPU Expansion:</strong>
+            <ul>
+                <li>The <strong>ASUS ProArt B650-Creator</strong> and the <strong>1000W PSU</strong> are selected specifically to accommodate a second RTX 3090 in the future.</li>
+                <li><strong>Installation:</strong> The second card can be slotted into the secondary PCIe x16 slot. The motherboard will automatically bifurcate the bandwidth to x8/x8. While x8 is half the bandwidth of x16, for LLM inference (which is memory capacity bound) and many medical imaging tasks, the performance penalty is negligible compared to the gain of <strong>doubling VRAM to 48GB</strong>.</li>
+                <li><strong>Impact:</strong> With 48GB of VRAM, significantly more layers of the 120B model can be offloaded to the GPU, potentially doubling inference speeds to <strong>8-10 tokens per second</strong>.</li>
+            </ul>
+        </li>
+        <li><strong>CPU Upgradability:</strong>
+            <ul>
+                <li>The AM5 socket ensures that in 2-3 years, the user can swap the Ryzen 9 7900 for a Ryzen 9000 or later series processor to gain IPC improvements, without needing to replace the RAM or motherboard.</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h2>8. Procurement Risks and Mitigation in India</h2>
+    <p>Sourcing used hardware in India requires a strategic approach to mitigate risk.</p>
+    <ol>
+        <li><strong>Vendor Verification:</strong> When dealing with sources like Suraj Technology or Zoukart sellers:
+            <ul>
+                <li><strong>Mandatory Testing:</strong> Demand a video call or a recorded video showing the specific GPU serial number running a <strong>FurMark stress test</strong> for at least 15 minutes. Monitor the "Hotspot Temperature"—on a used 3090, this should not exceed 105°C (thermal throttling limit). Ideally, it should stay under 95°C.</li>
+                <li><strong>Benchmark Validation:</strong> Request a <strong>3DMark Time Spy</strong> run. A healthy RTX 3090 should score approximately 19,000 to 20,000 graphics points. A significantly lower score indicates thermal throttling or a degraded card (former mining card).</li>
+            </ul>
+        </li>
+        <li><strong>Warranty & Returns:</strong>
+            <ul>
+                <li>Prioritize sellers who offer a "testing warranty" (typically 7 to 30 days).</li>
+                <li>Use payment methods that offer some protection (e.g., the "Admin Method" on Zoukart/Facebook groups, where a trusted admin holds the money).</li>
+                <li>Verify if the card carries any remaining manufacturer warranty. Brands like Zotac are sometimes more lenient with warranty transfers if the original bill is provided, whereas MSI/Gigabyte often strictly follow the serial number and purchase date.[17, 20]</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h2>9. Conclusion</h2>
+    <p>This report delineates a workstation architecture that defies conventional "balanced build" logic to satisfy an extreme set of requirements within a constrained budget. By strategically selecting a <strong>used NVIDIA RTX 3090</strong>, the system secures the 24GB VRAM and 936 GB/s bandwidth that are non-negotiable for medical imaging—capabilities that similarly priced new GPUs like the RTX 4060 Ti fails to deliver. By coupling this with an <strong>AM5 Ryzen 9 7900</strong> and <strong>96GB of RAM</strong>, the system provides the massive memory buffer required to execute 120B LLMs via hybrid inference, leveraging AVX-512 for acceptable performance.</p>
+    <p>This configuration is not merely a collection of parts; it is a calculated integration designed to punch far above its weight class. It delivers a functional, high-performance environment for 120B model research and medical AI today, while embedding a clear, hardware-supported pathway to dual-GPU workstation performance in the future.</p>
+
+</div>
+
+</body>
+</html>
