@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare AI CoE - Lab Administration Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #F5F5F5;
+            color: #323130;
+        }
+        
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #2B2B2B;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #404040;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .sidebar-menu {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+        
+        .menu-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #E1E1E1;
+            transition: all 0.2s;
+        }
+        
+        .menu-item:hover {
+            background: #404040;
+            color: white;
+        }
+        
+        .menu-item.active {
+            background: #0078D4;
+            color: white;
+            border-left: 4px solid #106EBE;
+        }
+        
+        .menu-icon {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Top Bar */
+        .top-bar {
+            background: white;
+            padding: 16px 24px;
+            border-bottom: 1px solid #E1DFDD;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 20px;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 10px 16px;
+            border: 1px solid #E1DFDD;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .top-bar-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #0078D4;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        
+        .page-header {
+            margin-bottom: 24px;
+        }
+        
+        .page-title {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #323130;
+        }
+        
+        .page-subtitle {
+            font-size: 14px;
+            color: #605E5C;
+        }
+        
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #F3F2F1;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #323130;
+        }
+        
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #0078D4;
+        }
+        
+        .kpi-label {
+            font-size: 14px;
+            color: #605E5C;
+            margin-bottom: 8px;
+        }
+        
+        .kpi-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #323130;
+            margin-bottom: 8px;
+        }
+        
+        .kpi-change {
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .kpi-change.positive {
+            color: #10893E;
+        }
+        
+        .kpi-change.negative {
+            color: #D13438;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #0078D4;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #106EBE;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #323130;
+            border: 1px solid #E1DFDD;
+        }
+        
+        .btn-secondary:hover {
+            background: #F3F2F1;
+        }
+        
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: #F3F2F1;
+        }
+        
+        th {
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            color: #323130;
+            border-bottom: 2px solid #E1DFDD;
+        }
+        
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #F3F2F1;
+            font-size: 14px;
+        }
+        
+        tbody tr:hover {
+            background: #FAFAFA;
+        }
+        
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background: #DFF6DD;
+            color: #0B6A0B;
+        }
+        
+        .badge-warning {
+            background: #FFF4CE;
+            color: #8A6100;
+        }
+        
+        .badge-error {
+            background: #FDE7E9;
+            color: #A80000;
+        }
+        
+        .badge-info {
+            background: #CDE6F7;
+            color: #004578;
+        }
+        
+        /* Cohort Badges */
+        .cohort-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .cohort-t1 { background: #D4E6F7; color: #004578; }
+        .cohort-t2 { background: #E8DAEF; color: #5C2E91; }
+        .cohort-t3 { background: #CCF2FF; color: #005A79; }
+        .cohort-t4 { background: #CCF0EB; color: #006050; }
+        .cohort-t5 { background: #FFF4CE; color: #8A6100; }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+        
+        .quick-action-card {
+            background: white;
+            border: 2px solid #E1DFDD;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
+        .quick-action-card:hover {
+            border-color: #0078D4;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .quick-action-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+        
+        .quick-action-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #323130;
+        }
+        
+        /* Timeline */
+        .timeline {
+            position: relative;
+        }
+        
+        .timeline-item {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #F3F2F1;
+        }
+        
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+        
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #E6F2FF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .timeline-content {
+            flex: 1;
+        }
+        
+        .timeline-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #323130;
+        }
+        
+        .timeline-meta {
+            font-size: 13px;
+            color: #605E5C;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #E1DFDD;
+            margin-bottom: 24px;
+            gap: 8px;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            font-weight: 600;
+            color: #605E5C;
+            transition: all 0.2s;
+        }
+        
+        .tab:hover {
+            color: #323130;
+        }
+        
+        .tab.active {
+            color: #0078D4;
+            border-bottom-color: #0078D4;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-overlay.show {
+            display: flex;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #E1DFDD;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #323130;
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #E1DFDD;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #323130;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #E1DFDD;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #0078D4;
+        }
+        
+        /* Charts (Simple CSS-based) */
+        .chart-container {
+            margin: 20px 0;
+        }
+        
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            height: 200px;
+            gap: 12px;
+            padding: 20px 0;
+        }
+        
+        .bar {
+            flex: 1;
+            background: #0078D4;
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all 0.3s;
+            min-height: 20px;
+        }
+        
+        .bar:hover {
+            background: #106EBE;
+            transform: translateY(-4px);
+        }
+        
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #605E5C;
+            white-space: nowrap;
+        }
+        
+        .bar-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: 600;
+            color: #323130;
+        }
+        
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-input {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        /* Status Dots */
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-green { background: #10893E; }
+        .status-yellow { background: #FFB900; }
+        .status-red { background: #D13438; }
+        
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Action Icons */
+        .action-icons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            padding: 6px 10px;
+            border: 1px solid #E1DFDD;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            background: #F3F2F1;
+            border-color: #0078D4;
+        }
+
+        /* Hide class */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                Healthcare AI CoE Portal
+            </div>
+            <div class="sidebar-menu">
+                <div class="menu-item active" data-page="dashboard">
+                    <span class="menu-icon">🏠</span>
+                    <span>Dashboard</span>
+                </div>
+                <div class="menu-item" data-page="users">
+                    <span class="menu-icon">👥</span>
+                    <span>User Management</span>
+                </div>
+                <div class="menu-item" data-page="devops">
+                    <span class="menu-icon">🔧</span>
+                    <span>Azure DevOps</span>
+                </div>
+                <div class="menu-item" data-page="code">
+                    <span class="menu-icon">💻</span>
+                    <span>Code Analytics</span>
+                </div>
+                <div class="menu-item" data-page="prs">
+                    <span class="menu-icon">🔀</span>
+                    <span>Pull Requests</span>
+                </div>
+                <div class="menu-item" data-page="pipelines">
+                    <span class="menu-icon">🚀</span>
+                    <span>Pipelines</span>
+                </div>
+                <div class="menu-item" data-page="api">
+                    <span class="menu-icon">🔌</span>
+                    <span>API Manager</span>
+                </div>
+                <div class="menu-item" data-page="forms">
+                    <span class="menu-icon">📋</span>
+                    <span>Intake Forms</span>
+                </div>
+                <div class="menu-item" data-page="reports">
+                    <span class="menu-icon">📊</span>
+                    <span>Reports</span>
+                </div>
+                <div class="menu-item" data-page="settings">
+                    <span class="menu-icon">⚙️</span>
+                    <span>Settings</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="search-bar">
+                    <input type="text" placeholder="Search users, groups, PRs, builds...">
+                </div>
+                <div class="top-bar-actions">
+                    <div style="position: relative;">
+                        <span style="font-size: 20px; cursor: pointer;">🔔</span>
+                        <span style="position: absolute; top: -5px; right: -5px; background: #E81123; color: white; font-size: 10px; padding: 2px 5px; border-radius: 10px;">3</span>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-avatar">KA</div>
+                        <span style="font-weight: 600;">Kumar Admin</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area" id="contentArea">
+                <!-- Dashboard Content (default) -->
+                <div id="dashboard-page" class="page-content">
+                    <div class="page-header">
+                        <h1 class="page-title">Dashboard</h1>
+                        <p class="page-subtitle">Welcome back, Kumar! Here's what's happening with your AI CoE lab today.</p>
+                    </div>
+                    
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-label">Active Developers</div>
+                            <div class="kpi-value">127</div>
+                            <div class="kpi-change positive">↑ 8% from last week</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #10893E;">
+                            <div class="kpi-label">Active Use Cases</div>
+                            <div class="kpi-value">34</div>
+                            <div class="kpi-change positive">↑ 3 new this month</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #FFB900;">
+                            <div class="kpi-label">API Calls (Today)</div>
+                            <div class="kpi-value">45.2K</div>
+                            <div class="kpi-change positive">↑ 12% vs yesterday</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #00B294;">
+                            <div class="kpi-label">Pipeline Success Rate</div>
+                            <div class="kpi-value">94.6%</div>
+                            <div class="kpi-change negative">↓ 2 failed builds</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Commit Activity by Cohort</h2>
+                        </div>
+                        <div class="chart-container">
+                            <div class="bar-chart">
+                                <div class="bar" style="height: 70%;">
+                                    <span class="bar-value">165</span>
+                                    <span class="bar-label">T1-AMS</span>
+                                </div>
+                                <div class="bar" style="height: 85%; background: #8764B8;">
+                                    <span class="bar-value">174</span>
+                                    <span class="bar-label">T2-SDLC</span>
+                                </div>
+                                <div class="bar" style="height: 55%; background: #00BCF2;">
+                                    <span class="bar-value">132</span>
+                                    <span class="bar-label">T3-CoC</span>
+                                </div>
+                                <div class="bar" style="height: 45%; background: #00B294;">
+                                    <span class="bar-value">107</span>
+                                    <span class="bar-label">T4-Corp</span>
+                                </div>
+                                <div class="bar" style="height: 60%; background: #FFB900;">
+                                    <span class="bar-value">142</span>
+                                    <span class="bar-label">T5-PBM</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Quick Actions</h2>
+                            </div>
+                            <div class="quick-actions">
+                                <div class="quick-action-card" onclick="showAddUserModal()">
+                                    <div class="quick-action-icon">👤</div>
+                                    <div class="quick-action-title">Add User</div>
+                                </div>
+                                <div class="quick-action-card">
+                                    <div class="quick-action-icon">👥</div>
+                                    <div class="quick-action-title">Create Group</div>
+                                </div>
+                                <div class="quick-action-card" onclick="navigateTo('prs')">
+                                    <div class="quick-action-icon">🔀</div>
+                                    <div class="quick-action-title">View PRs</div>
+                                </div>
+                                <div class="quick-action-card" onclick="navigateTo('api')">
+                                    <div class="quick-action-icon">🔌</div>
+                                    <div class="quick-action-title">API Health</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Recent Activity</h2>
+                            </div>
+                            <div class="timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">👤</div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">New user onboarded</div>
+                                        <div class="timeline-meta">John Doe added to T1-AMS · 2 hours ago</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">✅</div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">PR merged</div>
+                                        <div class="timeline-meta">#456 - API authentication update · 3 hours ago</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">🚀</div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Pipeline executed</div>
+                                        <div class="timeline-meta">Healthcare-API deployed to production · 4 hours ago</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">📋</div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Intake form submitted</div>
+                                        <div class="timeline-meta">Use case: Patient portal AI assistant · 5 hours ago</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Management Page -->
+                <div id="users-page" class="page-content hidden">
+                    <div class="page-header">
+                        <h1 class="page-title">User Management</h1>
+                        <p class="page-subtitle">Manage users and groups in Microsoft Entra ID</p>
+                    </div>
+                    
+                    <div class="tabs">
+                        <div class="tab active" data-tab="users-tab">Users</div>
+                        <div class="tab" data-tab="groups-tab">Groups</div>
+                    </div>
+                    
+                    <div id="users-tab" class="tab-content">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="filters">
+                                    <input class="form-input filter-input" placeholder="Search users..." />
+                                    <select class="form-input" style="width: 150px;">
+                                        <option>All Cohorts</option>
+                                        <option>T1 - AMS</option>
+                                        <option>T2 - SDLC</option>
+                                        <option>T3 - CoC</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary" onclick="showAddUserModal()">+ Add User</button>
+                            </div>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Cohort</th>
+                                            <th>Role</th>
+                                            <th>Groups</th>
+                                            <th>Status</th>
+                                            <th>Last Login</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>John Doe</strong></td>
+                                            <td>john.doe@healthcare.com</td>
+                                            <td><span class="cohort-badge cohort-t1">T1</span></td>
+                                            <td>Developer</td>
+                                            <td>3 groups</td>
+                                            <td><span class="badge badge-success">Active</span></td>
+                                            <td>2025-01-15</td>
+                                            <td>
+                                                <div class="action-icons">
+                                                    <button class="action-btn">✏️</button>
+                                                    <button class="action-btn">🗑️</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Sarah Smith</strong></td>
+                                            <td>sarah.smith@healthcare.com</td>
+                                            <td><span class="cohort-badge cohort-t2">T2</span></td>
+                                            <td>Architect</td>
+                                            <td>5 groups</td>
+                                            <td><span class="badge badge-success">Active</span></td>
+                                            <td>2025-01-16</td>
+                                            <td>
+                                                <div class="action-icons">
+                                                    <button class="action-btn">✏️</button>
+                                                    <button class="action-btn">🗑️</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Mike Johnson</strong></td>
+                                            <td>mike.j@healthcare.com</td>
+                                            <td><span class="cohort-badge cohort-t1">T1</span></td>
+                                            <td>Developer</td>
+                                            <td>2 groups</td>
+                                            <td><span class="badge badge-success">Active</span></td>
+                                            <td>2025-01-14</td>
+                                            <td>
+                                                <div class="action-icons">
+                                                    <button class="action-btn">✏️</button>
+                                                    <button class="action-btn">🗑️</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Emily Chen</strong></td>
+                                            <td>emily.c@healthcare.com</td>
+                                            <td><span class="cohort-badge cohort-t3">T3</span></td>
+                                            <td>Lead</td>
+                                            <td>4 groups</td>
+                                            <td><span class="badge badge-success">Active</span></td>
+                                            <td>2025-01-16</td>
+                                            <td>
+                                                <div class="action-icons">
+                                                    <button class="action-btn">✏️</button>
+                                                    <button class="action-btn">🗑️</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>David Park</strong></td>
+                                            <td>david.p@healthcare.com</td>
+                                            <td><span class="cohort-badge cohort-t4">T4</span></td>
+                                            <td>Developer</td>
+                                            <td>2 groups</td>
+                                            <td><span class="badge badge-error">Inactive</span></td>
+                                            <td>2025-01-10</td>
+                                            <td>
+                                                <div class="action-icons">
+                                                    <button class="action-btn">✏️</button>
+                                                    <button class="action-btn">🗑️</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="groups-tab" class="tab-content hidden">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="filters">
+                                    <input class="form-input filter-input" placeholder="Search groups..." />
+                                </div>
+                                <button class="btn btn-primary">+ Create Group</button>
+                            </div>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Group Name</th>
+                                            <th>Type</th>
+                                            <th>Members</th>
+                                            <th>Cohort</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>AMS-Developers</strong></td>
+                                            <td><span class="badge badge-info">Security</span></td>
+                                            <td>15 members</td>
+                                            <td><span class="cohort-badge cohort-t1">T1</span></td>
+                                            <td>
+                                                <div class="action-icons">
+                                                    <button class="action-btn">👥</button>
+                                                    <button class="action-btn">✏️</button>
+                                                    <button class="action-btn">🗑️</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>SDLC-Team</strong></td>
+                                            <td><span class="badge badge-info">Distribution</span></td>
+                                            <td>22 members</td>
+                                            <td><span class="cohort-badge cohort-t2">T2</span></td>
+                                            <td>
+                                                <div class="action-icons">
+                                                    <button class="action-btn">👥</button>
+                                                    <button class="action-btn">✏️</button>
+                                                    <button class="action-btn">🗑️</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>CoC-Architects</strong></td>
+                                            <td><span class="badge badge-info">Security</span></td>
+                                            <td>8 members</td>
+                                            <td><span class="cohort-badge cohort-t3">T3</span></td>
+                                            <td>
+                                                <div class="action-icons">
+                                                    <button class="action-btn">👥</button>
+                                                    <button class="action-btn">✏️</button>
+                                                    <button class="action-btn">🗑️</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other pages with placeholder content -->
+                <div id="devops-page" class="page-content hidden">
+                    <div class="page-header">
+                        <h1 class="page-title">Azure DevOps Management</h1>
+                        <p class="page-subtitle">Manage DevOps users, groups, and rules</p>
+                    </div>
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-label">Total DevOps Users</div>
+                            <div class="kpi-value">127</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #10893E;">
+                            <div class="kpi-label">DevOps Groups</div>
+                            <div class="kpi-value">18</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #FFB900;">
+                            <div class="kpi-label">Active Rules</div>
+                            <div class="kpi-value">12</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #00B294;">
+                            <div class="kpi-label">Repositories</div>
+                            <div class="kpi-value">28</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">DevOps Users</h2>
+                            <button class="btn btn-primary">+ Add User to DevOps</button>
+                        </div>
+                        <p style="padding: 20px; color: #605E5C;">DevOps user management interface with access level controls and team assignments...</p>
+                    </div>
+                </div>
+
+                <div id="code-page" class="page-content hidden">
+                    <div class="page-header">
+                        <h1 class="page-title">Code Analytics</h1>
+                        <p class="page-subtitle">Visualize code commit patterns and development activity</p>
+                    </div>
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-label">Total Commits (7 days)</div>
+                            <div class="kpi-value">720</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #10893E;">
+                            <div class="kpi-label">Active Repositories</div>
+                            <div class="kpi-value">28</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #FFB900;">
+                            <div class="kpi-label">Active Contributors</div>
+                            <div class="kpi-value">89</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #00B294;">
+                            <div class="kpi-label">Avg Commits/Day</div>
+                            <div class="kpi-value">103</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Commits by Cohort</h2>
+                        </div>
+                        <div class="chart-container">
+                            <div class="bar-chart">
+                                <div class="bar" style="height: 75%;">
+                                    <span class="bar-value">165</span>
+                                    <span class="bar-label">T1</span>
+                                </div>
+                                <div class="bar" style="height: 80%; background: #8764B8;">
+                                    <span class="bar-value">174</span>
+                                    <span class="bar-label">T2</span>
+                                </div>
+                                <div class="bar" style="height: 60%; background: #00BCF2;">
+                                    <span class="bar-value">132</span>
+                                    <span class="bar-label">T3</span>
+                                </div>
+                                <div class="bar" style="height: 50%; background: #00B294;">
+                                    <span class="bar-value">107</span>
+                                    <span class="bar-label">T4</span>
+                                </div>
+                                <div class="bar" style="height: 70%; background: #FFB900;">
+                                    <span class="bar-value">142</span>
+                                    <span class="bar-label">T5</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="prs-page" class="page-content hidden">
+                    <div class="page-header">
+                        <h1 class="page-title">Pull Request Analytics</h1>
+                        <p class="page-subtitle">Track PR submissions, reviews, and merge rates</p>
+                    </div>
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-label">Open PRs</div>
+                            <div class="kpi-value">15</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #10893E;">
+                            <div class="kpi-label">Avg Review Time</div>
+                            <div class="kpi-value">4.2h</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #FFB900;">
+                            <div class="kpi-label">PR Merge Rate</div>
+                            <div class="kpi-value">89%</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #00B294;">
+                            <div class="kpi-label">This Week's PRs</div>
+                            <div class="kpi-value">38</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Recent Pull Requests</h2>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>PR #</th>
+                                        <th>Title</th>
+                                        <th>Submitter</th>
+                                        <th>Cohort</th>
+                                        <th>Status</th>
+                                        <th>Files</th>
+                                        <th>Created</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>#1</strong></td>
+                                        <td>Add patient data validation</td>
+                                        <td>John Doe</td>
+                                        <td><span class="cohort-badge cohort-t1">T1</span></td>
+                                        <td><span class="badge badge-warning">Open</span></td>
+                                        <td>5</td>
+                                        <td>2025-01-16</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>#2</strong></td>
+                                        <td>Update API authentication</td>
+                                        <td>Sarah Smith</td>
+                                        <td><span class="cohort-badge cohort-t2">T2</span></td>
+                                        <td><span class="badge badge-info">Approved</span></td>
+                                        <td>3</td>
+                                        <td>2025-01-15</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>#3</strong></td>
+                                        <td>Fix database connection pool</td>
+                                        <td>Mike Johnson</td>
+                                        <td><span class="cohort-badge cohort-t1">T1</span></td>
+                                        <td><span class="badge badge-success">Merged</span></td>
+                                        <td>2</td>
+                                        <td>2025-01-14</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pipelines-page" class="page-content hidden">
+                    <div class="page-header">
+                        <h1 class="page-title">Build & Release Pipelines</h1>
+                        <p class="page-subtitle">Monitor CI/CD pipeline execution and success rates</p>
+                    </div>
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-label">Total Builds (Today)</div>
+                            <div class="kpi-value">87</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #10893E;">
+                            <div class="kpi-label">Build Success Rate</div>
+                            <div class="kpi-value">94.6%</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #FFB900;">
+                            <div class="kpi-label">Avg Build Duration</div>
+                            <div class="kpi-value">5m 32s</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #D13438;">
+                            <div class="kpi-label">Failed Builds</div>
+                            <div class="kpi-value">5</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Recent Builds</h2>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Build #</th>
+                                        <th>Pipeline</th>
+                                        <th>Branch</th>
+                                        <th>Status</th>
+                                        <th>Duration</th>
+                                        <th>Triggered By</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>#1</strong></td>
+                                        <td>Healthcare-API</td>
+                                        <td><code>main</code></td>
+                                        <td><span class="badge badge-success">Success</span></td>
+                                        <td>4m 23s</td>
+                                        <td>John Doe</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>#2</strong></td>
+                                        <td>Data-Processing</td>
+                                        <td><code>feature/validation</code></td>
+                                        <td><span class="badge badge-error">Failed</span></td>
+                                        <td>2m 15s</td>
+                                        <td>Sarah Smith</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>#3</strong></td>
+                                        <td>ML-Training</td>
+                                        <td><code>main</code></td>
+                                        <td><span class="badge badge-success">Success</span></td>
+                                        <td>15m 42s</td>
+                                        <td>Mike Johnson</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="api-page" class="page-content hidden">
+                    <div class="page-header">
+                        <h1 class="page-title">API Manager Analytics</h1>
+                        <p class="page-subtitle">Monitor API consumption, prompts, and usage patterns</p>
+                    </div>
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-label">API Calls (Today)</div>
+                            <div class="kpi-value">45.2K</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #10893E;">
+                            <div class="kpi-label">Avg Response Time</div>
+                            <div class="kpi-value">124ms</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #D13438;">
+                            <div class="kpi-label">Error Rate</div>
+                            <div class="kpi-value">0.8%</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #FFB900;">
+                            <div class="kpi-label">Tokens Consumed</div>
+                            <div class="kpi-value">2.4M</div>
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Top APIs by Traffic</h2>
+                            </div>
+                            <div style="padding: 20px;">
+                                <div style="margin-bottom: 20px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <span>Healthcare-GPT API</span>
+                                        <strong>18.5K</strong>
+                                    </div>
+                                    <div style="background: #E1DFDD; height: 8px; border-radius: 4px;">
+                                        <div style="background: #0078D4; width: 85%; height: 100%; border-radius: 4px;"></div>
+                                    </div>
+                                </div>
+                                <div style="margin-bottom: 20px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <span>Patient Data API</span>
+                                        <strong>14.2K</strong>
+                                    </div>
+                                    <div style="background: #E1DFDD; height: 8px; border-radius: 4px;">
+                                        <div style="background: #0078D4; width: 68%; height: 100%; border-radius: 4px;"></div>
+                                    </div>
+                                </div>
+                                <div style="margin-bottom: 20px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <span>Claims Processing API</span>
+                                        <strong>9.8K</strong>
+                                    </div>
+                                    <div style="background: #E1DFDD; height: 8px; border-radius: 4px;">
+                                        <div style="background: #0078D4; width: 45%; height: 100%; border-radius: 4px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">API Health Status</h2>
+                            </div>
+                            <div style="padding: 20px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                    <span>Healthcare-GPT API</span>
+                                    <span class="status-dot status-green"></span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                    <span>Patient Data API</span>
+                                    <span class="status-dot status-green"></span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                    <span>Claims Processing API</span>
+                                    <span class="status-dot status-yellow"></span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>Ontology Search API</span>
+                                    <span class="status-dot status-green"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="forms-page" class="page-content hidden">
+                    <div class="page-header">
+                        <h1 class="page-title">Intake Forms Management</h1>
+                        <p class="page-subtitle">Track and manage all lab intake form submissions</p>
+                    </div>
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-label">Developer Onboarding</div>
+                            <div class="kpi-value">12</div>
+                            <div style="font-size: 12px; color: #605E5C;">5 pending</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #10893E;">
+                            <div class="kpi-label">Use Case Intake</div>
+                            <div class="kpi-value">8</div>
+                            <div style="font-size: 12px; color: #605E5C;">3 pending approval</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #FFB900;">
+                            <div class="kpi-label">Resource Requisition</div>
+                            <div class="kpi-value">15</div>
+                            <div style="font-size: 12px; color: #605E5C;">2 in progress</div>
+                        </div>
+                        <div class="kpi-card" style="border-left-color: #00B294;">
+                            <div class="kpi-label">Portal Access</div>
+                            <div class="kpi-value">6</div>
+                            <div style="font-size: 12px; color: #605E5C;">4 pending</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Recent Submissions</h2>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Form Type</th>
+                                        <th>Submitter</th>
+                                        <th>Cohort</th>
+                                        <th>Status</th>
+                                        <th>Submitted</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Developer Onboarding</strong></td>
+                                        <td>HR Team</td>
+                                        <td><span class="cohort-badge cohort-t1">T1</span></td>
+                                        <td><span class="badge badge-warning">Pending</span></td>
+                                        <td>2025-01-16</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Use Case Intake</strong></td>
+                                        <td>Business Lead</td>
+                                        <td><span class="cohort-badge cohort-t5">T5</span></td>
+                                        <td><span class="badge badge-success">Approved</span></td>
+                                        <td>2025-01-15</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Resource Requisition</strong></td>
+                                        <td>Tech Lead</td>
+                                        <td><span class="cohort-badge cohort-t2">T2</span></td>
+                                        <td><span class="badge badge-info">In Progress</span></td>
+                                        <td>2025-01-16</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="reports-page" class="page-content hidden">
+                    <div class="page-header">
+                        <h1 class="page-title">Reports & Analytics</h1>
+                        <p class="page-subtitle">Generate and export comprehensive reports</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Report Templates</h2>
+                        </div>
+                        <div class="quick-actions">
+                            <div class="quick-action-card">
+                                <div class="quick-action-icon">📊</div>
+                                <div class="quick-action-title">User Activity Report</div>
+                                <button class="btn btn-secondary" style="margin-top: 12px; font-size: 12px; padding: 6px 12px;">Generate</button>
+                            </div>
+                            <div class="quick-action-card">
+                                <div class="quick-action-icon">💻</div>
+                                <div class="quick-action-title">Code Quality Report</div>
+                                <button class="btn btn-secondary" style="margin-top: 12px; font-size: 12px; padding: 6px 12px;">Generate</button>
+                            </div>
+                            <div class="quick-action-card">
+                                <div class="quick-action-icon">🚀</div>
+                                <div class="quick-action-title">Pipeline Performance</div>
+                                <button class="btn btn-secondary" style="margin-top: 12px; font-size: 12px; padding: 6px 12px;">Generate</button>
+                            </div>
+                            <div class="quick-action-card">
+                                <div class="quick-action-icon">🔌</div>
+                                <div class="quick-action-title">API Usage Report</div>
+                                <button class="btn btn-secondary" style="margin-top: 12px; font-size: 12px; padding: 6px 12px;">Generate</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="settings-page" class="page-content hidden">
+                    <div class="page-header">
+                        <h1 class="page-title">Settings</h1>
+                        <p class="page-subtitle">Configure portal settings and integrations</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Connected Services</h2>
+                        </div>
+                        <div style="padding: 20px;">
+                            <div style="margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #E1DFDD;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <h3 style="margin-bottom: 8px;">Microsoft Entra ID</h3>
+                                        <p style="font-size: 14px; color: #605E5C;">Connected to healthcare.onmicrosoft.com</p>
+                                    </div>
+                                    <span class="status-dot status-green"></span>
+                                </div>
+                                <div style="margin-top: 12px; font-size: 12px; color: #605E5C;">
+                                    Last sync: 2 minutes ago
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #E1DFDD;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <h3 style="margin-bottom: 8px;">Azure DevOps</h3>
+                                        <p style="font-size: 14px; color: #605E5C;">Connected to Healthcare-AI-CoE organization</p>
+                                    </div>
+                                    <span class="status-dot status-green"></span>
+                                </div>
+                                <div style="margin-top: 12px; font-size: 12px; color: #605E5C;">
+                                    Last sync: 5 minutes ago
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #E1DFDD;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <h3 style="margin-bottom: 8px;">Azure API Management</h3>
+                                        <p style="font-size: 14px; color: #605E5C;">Connected to healthcare-apim service</p>
+                                    </div>
+                                    <span class="status-dot status-green"></span>
+                                </div>
+                                <div style="margin-top: 12px; font-size: 12px; color: #605E5C;">
+                                    Last sync: 1 minute ago
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal-overlay" id="addUserModal">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New User</h2>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">First Name *</label>
+                    <input class="form-input" placeholder="Enter first name" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Last Name *</label>
+                    <input class="form-input" placeholder="Enter last name" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address *</label>
+                    <input class="form-input" type="email" placeholder="user@healthcare.com" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cohort *</label>
+                    <select class="form-input">
+                        <option>Select cohort...</option>
+                        <option>T1 - AMS</option>
+                        <option>T2 - SDLC</option>
+                        <option>T3 - CoC</option>
+                        <option>T4 - Corporate</option>
+                        <option>T5 - PBM</option>
+                        <option>T6 - Payor</option>
+                        <option>T7 - Provider</option>
+                        <option>T8 - Pharmacy</option>
+                        <option>T9 - Legacy Modernization</option>
+                        <option>T10 - Healthcare Ontology</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Role *</label>
+                    <select class="form-input">
+                        <option>Select role...</option>
+                        <option>Developer</option>
+                        <option>Architect</option>
+                        <option>Lead</option>
+                        <option>Admin</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hideAddUserModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="hideAddUserModal()">Create User</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation
+        function navigateTo(page) {
+            // Hide all pages
+            document.querySelectorAll('.page-content').forEach(p => {
+                p.classList.add('hidden');
+            });
+            
+            // Show selected page
+            document.getElementById(page + '-page').classList.remove('hidden');
+            
+            // Update menu
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-page="${page}"]`).classList.add('active');
+        }
+        
+        // Menu click handlers
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const page = this.getAttribute('data-page');
+                navigateTo(page);
+            });
+        });
+        
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                const parent = this.closest('.page-content');
+                
+                // Update tabs
+                parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update content
+                parent.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                parent.querySelector('#' + tabId).classList.remove('hidden');
+            });
+        });
+        
+        // Modal functions
+        function showAddUserModal() {
+            document.getElementById('addUserModal').classList.add('show');
+        }
+        
+        function hideAddUserModal() {
+            document.getElementById('addUserModal').classList.remove('show');
+        }
+        
+        // Close modal on overlay click
+        document.getElementById('addUserModal').addEventListener('click', hideAddUserModal);
+    </script>
+</body>
+</html>
