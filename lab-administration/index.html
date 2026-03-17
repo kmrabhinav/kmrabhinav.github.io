@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Administration – Product Backlog</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #F0F2F5;
+            color: #323130;
+        }
+
+        /* ── Top bar ── */
+        .topbar {
+            background: #2B2B2B;
+            color: #fff;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.35);
+        }
+        .topbar svg { flex-shrink: 0; }
+        .topbar h1 { font-size: 20px; font-weight: 600; letter-spacing: .4px; }
+        .topbar span { font-size: 13px; color: #aaa; margin-left: auto; }
+
+        /* ── Page wrapper ── */
+        .page { max-width: 1100px; margin: 0 auto; padding: 36px 24px 60px; }
+
+        /* ── Section header ── */
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .section-header h2 { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+        .section-header .badge {
+            background: #0078d4;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 9px;
+            border-radius: 12px;
+            letter-spacing: .5px;
+        }
+
+        /* ── Feature cards grid ── */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            padding: 22px 24px;
+            transition: box-shadow .2s, transform .15s;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .card:hover {
+            box-shadow: 0 6px 24px rgba(0,120,212,.15);
+            transform: translateY(-2px);
+            border-color: #0078d4;
+        }
+
+        .card-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-icon {
+            width: 40px; height: 40px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .card-icon.blue   { background: #e6f2fc; }
+        .card-icon.green  { background: #e8f5e9; }
+        .card-icon.purple { background: #f3e8ff; }
+        .card-icon.orange { background: #fff3e0; }
+
+        .card-title { font-size: 15px; font-weight: 600; line-height: 1.3; }
+
+        .card-desc {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.55;
+        }
+
+        .card-footer {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .status-pill {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 12px;
+            letter-spacing: .4px;
+        }
+        .status-pill.mockup   { background: #fff3cd; color: #856404; }
+        .status-pill.planned  { background: #e2e3e5; color: #383d41; }
+        .status-pill.progress { background: #cce5ff; color: #004085; }
+
+        .card-link-hint {
+            margin-left: auto;
+            font-size: 12px;
+            color: #0078d4;
+            font-weight: 500;
+        }
+
+        /* ── Placeholder cards (future items) ── */
+        .card.placeholder {
+            border-style: dashed;
+            background: #fafafa;
+            opacity: .7;
+            pointer-events: none;
+        }
+        .card.placeholder .card-title { color: #888; }
+        .card.placeholder .card-desc  { color: #aaa; }
+    </style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <rect width="28" height="28" rx="6" fill="#0078d4"/>
+        <path d="M7 8h14M7 14h10M7 20h12" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <h1>Lab Administration — Product Backlog</h1>
+    <span>Mockup / Design Phase</span>
+</div>
+
+<div class="page">
+
+    <!-- In-progress / Mockup features -->
+    <div class="section-header">
+        <h2>Features</h2>
+        <div class="badge">MOCKUP</div>
+    </div>
+
+    <div class="cards-grid">
+
+        <!-- ── Feature 1 ── -->
+        <a class="card" href="feature-activity-report.html">
+            <div class="card-top">
+                <div class="card-icon blue">📊</div>
+                <div class="card-title">Activity Report — Azure DevOps Git Repo</div>
+            </div>
+            <div class="card-desc">
+                Timeline view of daily commit counts across projects with per-user last-commit
+                markers. Click a user node to drill into their commit history. Supports user
+                removal workflow, message sending with pre-configured templates, and a parallel
+                pull-request activity chart.
+            </div>
+            <div class="card-footer">
+                <span class="status-pill mockup">Mockup</span>
+                <span class="card-link-hint">View mockup →</span>
+            </div>
+        </a>
+
+        <!-- ── Placeholder 2 ── -->
+        <div class="card placeholder">
+            <div class="card-top">
+                <div class="card-icon green">👥</div>
+                <div class="card-title">User &amp; Role Management</div>
+            </div>
+            <div class="card-desc">
+                Onboard / offboard lab members, assign project roles, and manage access
+                permissions across Azure DevOps organizations.
+            </div>
+            <div class="card-footer">
+                <span class="status-pill planned">Planned</span>
+            </div>
+        </div>
+
+        <!-- ── Placeholder 3 ── -->
+        <div class="card placeholder">
+            <div class="card-top">
+                <div class="card-icon purple">🔔</div>
+                <div class="card-title">Automated Notifications &amp; Alerts</div>
+            </div>
+            <div class="card-desc">
+                Configure threshold-based alerts for inactivity, PR review delays, and policy
+                violations. Route notifications to email, Teams, or a custom webhook.
+            </div>
+            <div class="card-footer">
+                <span class="status-pill planned">Planned</span>
+            </div>
+        </div>
+
+        <!-- ── Placeholder 4 ── -->
+        <div class="card placeholder">
+            <div class="card-top">
+                <div class="card-icon orange">📁</div>
+                <div class="card-title">Project Health Dashboard</div>
+            </div>
+            <div class="card-desc">
+                Aggregated KPIs per project: open PRs, build success rate, code churn, and
+                sprint velocity displayed in a consolidated admin view.
+            </div>
+            <div class="card-footer">
+                <span class="status-pill planned">Planned</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

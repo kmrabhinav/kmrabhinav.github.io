@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Report — Azure DevOps Git Repo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #F0F2F5;
+            color: #323130;
+        }
+
+        /* ── Top bar ── */
+        .topbar {
+            background: #2B2B2B;
+            color: #fff;
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .topbar a { color: #aaa; text-decoration: none; font-size: 13px; }
+        .topbar a:hover { color: #fff; }
+        .topbar .sep { color: #555; font-size: 13px; }
+        .topbar .current { font-size: 13px; color: #e1e1e1; }
+
+        /* ── Page layout ── */
+        .page { max-width: 1200px; margin: 0 auto; padding: 28px 24px 60px; display: flex; flex-direction: column; gap: 20px; }
+
+        /* ── Panel ── */
+        .panel {
+            background: #fff;
+            border-radius: 10px;
+            border: 1px solid #dde1e7;
+            overflow: hidden;
+        }
+        .panel-header {
+            background: #F7F8FA;
+            border-bottom: 1px solid #dde1e7;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .panel-header h2 { font-size: 15px; font-weight: 600; }
+        .panel-header .subtitle { font-size: 12px; color: #888; margin-left: auto; }
+        .panel-body { padding: 20px; }
+
+        /* ── Filters row ── */
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            align-items: flex-end;
+        }
+        .filter-group { display: flex; flex-direction: column; gap: 5px; }
+        .filter-group label { font-size: 12px; color: #666; font-weight: 500; }
+        .filter-group input,
+        .filter-group select {
+            border: 1px solid #c8cbd0;
+            border-radius: 6px;
+            padding: 7px 10px;
+            font-size: 13px;
+            color: #323130;
+            background: #fff;
+            min-width: 160px;
+        }
+        .filter-group input:focus,
+        .filter-group select:focus { outline: 2px solid #0078d4; border-color: transparent; }
+
+        .btn {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .btn-primary { background: #0078d4; color: #fff; }
+        .btn-primary:hover { background: #006cbe; }
+        .btn-secondary { background: #f0f2f5; color: #323130; border: 1px solid #c8cbd0; }
+        .btn-secondary:hover { background: #e4e7eb; }
+        .btn-danger  { background: #d13438; color: #fff; }
+        .btn-danger:hover  { background: #b52e31; }
+        .btn-message { background: #107c10; color: #fff; }
+        .btn-message:hover { background: #0b6a0b; }
+        .btn:disabled { opacity: .4; cursor: not-allowed; }
+
+        /* ── Timeline chart area ── */
+        .chart-wrap { position: relative; }
+
+        .chart-canvas {
+            width: 100%;
+            height: 280px;
+            background: #fafbfc;
+            border: 1px dashed #c8cbd0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Fake axis lines */
+        .chart-canvas::before {
+            content: '';
+            position: absolute;
+            left: 56px; right: 16px;
+            top: 20px; bottom: 32px;
+            border-left: 2px solid #c8cbd0;
+            border-bottom: 2px solid #c8cbd0;
+        }
+
+        /* Fake bar graph using CSS */
+        .fake-bars {
+            position: absolute;
+            left: 60px; right: 20px;
+            bottom: 34px;
+            height: calc(100% - 54px);
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+        }
+        .bar {
+            flex: 1;
+            background: rgba(0,120,212,.25);
+            border-radius: 3px 3px 0 0;
+            position: relative;
+            transition: background .15s;
+        }
+        .bar:hover { background: rgba(0,120,212,.5); cursor: pointer; }
+
+        /* Y axis labels */
+        .y-labels {
+            position: absolute;
+            left: 8px; top: 20px; bottom: 34px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .y-labels span { font-size: 10px; color: #999; }
+
+        /* User nodes on the timeline */
+        .user-nodes {
+            position: absolute;
+            left: 60px; right: 20px;
+            bottom: 34px;
+            height: calc(100% - 54px);
+        }
+        .user-node {
+            position: absolute;
+            bottom: 0;
+            transform: translate(-50%, 50%);
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,.25);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            transition: transform .15s, box-shadow .15s;
+            z-index: 10;
+        }
+        .user-node:hover, .user-node.selected {
+            transform: translate(-50%, 50%) scale(1.25);
+            box-shadow: 0 4px 12px rgba(0,0,0,.4);
+        }
+        .user-node.selected { outline: 3px solid #fff; }
+
+        /* Tooltip */
+        .node-tooltip {
+            position: absolute;
+            background: #2b2b2b;
+            color: #fff;
+            font-size: 11px;
+            padding: 5px 9px;
+            border-radius: 5px;
+            white-space: nowrap;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            pointer-events: none;
+            display: none;
+        }
+        .user-node:hover .node-tooltip { display: block; }
+
+        /* X axis date labels */
+        .x-labels {
+            position: absolute;
+            bottom: 6px;
+            left: 60px; right: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .x-labels span { font-size: 10px; color: #999; }
+
+        /* Chart legend */
+        .chart-legend {
+            display: flex;
+            gap: 18px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #666; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+
+        /* ── Tab strip ── */
+        .tab-strip {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid #dde1e7;
+            margin-bottom: 16px;
+        }
+        .tab {
+            padding: 9px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: color .15s;
+        }
+        .tab.active { color: #0078d4; border-bottom-color: #0078d4; }
+        .tab:hover:not(.active) { color: #323130; }
+
+        /* ── User detail table ── */
+        .detail-panel { display: none; }
+        .detail-panel.visible { display: block; }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+        .avatar {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 16px; color: #fff;
+        }
+        .user-meta h3 { font-size: 16px; font-weight: 600; }
+        .user-meta p  { font-size: 12px; color: #888; }
+        .user-actions { margin-left: auto; display: flex; gap: 10px; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        thead tr { background: #F7F8FA; }
+        th { text-align: left; padding: 10px 14px; font-weight: 600; color: #555; border-bottom: 1px solid #dde1e7; }
+        td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #f7f8fa; }
+
+        .commit-sha {
+            font-family: 'Cascadia Code', 'Consolas', monospace;
+            font-size: 12px;
+            color: #0078d4;
+            background: #e6f2fc;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .tag.feat   { background: #cce5ff; color: #004085; }
+        .tag.fix    { background: #d4edda; color: #155724; }
+        .tag.docs   { background: #fff3cd; color: #856404; }
+        .tag.chore  { background: #e2e3e5; color: #383d41; }
+
+        /* ── Message modal ── */
+        .modal-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,.45);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: #fff;
+            border-radius: 10px;
+            width: 520px;
+            max-width: 96vw;
+            box-shadow: 0 12px 40px rgba(0,0,0,.3);
+            overflow: hidden;
+        }
+        .modal-header {
+            background: #F7F8FA;
+            border-bottom: 1px solid #dde1e7;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+        }
+        .modal-header h3 { font-size: 15px; font-weight: 600; flex: 1; }
+        .modal-close {
+            width: 28px; height: 28px;
+            border: none; background: none;
+            font-size: 18px; cursor: pointer; color: #666;
+            border-radius: 4px;
+        }
+        .modal-close:hover { background: #e4e7eb; }
+        .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+
+        .template-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+        .chip {
+            padding: 6px 12px;
+            border: 1px solid #c8cbd0;
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background .15s, border-color .15s;
+            background: #fff;
+        }
+        .chip:hover, .chip.selected { background: #e6f2fc; border-color: #0078d4; color: #0078d4; }
+
+        .modal-body label { font-size: 12px; color: #555; font-weight: 600; }
+        .modal-body textarea {
+            width: 100%;
+            height: 110px;
+            border: 1px solid #c8cbd0;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 13px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        .modal-body textarea:focus { outline: 2px solid #0078d4; border-color: transparent; }
+
+        .modal-footer {
+            padding: 14px 20px;
+            border-top: 1px solid #dde1e7;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* ── Responsive tweak ── */
+        @media (max-width: 680px) {
+            .filters { flex-direction: column; }
+            .filter-group input, .filter-group select { min-width: unset; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Breadcrumb top bar -->
+<div class="topbar">
+    <a href="index.html">← Lab Administration</a>
+    <span class="sep">/</span>
+    <span class="current">Activity Report — Azure DevOps Git Repo</span>
+    <span style="margin-left:auto;font-size:12px;background:#444;padding:3px 9px;border-radius:10px;">MOCKUP</span>
+</div>
+
+<div class="page">
+
+    <!-- ══════════════════════════════════════
+         PANEL 1 — Filters
+    ═══════════════════════════════════════ -->
+    <div class="panel">
+        <div class="panel-header">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M4 8h8M6 12h4" stroke="#0078d4" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <h2>Report Filters</h2>
+        </div>
+        <div class="panel-body">
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Start Date &amp; Time</label>
+                    <input type="datetime-local" value="2026-01-01T00:00">
+                </div>
+                <div class="filter-group">
+                    <label>End Date &amp; Time</label>
+                    <input type="datetime-local" value="2026-03-18T23:59">
+                </div>
+                <div class="filter-group">
+                    <label>Projects</label>
+                    <select multiple size="1" style="min-width:200px;">
+                        <option selected>All Projects</option>
+                        <option>Project Alpha</option>
+                        <option>Project Beta</option>
+                        <option>Project Gamma</option>
+                        <option>Project Delta</option>
+                    </select>
+                </div>
+                <div class="filter-group" style="justify-content:flex-end;">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-primary" onclick="showReport()">⚙ Generate Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         PANEL 2 — Timeline chart (tabs)
+    ═══════════════════════════════════════ -->
+    <div class="panel" id="report-panel" style="display:none;">
+        <div class="panel-header">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="10" width="2" height="5" rx="1" fill="#0078d4"/><rect x="5" y="7"  width="2" height="8" rx="1" fill="#0078d4"/><rect x="9" y="4"  width="2" height="11" rx="1" fill="#0078d4"/><rect x="13" y="2" width="2" height="13" rx="1" fill="#0078d4"/></svg>
+            <h2>Timeline Activity</h2>
+            <span class="subtitle">1 Jan 2026 – 18 Mar 2026 &nbsp;|&nbsp; All Projects</span>
+        </div>
+        <div class="panel-body">
+
+            <!-- Tabs: Commits | Pull Requests -->
+            <div class="tab-strip">
+                <div class="tab active" onclick="switchTab('commits',this)">Commits</div>
+                <div class="tab"        onclick="switchTab('pullrequests',this)">Pull Requests</div>
+            </div>
+
+            <!-- ── Commits chart ── -->
+            <div id="tab-commits">
+                <div class="chart-wrap">
+                    <div class="chart-canvas" id="commits-chart">
+                        <div class="y-labels">
+                            <span>40</span><span>30</span><span>20</span><span>10</span><span>0</span>
+                        </div>
+                        <!-- Fake bars (daily commit counts) -->
+                        <div class="fake-bars" id="bars-container"></div>
+                        <!-- User nodes overlaid on the timeline -->
+                        <div class="user-nodes" id="user-nodes-container"></div>
+                        <!-- X axis dates -->
+                        <div class="x-labels" id="x-labels"></div>
+                    </div>
+                </div>
+
+                <div class="chart-legend" id="commits-legend"></div>
+            </div>
+
+            <!-- ── Pull Requests chart ── -->
+            <div id="tab-pullrequests" style="display:none;">
+                <div class="chart-wrap">
+                    <div class="chart-canvas" id="pr-chart">
+                        <div class="y-labels">
+                            <span>20</span><span>15</span><span>10</span><span>5</span><span>0</span>
+                        </div>
+                        <div class="fake-bars" id="pr-bars-container"></div>
+                        <div class="user-nodes" id="pr-nodes-container"></div>
+                        <div class="x-labels" id="pr-x-labels"></div>
+                    </div>
+                </div>
+                <div class="chart-legend" id="pr-legend"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         PANEL 3 — User detail (hidden until node click)
+    ═══════════════════════════════════════ -->
+    <div class="panel detail-panel" id="user-detail-panel">
+        <div class="panel-header">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="#0078d4" stroke-width="1.5"/><path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="#0078d4" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <h2>User Commit History</h2>
+            <span class="subtitle" id="detail-period">for selected period</span>
+        </div>
+        <div class="panel-body">
+            <div class="user-header">
+                <div class="avatar" id="detail-avatar" style="background:#0078d4;">AU</div>
+                <div class="user-meta">
+                    <h3 id="detail-name">Selected User</h3>
+                    <p id="detail-email">user@example.com</p>
+                </div>
+                <div class="user-actions">
+                    <button class="btn btn-danger"   id="btn-remove"  onclick="removeUser()">Remove User</button>
+                    <button class="btn btn-message"  id="btn-message" onclick="openModal()">✉ Send Message</button>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Commit SHA</th>
+                        <th>Project / Repo</th>
+                        <th>Branch</th>
+                        <th>Type</th>
+                        <th>Message</th>
+                    </tr>
+                </thead>
+                <tbody id="commit-history-body">
+                    <!-- populated by JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div><!-- /page -->
+
+<!-- ══════════════════════════════════════
+     MESSAGE MODAL
+═══════════════════════════════════════ -->
+<div class="modal-overlay" id="message-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>✉ Send Message</h3>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div>
+                <label>Pre-configured Templates</label>
+                <div class="template-chips" id="template-chips" style="margin-top:8px;">
+                    <div class="chip" onclick="selectTemplate(this,'notice-removal')">Notice of Removal</div>
+                    <div class="chip" onclick="selectTemplate(this,'explain-commit')">Seek Explanation – Commit</div>
+                    <div class="chip" onclick="selectTemplate(this,'explain-inactivity')">Seek Explanation – Inactivity</div>
+                    <div class="chip" onclick="selectTemplate(this,'policy-reminder')">Policy Reminder</div>
+                    <div class="chip" onclick="selectTemplate(this,'custom')">Custom Message</div>
+                </div>
+            </div>
+            <div>
+                <label>Message</label>
+                <textarea id="message-body" placeholder="Select a template above or write a custom message…"></textarea>
+            </div>
+            <div style="font-size:12px;color:#888;">
+                Recipient: <strong id="modal-recipient">—</strong>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary"   onclick="sendMessage()">Send Message</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   MOCK DATA
+═══════════════════════════════════════════════════════════ */
+const USERS = [
+    { id:'u1', initials:'AK', name:'Abhinav Kumar',   email:'abhinav.kumar@lab.org',   color:'#0078d4', lastCommitPct:0.88, role:'Lead Dev'  },
+    { id:'u2', initials:'SR', name:'Sneha Rao',        email:'sneha.rao@lab.org',        color:'#107c10', lastCommitPct:0.65, role:'DevOps'    },
+    { id:'u3', initials:'PT', name:'Priya Thomas',     email:'priya.thomas@lab.org',     color:'#7719aa', lastCommitPct:0.50, role:'Backend'   },
+    { id:'u4', initials:'MN', name:'Mihail Novak',     email:'mihail.novak@lab.org',     color:'#d83b01', lastCommitPct:0.30, role:'Frontend'  },
+    { id:'u5', initials:'FS', name:'Fatima Sheikh',    email:'fatima.sheikh@lab.org',    color:'#ca5010', lastCommitPct:0.72, role:'ML Eng'    },
+    { id:'u6', initials:'LW', name:'Liam Wong',        email:'liam.wong@lab.org',        color:'#038387', lastCommitPct:0.15, role:'Intern'    },
+];
+
+const COMMIT_HISTORY = {
+    u1:[
+        {date:'2026-03-15',sha:'a3f8c12',project:'Project Alpha',branch:'main',   type:'feat',  msg:'Add timeline aggregation endpoint'},
+        {date:'2026-03-10',sha:'b9d2e44',project:'Project Beta', branch:'dev',    type:'fix',   msg:'Fix null pointer in commit parser'},
+        {date:'2026-02-28',sha:'c1a7f09',project:'Project Alpha',branch:'main',   type:'docs',  msg:'Update API documentation'},
+        {date:'2026-02-14',sha:'d5b3a11',project:'Project Gamma',branch:'feature/report',type:'feat',msg:'Draft activity report UI'},
+    ],
+    u2:[
+        {date:'2026-03-08',sha:'e2c9d33',project:'Project Beta', branch:'main',   type:'chore','msg':'Update CI pipeline YAML'},
+        {date:'2026-02-20',sha:'f7a1b55',project:'Project Alpha',branch:'hotfix', type:'fix',   msg:'Patch deployment script'},
+    ],
+    u3:[
+        {date:'2026-02-25',sha:'g4d8e22',project:'Project Delta',branch:'dev',    type:'feat',  msg:'Implement auth middleware'},
+        {date:'2026-02-12',sha:'h6f2c77',project:'Project Beta', branch:'dev',    type:'fix',   msg:'Resolve DB connection timeout'},
+    ],
+    u4:[
+        {date:'2026-02-05',sha:'i9e3b44',project:'Project Gamma',branch:'main',   type:'feat',  msg:'Add dashboard skeleton'},
+        {date:'2026-01-28',sha:'j1a5d88',project:'Project Alpha',branch:'dev',    type:'chore', msg:'Lint and format JS files'},
+    ],
+    u5:[
+        {date:'2026-03-12',sha:'k3b7f11',project:'Project Delta',branch:'ml-dev',type:'feat',  msg:'Integrate model training pipeline'},
+        {date:'2026-03-01',sha:'l5c9a33',project:'Project Delta',branch:'ml-dev',type:'fix',   msg:'Fix data normalisation bug'},
+    ],
+    u6:[
+        {date:'2026-01-20',sha:'m7d1e66',project:'Project Beta', branch:'intern-tasks',type:'chore','msg':'Add placeholder tests'},
+    ],
+};
+
+const TEMPLATES = {
+    'notice-removal':    `Dear {name},\n\nThis is a formal notice that your access to the lab's Azure DevOps repositories will be removed on [DATE]. Please ensure all pending work is committed and any in-progress items are handed over.\n\nIf you believe this is an error, contact the lab administrator within 48 hours.\n\nRegards,\nLab Administration`,
+    'explain-commit':    `Dear {name},\n\nWe noticed a recent commit that requires clarification. Please provide an explanation for commit [COMMIT_SHA] including the purpose of the changes and whether they were reviewed.\n\nKindly respond within 3 business days.\n\nRegards,\nLab Administration`,
+    'explain-inactivity':`Dear {name},\n\nOur records indicate no commit activity on your account for the past [N] days. As an active lab member, regular contributions are expected.\n\nPlease provide an update on your current tasks and expected timeline for your next contribution.\n\nRegards,\nLab Administration`,
+    'policy-reminder':   `Dear {name},\n\nThis is a reminder about the lab's source control policy:\n- All commits must reference a work item\n- Direct pushes to 'main' require PR approval\n- Commit messages must follow the Conventional Commits format\n\nPlease ensure compliance going forward.\n\nRegards,\nLab Administration`,
+};
+
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+let selectedUser = null;
+let currentTab   = 'commits';
+
+/* ═══════════════════════════════════════════════════════════
+   GENERATE REPORT
+═══════════════════════════════════════════════════════════ */
+function showReport() {
+    document.getElementById('report-panel').style.display = '';
+    buildCommitChart();
+    buildPRChart();
+}
+
+/* ── Build fake bar data ── */
+function makeBars(count, maxH) {
+    const bars = [];
+    for (let i = 0; i < count; i++) {
+        bars.push(Math.floor(Math.random() * maxH) + 1);
+    }
+    return bars;
+}
+
+function renderBars(containerId, bars, maxH) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = '';
+    bars.forEach(h => {
+        const b = document.createElement('div');
+        b.className = 'bar';
+        b.style.height = (h / maxH * 100) + '%';
+        el.appendChild(b);
+    });
+}
+
+function renderXLabels(containerId, labels) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = '';
+    labels.forEach(l => {
+        const s = document.createElement('span');
+        s.textContent = l;
+        el.appendChild(s);
+    });
+}
+
+function renderUserNodes(containerId, legendId) {
+    const el  = document.getElementById(containerId);
+    const leg = document.getElementById(legendId);
+    el.innerHTML  = '';
+    leg.innerHTML = '';
+
+    USERS.forEach(u => {
+        /* node */
+        const node = document.createElement('div');
+        node.className = 'user-node';
+        node.style.cssText = `left:${u.lastCommitPct*100}%;bottom:${20+Math.random()*40}%;background:${u.color};`;
+        node.innerHTML = `${u.initials}<span class="node-tooltip">${u.name} — last commit</span>`;
+        node.addEventListener('click', () => selectUser(u));
+        el.appendChild(node);
+
+        /* legend entry */
+        const li = document.createElement('div');
+        li.className = 'legend-item';
+        li.innerHTML = `<div class="legend-dot" style="background:${u.color}"></div>${u.initials} – ${u.name}`;
+        leg.appendChild(li);
+    });
+}
+
+function buildCommitChart() {
+    const bars = makeBars(36, 40);
+    renderBars('bars-container', bars, 40);
+    renderXLabels('x-labels', ['Jan 1','Jan 15','Feb 1','Feb 15','Mar 1','Mar 18']);
+    renderUserNodes('user-nodes-container','commits-legend');
+}
+
+function buildPRChart() {
+    const bars = makeBars(36, 20);
+    renderBars('pr-bars-container', bars, 20);
+    renderXLabels('pr-x-labels', ['Jan 1','Jan 15','Feb 1','Feb 15','Mar 1','Mar 18']);
+    renderUserNodes('pr-nodes-container','pr-legend');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TAB SWITCH
+═══════════════════════════════════════════════════════════ */
+function switchTab(tab, el) {
+    currentTab = tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('tab-commits').style.display      = (tab==='commits')      ? '' : 'none';
+    document.getElementById('tab-pullrequests').style.display = (tab==='pullrequests') ? '' : 'none';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SELECT USER
+═══════════════════════════════════════════════════════════ */
+function selectUser(user) {
+    selectedUser = user;
+    const panel = document.getElementById('user-detail-panel');
+    panel.classList.add('visible');
+    panel.scrollIntoView({ behavior:'smooth', block:'start' });
+
+    document.getElementById('detail-avatar').textContent     = user.initials;
+    document.getElementById('detail-avatar').style.background = user.color;
+    document.getElementById('detail-name').textContent       = user.name;
+    document.getElementById('detail-email').textContent      = `${user.email} · ${user.role}`;
+    document.getElementById('detail-period').textContent     = '1 Jan 2026 – 18 Mar 2026';
+    document.getElementById('modal-recipient').textContent   = user.name;
+
+    const tbody  = document.getElementById('commit-history-body');
+    const commits = COMMIT_HISTORY[user.id] || [];
+    tbody.innerHTML = commits.map(c => `
+        <tr>
+            <td>${c.date}</td>
+            <td><span class="commit-sha">${c.sha}</span></td>
+            <td>${c.project}</td>
+            <td><code style="font-size:12px;">${c.branch}</code></td>
+            <td><span class="tag ${c.type}">${c.type}</span></td>
+            <td>${c.msg}</td>
+        </tr>
+    `).join('') || '<tr><td colspan="6" style="color:#999;text-align:center;">No commits in this period</td></tr>';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REMOVE USER
+═══════════════════════════════════════════════════════════ */
+function removeUser() {
+    if (!selectedUser) return;
+    if (confirm(`Remove ${selectedUser.name} from the lab? This will revoke their Azure DevOps access.`)) {
+        alert(`[MOCK] Remove request submitted for ${selectedUser.name}.`);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MESSAGE MODAL
+═══════════════════════════════════════════════════════════ */
+function openModal() {
+    document.getElementById('message-modal').classList.add('open');
+    document.getElementById('modal-recipient').textContent = selectedUser ? selectedUser.name : '—';
+}
+function closeModal() {
+    document.getElementById('message-modal').classList.remove('open');
+    document.getElementById('message-body').value = '';
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+}
+function selectTemplate(el, key) {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    const name = selectedUser ? selectedUser.name.split(' ')[0] : '[User]';
+    if (key === 'custom') {
+        document.getElementById('message-body').value = '';
+        document.getElementById('message-body').focus();
+    } else {
+        document.getElementById('message-body').value = (TEMPLATES[key] || '').replace('{name}', name);
+    }
+}
+function sendMessage() {
+    const body = document.getElementById('message-body').value.trim();
+    if (!body) { alert('Please write or select a message.'); return; }
+    alert(`[MOCK] Message sent to ${selectedUser ? selectedUser.name : 'recipient'}.`);
+    closeModal();
+}
+
+/* Close modal on overlay click */
+document.getElementById('message-modal').addEventListener('click', function(e){
+    if (e.target === this) closeModal();
+});
+</script>
+</body>
+</html>
