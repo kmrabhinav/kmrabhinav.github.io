@@ -522,8 +522,21 @@
                 <label>Message</label>
                 <textarea id="message-body" placeholder="Select a template above or write a custom message…"></textarea>
             </div>
-            <div style="font-size:12px;color:#888;">
-                Recipient: <strong id="modal-recipient">—</strong>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+                <div style="font-size:12px;color:#888;">
+                    To: <strong id="modal-recipient">—</strong>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <label style="font-size:12px;color:#555;font-weight:600;white-space:nowrap;min-width:20px;">CC:</label>
+                    <input
+                        type="text"
+                        id="modal-cc"
+                        placeholder="email1@lab.org, email2@lab.org"
+                        style="flex:1;border:1px solid #c8cbd0;border-radius:6px;padding:6px 10px;font-size:12px;font-family:inherit;"
+                        onfocus="this.style.outline='2px solid #0078d4';this.style.borderColor='transparent';"
+                        onblur="this.style.outline='';this.style.borderColor='#c8cbd0';"
+                    >
+                </div>
             </div>
         </div>
         <div class="modal-footer">
@@ -725,6 +738,7 @@ function openModal() {
 function closeModal() {
     document.getElementById('message-modal').classList.remove('open');
     document.getElementById('message-body').value = '';
+    document.getElementById('modal-cc').value = '';
     document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
 }
 function selectTemplate(el, key) {
@@ -741,7 +755,9 @@ function selectTemplate(el, key) {
 function sendMessage() {
     const body = document.getElementById('message-body').value.trim();
     if (!body) { alert('Please write or select a message.'); return; }
-    alert(`[MOCK] Message sent to ${selectedUser ? selectedUser.name : 'recipient'}.`);
+    const cc = document.getElementById('modal-cc').value.trim();
+    const ccNote = cc ? `\nCC: ${cc}` : '';
+    alert(`[MOCK] Message sent to ${selectedUser ? selectedUser.name : 'recipient'}.${ccNote}`);
     closeModal();
 }
 
