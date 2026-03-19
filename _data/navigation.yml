@@ -3,6 +3,12 @@ main:
     url: /
   - title: "Tech"
     url: /tech/
+  - title: "Industry"
+    url: /industry/
+  - title: "Strategy"
+    url: /strategy/
+  - title: "Academics"
+    url: /academics/
   - title: "Mathematics"
     url: /mathematics/
   - title: "Music"
@@ -11,22 +17,87 @@ main:
     url: /travel/
   - title: "Carpentry"
     url: /carpentry/
+
 tech:
-  - title: "Legacy Modernization"
-    url: /tech/legacy-modernization/
+  - title: "Tech Home"
+    url: /tech/
   - title: "AI"
     url: /tech/ai/
   - title: "Cloud"
     url: /tech/cloud/
+  - title: "Legacy Modernization"
+    url: /tech/legacy-modernization/
+  - title: "NVIDIA Healthcare Use Cases"
+    url: /tech/nvidiahealthcareusecases.html
+
+academics:
+  - title: "GenAI for Undergrads"
+    url: /academics/genaiforundergrads.html
+
+industry:
+  - title: "AI Strategy"
+    url: /industry/aistrategy.html
+  - title: "A Tale of Two Healthcare Bills"
+    url: /industry/bigbill.html
+  - title: "One Big Beautiful Bill Impact"
+    url: /industry/obbbaimpact.html
+
+strategy:
+  - title: "ABDM Immunization"
+    url: /strategy/abdmimmunization.html
+  - title: "Large Modernization"
+    url: /strategy/largemodernization.html
+  - title: "Progressive Engineering"
+    url: /strategy/progressiveengineering.html
+  - title: "Enterprise Ontology Graph"
+    url: /strategy/Org/enterprise_ontology_graph.html
+  - title: "Organization Structure"
+    url: /strategy/Org/org_strugture.html
+  - title: "Budget Workstation"
+    url: /strategy/AIWorkstation/budgetworkstation.html
+  - title: "Workstation Guide"
+    url: /strategy/AIWorkstation/workstation-guide.html
+
+cheatsheets:
+  - title: "ML Models Reference"
+    url: /cheatsheets/mlmodels.html
+
+prototypes:
+  - title: "Lab Admin Portal"
+    url: /prototypes/lab-admin-portal.html
+
+samples:
+  - title: "Agent Demo"
+    url: /samples/agent.html
+  - title: "Spikes"
+    url: /samples/spikes.html
+
+stories:
+  - title: "The AI Biryani Factory"
+    url: /stories/theaibiryanifactory.html
+
+TechExplained:
+  - title: "Omni Agent Explained"
+    url: /TechExplained/omni_agent_explained.html
+
+lab-administration:
+  - title: "Lab Admin Home"
+    url: /lab-administration/
+  - title: "Feature Activity Report"
+    url: /lab-administration/feature-activity-report.html
+
 mathematics:
   - title: "Mathematics"
     url: /mathematics/
+
 music:
   - title: "Music"
     url: /music/
+
 travel:
   - title: "Travel"
     url: /travel/
+
 carpentry:
   - title: "Carpentry"
     url: /carpentry/

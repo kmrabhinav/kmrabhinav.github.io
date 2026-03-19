@@ -1,5 +1,5 @@
 title: "Abhinav's Personal Blog"
-description: "Exploring Tech, Mathematics, Music, Travel, and Carpentry"
+description: "Exploring Tech, Strategy, Industry, Mathematics, Music, Travel, and Carpentry"
 baseurl: "" # "" for user.github.io, or "/repo-name" for project site
 url: "https://kumarabhinav.in"
 remotetheme: "minimal-mistakes-jekyll"
@@ -28,6 +28,33 @@ collections:
   carpentry:
     output: true
     permalink: /carpentry/:path/
+  academics:
+    output: true
+    permalink: /academics/:path/
+  industry:
+    output: true
+    permalink: /industry/:path/
+  strategy:
+    output: true
+    permalink: /strategy/:path/
+  cheatsheets:
+    output: true
+    permalink: /cheatsheets/:path/
+  prototypes:
+    output: true
+    permalink: /prototypes/:path/
+  samples:
+    output: true
+    permalink: /samples/:path/
+  stories:
+    output: true
+    permalink: /stories/:path/
+  TechExplained:
+    output: true
+    permalink: /TechExplained/:path/
+  lab-administration:
+    output: true
+    permalink: /lab-administration/:path/
 defaults:
   - scope:
       path: ""
@@ -69,6 +96,78 @@ defaults:
       author_profile: true
       sidebar:
         nav: "carpentry"
+  - scope:
+      path: ""
+      type: academics
+    values:
+      layout: single
+      author_profile: true
+      sidebar:
+        nav: "academics"
+  - scope:
+      path: ""
+      type: industry
+    values:
+      layout: single
+      author_profile: true
+      sidebar:
+        nav: "industry"
+  - scope:
+      path: ""
+      type: strategy
+    values:
+      layout: single
+      author_profile: true
+      sidebar:
+        nav: "strategy"
+  - scope:
+      path: ""
+      type: cheatsheets
+    values:
+      layout: single
+      author_profile: true
+      sidebar:
+        nav: "cheatsheets"
+  - scope:
+      path: ""
+      type: prototypes
+    values:
+      layout: single
+      author_profile: true
+      sidebar:
+        nav: "prototypes"
+  - scope:
+      path: ""
+      type: samples
+    values:
+      layout: single
+      author_profile: true
+      sidebar:
+        nav: "samples"
+  - scope:
+      path: ""
+      type: stories
+    values:
+      layout: single
+      author_profile: true
+      sidebar:
+        nav: "stories"
+  - scope:
+      path: ""
+      type: TechExplained
+    values:
+      layout: single
+      author_profile: true
+      sidebar:
+        nav: "TechExplained"
+  - scope:
+      path: ""
+      type: lab-administration
+    values:
+      layout: single
+      author_profile: true
+      sidebar:
+        nav: "lab-administration"
 author:
   name: "Abhinav"
   avatar: "/assets/images/avatar.jpg"
