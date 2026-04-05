@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Surgery Planner — Mr. N.N. Lal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0b0d13;--sf:#12151e;--sf2:#191d29;--bd:#252937;
+  --tx:#e0e3ec;--dm:#636883;--ac:#5b8def;--acg:rgba(91,141,239,.12);
+  --s1:#ff6b6b;--ab:#ffbe4a;--s2:#4ade80;--rh:#a78bfa;--ins:#38bdf8;--rv:#fb923c;
+  --ok:#4ade80;--wn:#ffbe4a;--cf:#ff4f4f;
+  --nish:#e05a7a;--abhi:#3ecf8e;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);overflow:hidden;height:100vh}
+.app{display:grid;grid-template-columns:300px 1fr;height:100vh}
+@media(max-width:900px){.app{grid-template-columns:1fr;height:auto;overflow:auto}}
+
+/* Sidebar */
+.sb{background:var(--sf);border-right:1px solid var(--bd);overflow-y:auto;padding:14px;scrollbar-width:thin;scrollbar-color:var(--bd) transparent}
+.sb::-webkit-scrollbar{width:4px}.sb::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+.logo{font-family:'Playfair Display',serif;font-size:1.1em;margin-bottom:1px}
+.logo-s{font-size:.68em;color:var(--dm);margin-bottom:12px}
+.ptag{display:inline-block;background:var(--sf2);border:1px solid var(--bd);border-radius:5px;padding:4px 9px;font-size:.68em;margin-bottom:14px}
+.ptag b{color:var(--ac)}
+.pnl{background:var(--sf2);border:1px solid var(--bd);border-radius:9px;padding:12px;margin-bottom:10px}
+.pt{font-size:.68em;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--dm);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.sg{margin-bottom:8px}.sg:last-child{margin-bottom:0}
+.sl{display:flex;justify-content:space-between;font-size:.7em;margin-bottom:2px}
+.sl .n{font-weight:500}.sl .v{background:var(--bg);padding:1px 6px;border-radius:3px;font-weight:600;color:var(--ac);font-size:.9em}
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;border-radius:2px;background:var(--bd);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--ac);cursor:pointer}
+.di{margin-bottom:6px}.di:last-child{margin-bottom:0}
+.di label{display:block;font-size:.7em;font-weight:500;margin-bottom:2px}
+.di input[type=date]{width:100%;padding:5px 7px;background:var(--bg);border:1px solid var(--bd);border-radius:4px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:.78em}
+.di input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.6)}
+hr.sep{border:none;border-top:1px solid var(--bd);margin:6px 0}
+.smg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.smc{background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:8px;text-align:center}
+.smc .b{font-family:'Playfair Display',serif;font-size:1.2em;font-weight:700;color:var(--ac)}
+.smc .d{font-size:.6em;color:var(--dm);margin-top:1px}
+
+/* Main */
+.mn{display:flex;flex-direction:column;overflow:hidden}
+.hint{font-size:.62em;color:var(--dm);padding:5px 14px;background:var(--sf);border-bottom:1px solid var(--bd)}
+.hint span{color:var(--ac);font-weight:600}
+.tb{padding:8px 14px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;gap:5px;background:var(--sf);min-height:34px}
+.bdg{font-size:.62em;padding:2px 7px;border-radius:12px;font-weight:600}
+.bdg-ok{background:rgba(74,222,128,.1);color:var(--ok)}
+.bdg-wn{background:rgba(255,190,74,.1);color:var(--wn)}
+.bdg-cf{background:rgba(255,79,79,.1);color:var(--cf)}
+.ga{flex:1;overflow:auto;position:relative}
+.ga::-webkit-scrollbar{height:5px;width:5px}.ga::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+.gs{position:relative}
+
+/* Gantt structure */
+.gm{display:flex;position:sticky;top:0;z-index:6;background:var(--bg)}
+.gmb{font-size:.58em;font-weight:700;color:var(--dm);text-transform:uppercase;letter-spacing:.04em;border-left:1px solid var(--bd);padding:5px 0 3px 4px;background:var(--bg)}
+.gd{display:flex;position:sticky;top:22px;z-index:6;background:var(--bg)}
+.gdc{font-size:.5em;color:var(--dm);text-align:center;border-bottom:1px solid var(--bd);padding:1px 0}
+.gdc.we{background:rgba(255,255,255,.012)}.gdc.td{background:var(--acg);color:var(--ac);font-weight:700}
+.gr{display:flex;align-items:center;height:32px;border-bottom:1px solid rgba(37,41,55,.5)}
+.gl{min-width:140px;width:140px;font-size:.66em;font-weight:500;padding-right:7px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:sticky;left:0;background:var(--bg);z-index:3;height:100%;display:flex;align-items:center;justify-content:flex-end}
+.gt{position:relative;height:100%;flex-shrink:0}
+
+/* Bars — shared between phase & commitment */
+.gb{
+  position:absolute;height:22px;top:5px;border-radius:5px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.6em;font-weight:600;color:#fff;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px;
+  cursor:grab;user-select:none;z-index:2;
+  transition:filter .1s,box-shadow .1s;
+}
+.gb:hover{filter:brightness(1.15);box-shadow:0 0 10px rgba(0,0,0,.3)}
+.gb.dragging{cursor:grabbing;filter:brightness(1.25);z-index:10;box-shadow:0 2px 18px rgba(0,0,0,.5)}
+.gh{position:absolute;top:0;width:10px;height:100%;cursor:col-resize;z-index:4}
+.gh:hover,.gh.act{background:rgba(255,255,255,.18);border-radius:3px}
+.gh-l{left:0;border-radius:5px 0 0 5px}.gh-r{right:0;border-radius:0 5px 5px 0}
+
+/* Section dividers */
+.sec{height:24px;display:flex;align-items:center;padding-left:8px;font-size:.6em;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--dm);border-bottom:1px solid var(--bd);position:sticky;left:0;background:var(--bg);z-index:3}
+
+/* Today */
+.tl{position:absolute;top:0;bottom:0;width:2px;background:var(--ac);opacity:.3;z-index:4;pointer-events:none}
+.tll{position:absolute;font-size:.52em;color:var(--ac);font-weight:600;transform:translateX(-50%);z-index:5;pointer-events:none}
+
+/* Bottom */
+.bp{padding:0 14px 16px;overflow-y:auto;max-height:42vh}
+.bpg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+@media(max-width:900px){.bpg{grid-template-columns:1fr}}
+.ala{display:flex;flex-direction:column;gap:5px}
+.al{padding:7px 9px;border-radius:6px;font-size:.7em;line-height:1.3;border-left:3px solid}
+.al-ok{background:rgba(74,222,128,.05);border-color:var(--ok)}
+.al-wn{background:rgba(255,190,74,.05);border-color:var(--wn)}
+.al-cf{background:rgba(255,79,79,.05);border-color:var(--cf)}
+.phl{display:flex;flex-direction:column;gap:4px}
+.ph{display:flex;align-items:center;gap:7px;padding:6px 9px;border-radius:6px;background:var(--sf2);border:1px solid var(--bd);font-size:.7em}
+.phd{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ph .l{font-weight:600}.ph .dt{color:var(--dm);font-size:.88em}
+
+.lg{display:flex;flex-wrap:wrap;gap:8px;padding:6px 14px;border-top:1px solid var(--bd);background:var(--sf)}
+.lgi{display:flex;align-items:center;gap:4px;font-size:.6em;color:var(--dm)}
+.lgs{width:9px;height:9px;border-radius:2px}
+
+.tip{display:none;position:fixed;background:#1a1e2a;color:#fff;padding:7px 11px;border-radius:5px;font-size:.7em;z-index:100;pointer-events:none;max-width:270px;line-height:1.3;box-shadow:0 4px 18px rgba(0,0,0,.5);border:1px solid var(--bd)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="sb">
+  <div class="logo">Revision Knee Surgery Planner</div>
+  <div class="logo-s">Two-Stage Revision · Right Knee (2019 Implant)</div>
+  <div class="ptag">Patient: <b>Mr. Narendra Nath Lal</b></div>
+  <div class="pnl"><div class="pt">📅 Episode Start</div><div class="di"><label>Pre-Surgery Checkup Begins</label><input type="date" id="startDate" value="2026-04-20"></div></div>
+  <div class="pnl"><div class="pt">⚙️ Phase Durations</div><div id="sliders"></div></div>
+  <div class="pnl">
+    <div class="pt">🔴 Nishant — MBBS Exams</div>
+    <div class="di"><label>Finals Start</label><input type="date" id="neS" value="2026-04-01"></div>
+    <div class="di"><label>Finals End</label><input type="date" id="neE" value="2026-04-30"></div>
+    <hr class="sep">
+    <div class="di"><label>Supplementary Start</label><input type="date" id="nsS" value="2026-06-01"></div>
+    <div class="di"><label>Supplementary End</label><input type="date" id="nsE" value="2026-06-30"></div>
+  </div>
+  <div class="pnl">
+    <div class="pt">🟢 Abhinav — US Trip</div>
+    <div class="di"><label>Trip Start</label><input type="date" id="auS" value="2026-04-11"></div>
+    <div class="di"><label>Trip End</label><input type="date" id="auE" value="2026-04-17"></div>
+  </div>
+  <div class="pnl"><div class="pt">📊 Summary</div><div class="smg" id="sumG"></div></div>
+</div>
+
+<div class="mn">
+  <div class="hint">💡 <span>Drag</span> any bar to move it &nbsp;·&nbsp; <span>Drag edges</span> to resize &nbsp;·&nbsp; Works on surgery phases <span>AND</span> commitment/trip bars &nbsp;·&nbsp; All controls auto-sync</div>
+  <div class="tb" id="topBar"></div>
+  <div class="ga" id="ganttArea"><div class="gs" id="gs"></div></div>
+  <div class="lg" id="lgBar"></div>
+  <div class="bp"><div class="bpg"><div><div class="pt" style="padding:6px 0">⚠️ Conflicts</div><div class="ala" id="alerts"></div></div><div><div class="pt" style="padding:6px 0">📋 Schedule</div><div class="phl" id="phList"></div></div></div></div>
+</div>
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+// ===== CONFIG =====
+const PH=[
+  {id:'precheck',   name:'Pre-Surgery Checkup',       mn:2,mx:5,  df:2, col:'var(--rv)', cat:'s1'},
+  {id:'ins1',       name:'Insurance Intimation #1',    mn:1,mx:3,  df:1, col:'var(--ins)',cat:'s1'},
+  {id:'surgery1',   name:'Stage 1 Surgery (Spacer)',   mn:2,mx:7,  df:3, col:'var(--s1)', cat:'s1'},
+  {id:'antibiotics',name:'Antibiotic Infusion (Home)', mn:42,mx:60,df:49,col:'var(--ab)', cat:'gap'},
+  {id:'review',     name:'Doctor Review',              mn:2,mx:5,  df:2, col:'var(--rv)', cat:'s2'},
+  {id:'ins2',       name:'Insurance Intimation #2',    mn:1,mx:3,  df:1, col:'var(--ins)',cat:'s2'},
+  {id:'surgery2',   name:'Redo Surgery (New Implant)', mn:4,mx:8,  df:5, col:'var(--s2)', cat:'s2'},
+  {id:'discharge',  name:'Discharge & Travel Home',    mn:1,mx:3,  df:1, col:'var(--s2)', cat:'s2'},
+  {id:'postop',     name:'Post-Op Care',               mn:2,mx:7,  df:3, col:'var(--rh)', cat:'s2'},
+  {id:'rehab',      name:'Rehabilitation',             mn:60,mx:120,df:90,col:'var(--rh)',cat:'rehab'},
+];
+
+// Commitment bars config
+const CM=[
+  {id:'neFin', name:'Nishant MBBS Finals',      sInput:'neS', eInput:'neE', col:'var(--nish)', op:.35, section:'commitments'},
+  {id:'neSup', name:'Nishant Suppl. Exam',       sInput:'nsS', eInput:'nsE', col:'var(--nish)', op:.35, section:'commitments'},
+  {id:'abhiUS',name:'Abhinav US Deal Trip',      sInput:'auS', eInput:'auE', col:'var(--abhi)', op:.40, section:'commitments'},
+];
+
+const DW=10,LW=140;
+let phases=[],S={},tlS,tlE,totalD;
+
+const $=id=>document.getElementById(id);
+const MS=864e5;
+const dB=(a,b)=>Math.round((b-a)/MS);
+const mkD=s=>new Date(s+'T00:00:00');
+const d2s=d=>{const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return`${y}-${m}-${dd}`};
+const olap=(s1,e1,s2,e2)=>s1<=e2&&s2<=e1;
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmt=d=>d.getDate()+' '+MN[d.getMonth()]+' '+d.getFullYear();
+const fS=d=>d.getDate()+' '+MN[d.getMonth()];
+
+// ===== SLIDERS =====
+function buildSliders(){
+  const c=$('sliders');c.innerHTML='';
+  PH.forEach(p=>{
+    const d=document.createElement('div');d.className='sg';
+    d.innerHTML=`<div class="sl"><span class="n">${p.name}</span><span class="v" id="v_${p.id}">${p.df}d</span></div><input type="range" id="r_${p.id}" min="${p.mn}" max="${p.mx}" value="${p.df}" step="1">`;
+    c.appendChild(d);
+    d.querySelector('input').addEventListener('input',e=>{$('v_'+p.id).textContent=e.target.value+'d';rebuild()});
+  });
+}
+
+function readState(){
+  S.start=mkD($('startDate').value);
+  S.dur={};PH.forEach(p=>S.dur[p.id]=+$('r_'+p.id).value);
+  S.ne={s:mkD($('neS').value),e:mkD($('neE').value)};
+  S.ns={s:mkD($('nsS').value),e:mkD($('nsE').value)};
+  S.au={s:mkD($('auS').value),e:mkD($('auE').value)};
+}
+
+function compute(){
+  let cur=new Date(S.start);
+  phases=PH.map(p=>{
+    const dur=S.dur[p.id],st=new Date(cur),en=new Date(cur);
+    en.setDate(en.getDate()+dur-1);cur=new Date(en);cur.setDate(cur.getDate()+1);
+    return{...p,start:st,end:en,duration:dur};
+  });
+  // Timeline bounds — include commitments
+  const allStarts=[phases[0].start,S.ne.s,S.ns.s,S.au.s];
+  const allEnds=[phases[phases.length-1].end,S.ne.e,S.ns.e,S.au.e];
+  tlS=new Date(Math.min(...allStarts));tlS.setDate(tlS.getDate()-5);
+  tlE=new Date(Math.max(...allEnds));tlE.setDate(tlE.getDate()+7);
+  totalD=dB(tlS,tlE)+1;
+}
+
+function syncSlider(id,val){
+  const p=PH.find(x=>x.id===id);
+  const c=Math.max(p.mn,Math.min(p.mx,val));
+  $('r_'+id).value=c;$('v_'+id).textContent=c+'d';return c;
+}
+
+// ===== INTERACTIVE BAR FACTORY =====
+function makeBar(trk,left,w,color,opacity,text,tipHtml,callbacks){
+  const bar=document.createElement('div');bar.className='gb';
+  bar.style.left=left+'px';bar.style.width=Math.max(w,DW)+'px';
+  bar.style.background=color;bar.style.opacity=opacity;
+  if(w>38)bar.textContent=text;
+
+  const hl=document.createElement('div');hl.className='gh gh-l';
+  const hr=document.createElement('div');hr.className='gh gh-r';
+  bar.appendChild(hl);bar.appendChild(hr);
+
+  // Drag to move
+  const onDown=(startX,isTouch)=>{
+    bar.classList.add('dragging');
+    const origL=parseFloat(bar.style.left);
+    const onMv=ev=>{
+      if(!isTouch)ev.preventDefault();
+      const cx=isTouch?ev.touches[0].clientX:ev.clientX;
+      bar.style.left=Math.round((origL+(cx-startX))/DW)*DW+'px';
+    };
+    const onUp=()=>{
+      bar.classList.remove('dragging');
+      document.removeEventListener(isTouch?'touchmove':'mousemove',onMv);
+      document.removeEventListener(isTouch?'touchend':'mouseup',onUp);
+      callbacks.onMove(parseFloat(bar.style.left));
+    };
+    document.addEventListener(isTouch?'touchmove':'mousemove',onMv,isTouch?{passive:false}:undefined);
+    document.addEventListener(isTouch?'touchend':'mouseup',onUp);
+  };
+  bar.addEventListener('mousedown',e=>{if(e.target.classList.contains('gh'))return;e.preventDefault();onDown(e.clientX,false)});
+  bar.addEventListener('touchstart',e=>{if(e.target.classList.contains('gh'))return;onDown(e.touches[0].clientX,true)},{passive:true});
+
+  // Resize left
+  hl.addEventListener('mousedown',e=>{
+    e.preventDefault();e.stopPropagation();hl.classList.add('act');
+    const startX=e.clientX,oL=parseFloat(bar.style.left),oW=parseFloat(bar.style.width);
+    const onMv=ev=>{
+      const dx=ev.clientX-startX;
+      let nL=Math.round((oL+dx)/DW)*DW,nW=Math.round((oW-dx)/DW)*DW;
+      if(nW<DW)return;bar.style.left=nL+'px';bar.style.width=nW+'px';
+      const dur=Math.round(nW/DW);if(nW>38)bar.textContent=callbacks.durLabel?callbacks.durLabel(dur):(dur+'d');
+    };
+    const onUp=()=>{
+      hl.classList.remove('act');document.removeEventListener('mousemove',onMv);document.removeEventListener('mouseup',onUp);
+      callbacks.onResizeLeft(parseFloat(bar.style.left),parseFloat(bar.style.width));
+    };
+    document.addEventListener('mousemove',onMv);document.addEventListener('mouseup',onUp);
+  });
+
+  // Resize right
+  hr.addEventListener('mousedown',e=>{
+    e.preventDefault();e.stopPropagation();hr.classList.add('act');
+    const startX=e.clientX,oW=parseFloat(bar.style.width);
+    const onMv=ev=>{
+      const dx=ev.clientX-startX;let nW=Math.round((oW+dx)/DW)*DW;
+      if(nW<DW)return;bar.style.width=nW+'px';
+      const dur=Math.round(nW/DW);if(nW>38)bar.textContent=callbacks.durLabel?callbacks.durLabel(dur):(dur+'d');
+    };
+    const onUp=()=>{
+      hr.classList.remove('act');document.removeEventListener('mousemove',onMv);document.removeEventListener('mouseup',onUp);
+      callbacks.onResizeRight(parseFloat(bar.style.width));
+    };
+    document.addEventListener('mousemove',onMv);document.addEventListener('mouseup',onUp);
+  });
+
+  // Tooltip
+  bar.addEventListener('mouseenter',e=>showTip(e,tipHtml));
+  bar.addEventListener('mouseleave',hideTip);
+  bar.addEventListener('mousemove',moveTip);
+
+  trk.appendChild(bar);
+  return bar;
+}
+
+// ===== GANTT =====
+function renderGantt(){
+  const G=$('gs');G.innerHTML='';
+  const trackW=totalD*DW;
+  const today=new Date();today.setHours(0,0,0,0);
+
+  // Months header
+  const mh=document.createElement('div');mh.className='gm';mh.style.paddingLeft=LW+'px';
+  let mc=new Date(tlS);
+  while(mc<=tlE){
+    const ms2=new Date(mc),me=new Date(mc.getFullYear(),mc.getMonth()+1,0);
+    const eff=me>tlE?tlE:me,span=dB(ms2,eff)+1;
+    const b=document.createElement('div');b.className='gmb';b.style.width=span*DW+'px';
+    b.textContent=MN[ms2.getMonth()]+' '+ms2.getFullYear();
+    mh.appendChild(b);mc=new Date(ms2.getFullYear(),ms2.getMonth()+1,1);
+  }
+  G.appendChild(mh);
+
+  // Days header
+  const dh=document.createElement('div');dh.className='gd';dh.style.paddingLeft=LW+'px';
+  for(let i=0;i<totalD;i++){
+    const dd=new Date(tlS);dd.setDate(dd.getDate()+i);
+    const c=document.createElement('div');c.className='gdc';c.style.width=DW+'px';
+    const dow=dd.getDay();if(dow===0||dow===6)c.classList.add('we');
+    if(dd.getTime()===today.getTime())c.classList.add('td');
+    if(i%3===0)c.textContent=dd.getDate();
+    dh.appendChild(c);
+  }
+  G.appendChild(dh);
+
+  // Today line
+  const tOff=dB(tlS,today);
+  if(tOff>=0&&tOff<totalD){
+    const tl=document.createElement('div');tl.className='tl';tl.style.left=(LW+tOff*DW+DW/2)+'px';G.appendChild(tl);
+    const tll=document.createElement('div');tll.className='tll';tll.style.left=(LW+tOff*DW+DW/2)+'px';tll.style.top='46px';tll.textContent='Today';G.appendChild(tll);
+  }
+
+  // === SECTION: Surgery Phases ===
+  const sec1=document.createElement('div');sec1.className='sec';sec1.style.width=(LW+trackW)+'px';
+  sec1.textContent='▸ Surgery Episode Phases';G.appendChild(sec1);
+
+  phases.forEach((p,idx)=>{
+    const row=document.createElement('div');row.className='gr';
+    const lbl=document.createElement('div');lbl.className='gl';lbl.textContent=p.name;
+    const trk=document.createElement('div');trk.className='gt';trk.style.width=trackW+'px';
+
+    const left=dB(tlS,p.start)*DW;
+    const w=p.duration*DW;
+    const tipH=`<b>${p.name}</b><br>${fmt(p.start)} → ${fmt(p.end)}<br>${p.duration} days<br><i style="opacity:.5">Drag to move · Edges to resize</i>`;
+
+    makeBar(trk,left,w,p.col,'.82',p.duration+'d',tipH,{
+      onMove(newLeft){
+        const dayOff=Math.round(newLeft/DW);
+        const newPS=new Date(tlS);newPS.setDate(newPS.getDate()+dayOff);
+        let daysBefore=0;for(let i=0;i<idx;i++)daysBefore+=parseInt($('r_'+PH[i].id).value);
+        const gs=new Date(newPS);gs.setDate(gs.getDate()-daysBefore);
+        $('startDate').value=d2s(gs);rebuild();
+      },
+      onResizeLeft(newLeft,newW){
+        const dur=Math.max(1,Math.round(newW/DW));syncSlider(p.id,dur);
+        const dayOff=Math.round(newLeft/DW);const newPS=new Date(tlS);newPS.setDate(newPS.getDate()+dayOff);
+        let daysBefore=0;for(let i=0;i<idx;i++)daysBefore+=parseInt($('r_'+PH[i].id).value);
+        const gs=new Date(newPS);gs.setDate(gs.getDate()-daysBefore);
+        $('startDate').value=d2s(gs);rebuild();
+      },
+      onResizeRight(newW){
+        const dur=Math.max(1,Math.round(newW/DW));syncSlider(p.id,dur);rebuild();
+      },
+    });
+
+    row.appendChild(lbl);row.appendChild(trk);G.appendChild(row);
+  });
+
+  // === SECTION: Commitments ===
+  const sec2=document.createElement('div');sec2.className='sec';sec2.style.width=(LW+trackW)+'px';
+  sec2.textContent='▸ Family Commitments & Travel';G.appendChild(sec2);
+
+  CM.forEach(cm=>{
+    const s=mkD($(cm.sInput).value),e=mkD($(cm.eInput).value);
+    const dur=dB(s,e)+1;
+    const left=dB(tlS,s)*DW;
+    const w=dur*DW;
+
+    const row=document.createElement('div');row.className='gr';
+    const lbl=document.createElement('div');lbl.className='gl';lbl.style.color=cm.col;lbl.textContent=cm.name;
+    const trk=document.createElement('div');trk.className='gt';trk.style.width=trackW+'px';
+
+    const tipH=`<b>${cm.name}</b><br>${fmt(s)} → ${fmt(e)}<br>${dur} days<br><i style="opacity:.5">Drag to move · Edges to resize</i>`;
+
+    makeBar(trk,left,w,cm.col,cm.op,dur+'d',tipH,{
+      durLabel:d=>d+'d',
+      onMove(newLeft){
+        const dayOff=Math.round(newLeft/DW);
+        const newS=new Date(tlS);newS.setDate(newS.getDate()+dayOff);
+        const oldDur=dB(mkD($(cm.sInput).value),mkD($(cm.eInput).value));
+        const newE=new Date(newS);newE.setDate(newE.getDate()+oldDur);
+        $(cm.sInput).value=d2s(newS);$(cm.eInput).value=d2s(newE);rebuild();
+      },
+      onResizeLeft(newLeft,newW){
+        const dayOff=Math.round(newLeft/DW);
+        const newS=new Date(tlS);newS.setDate(newS.getDate()+dayOff);
+        $(cm.sInput).value=d2s(newS);rebuild();
+      },
+      onResizeRight(newW){
+        const dur=Math.max(1,Math.round(newW/DW));
+        const s2=mkD($(cm.sInput).value);
+        const newE=new Date(s2);newE.setDate(newE.getDate()+dur-1);
+        $(cm.eInput).value=d2s(newE);rebuild();
+      },
+    });
+
+    row.appendChild(lbl);row.appendChild(trk);G.appendChild(row);
+  });
+
+  G.style.width=(LW+trackW+20)+'px';
+}
+
+// ===== TOOLTIP =====
+const tip=$('tip');
+function showTip(e,h){tip.innerHTML=h;tip.style.display='block';moveTip(e)}
+function moveTip(e){tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY-8)+'px'}
+function hideTip(){tip.style.display='none'}
+
+// ===== CONFLICTS =====
+function analyze(){
+  const als=[],bds=[];
+  const ph=id=>phases.find(x=>x.id===id);
+  const nB=(s,e)=>olap(s,e,S.ne.s,S.ne.e)||olap(s,e,S.ns.s,S.ns.e);
+  const aB=(s,e)=>olap(s,e,S.au.s,S.au.e);
+  const s1=ph('surgery1'),s2=ph('surgery2'),po=ph('postop'),pc=ph('precheck'),ab=ph('antibiotics');
+
+  if(nB(s1.start,s1.end)){als.push({t:'cf',x:`⛔ Stage 1 Surgery (${fS(s1.start)}–${fS(s1.end)}) conflicts with Nishant's exams.`});bds.push({t:'cf',x:'Surg1: Nishant ✗'})}
+  else{als.push({t:'ok',x:`✅ Stage 1 — Nishant available.`});bds.push({t:'ok',x:'Surg1: Nishant ✓'})}
+  if(aB(s1.start,s1.end)){als.push({t:'wn',x:`⚠️ Stage 1 overlaps Abhinav's US trip.`});bds.push({t:'wn',x:'Surg1: Abhinav ⚠'})}
+  else bds.push({t:'ok',x:'Surg1: Abhinav ✓'});
+  if(nB(s2.start,s2.end)){als.push({t:'cf',x:`⛔ Stage 2 Surgery (${fS(s2.start)}–${fS(s2.end)}) conflicts with Nishant's exams!`});bds.push({t:'cf',x:'Surg2: Nishant ✗'})}
+  else{als.push({t:'ok',x:`✅ Stage 2 — Nishant available.`});bds.push({t:'ok',x:'Surg2: Nishant ✓'})}
+  if(nB(po.start,po.end)){als.push({t:'cf',x:`⛔ Post-Op (${fS(po.start)}–${fS(po.end)}) conflicts with Nishant's exams. His surgical expertise is critical.`});bds.push({t:'cf',x:'PostOp: Nishant ✗'})}
+  else{als.push({t:'ok',x:`✅ Post-Op — Nishant (surgeon) available.`});bds.push({t:'ok',x:'PostOp: Nishant ✓'})}
+  if(nB(ab.start,ab.end))als.push({t:'wn',x:`ℹ️ Antibiotic infusion overlaps exams — patient home, Abhinav/local care manages.`});
+  if(!olap(pc.start,s1.end,S.au.s,S.au.e))als.push({t:'ok',x:`✈️ Abhinav can take US trip (${fS(S.au.s)}–${fS(S.au.e)}) — clear of Stage 1.`});
+  else als.push({t:'wn',x:`✈️ Abhinav should skip US trip — overlaps Stage 1.`});
+  if(bds.some(b=>b.t==='cf'))als.push({t:'wn',x:`💡 Drag bars or adjust dates to clear conflicts. Both surgeries + post-op must avoid Nishant's exam windows.`});
+  else als.push({t:'ok',x:`🎯 OPTIMAL — All critical phases clear of both sons' commitments.`});
+  return{als,bds};
+}
+
+function renderAlerts(a){const el=$('alerts');el.innerHTML='';a.forEach(x=>{const d=document.createElement('div');d.className='al al-'+x.t;d.textContent=x.x;el.appendChild(d)})}
+function renderBadges(b){const el=$('topBar');el.innerHTML='';b.forEach(x=>{const s=document.createElement('span');s.className='bdg bdg-'+x.t;s.textContent=x.x;el.appendChild(s)})}
+function renderPhases(){const el=$('phList');el.innerHTML='';phases.forEach(p=>{const d=document.createElement('div');d.className='ph';d.innerHTML=`<div class="phd" style="background:${p.col}"></div><div><div class="l">${p.name}</div><div class="dt">${fmt(p.start)} → ${fmt(p.end)} (${p.duration}d)</div></div>`;el.appendChild(d)})}
+function renderSum(){const g=$('sumG');const t=dB(phases[0].start,phases[phases.length-1].end)+1;g.innerHTML=`<div class="smc"><div class="b">${t}</div><div class="d">Total Days</div></div><div class="smc"><div class="b">${Math.ceil(t/7)}w</div><div class="d">Weeks</div></div><div class="smc"><div class="b">${fS(phases.find(p=>p.id==='surgery1').start)}</div><div class="d">Surgery 1</div></div><div class="smc"><div class="b">${fS(phases.find(p=>p.id==='surgery2').start)}</div><div class="d">Surgery 2</div></div>`}
+function renderLg(){const l=$('lgBar');l.innerHTML='';[{c:'var(--s1)',t:'Stage 1'},{c:'var(--ab)',t:'Antibiotics'},{c:'var(--s2)',t:'Stage 2'},{c:'var(--rh)',t:'Rehab/Post-Op'},{c:'var(--ins)',t:'Insurance'},{c:'var(--rv)',t:'Review'},{c:'var(--nish)',t:'Nishant Busy'},{c:'var(--abhi)',t:'Abhinav Trip'}].forEach(x=>{const d=document.createElement('div');d.className='lgi';d.innerHTML=`<div class="lgs" style="background:${x.c};opacity:.7"></div>${x.t}`;l.appendChild(d)})}
+
+function rebuild(){readState();compute();renderGantt();renderPhases();renderSum();renderLg();const{als,bds}=analyze();renderAlerts(als);renderBadges(bds)}
+
+buildSliders();
+document.querySelectorAll('input[type=date]').forEach(el=>el.addEventListener('change',rebuild));
+rebuild();
+</script>
+</body>
+</html>
