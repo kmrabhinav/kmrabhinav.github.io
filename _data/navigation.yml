@@ -65,6 +65,8 @@ cheatsheets:
 prototypes:
   - title: "Lab Admin Portal"
     url: /prototypes/lab-admin-portal.html
+  - title: "Feature Activity Report"
+    url: /lab-administration/feature-activity-report.html
 
 samples:
   - title: "Agent Demo"
@@ -83,8 +85,7 @@ TechExplained:
 lab-administration:
   - title: "Lab Admin Home"
     url: /lab-administration/
-  - title: "Feature Activity Report"
-    url: /lab-administration/feature-activity-report.html
+  
 
 mathematics:
   - title: "Mathematics"
