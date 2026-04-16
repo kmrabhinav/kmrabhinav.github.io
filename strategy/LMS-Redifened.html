@@ -6,157 +6,213 @@
     <title>Pragya (प्रज्ञा) - Ambient Universal Readiness Architecture</title>
     <style>
         :root {
-            --bg-deep: #050A15;
-            --panel-bg: rgba(11, 23, 49, 0.8);
+            --bg-deep: #03060d;
+            --panel-bg: rgba(8, 16, 36, 0.85);
             --neon-saffron: #FF9933;
             --neon-green: #138808;
             --metallic-gold: #F4D067;
             --text-light: #E5E5E5;
             --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --glow-saffron: 0 0 15px rgba(255, 153, 51, 0.5);
+            --glow-green: 0 0 15px rgba(19, 136, 8, 0.5);
         }
 
+        * { box-sizing: border-box; }
+
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background-color: var(--bg-deep);
             color: var(--text-light);
             font-family: var(--font-main);
             overflow-x: hidden;
-            background-image: radial-gradient(circle at 50% 50%, #0d1b2a 0%, #050a15 100%);
+            background-image: radial-gradient(circle at 50% 50%, #0a1428 0%, #03060d 100%);
         }
 
-        /* Indofuturism Motif Background */
+        /* Indofuturism Mandala Background */
        .mandala-bg {
             position: fixed;
-            top: -20vh;
-            right: -20vw;
-            width: 80vw;
-            height: 80vw;
-            background: repeating-radial-gradient(circle, transparent, transparent 40px, rgba(255, 153, 51, 0.03) 40px, rgba(255, 153, 51, 0.03) 41px);
+            top: -30vh; right: -20vw;
+            width: 100vw; height: 100vw;
+            background: repeating-radial-gradient(circle, transparent, transparent 50px, rgba(255, 153, 51, 0.04) 50px, rgba(255, 153, 51, 0.04) 52px),
+                        repeating-radial-gradient(circle, transparent, transparent 80px, rgba(244, 208, 103, 0.02) 80px, rgba(244, 208, 103, 0.02) 82px);
             border-radius: 50%;
             z-index: -1;
-            opacity: 0.6;
-            animation: rotate 120s linear infinite;
+            animation: rotate 180s linear infinite;
+            pointer-events: none;
         }
 
         @keyframes rotate { 100% { transform: rotate(360deg); } }
 
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
             padding: 1rem 3rem;
-            background: linear-gradient(90deg, rgba(5,10,21,1) 0%, rgba(255,153,51,0.1) 100%);
-            border-bottom: 1px solid var(--neon-saffron);
-            box-shadow: 0 0 15px rgba(255, 153, 51, 0.2);
+            background: linear-gradient(90deg, rgba(3,6,13,1) 0%, rgba(255,153,51,0.15) 100%);
+            border-bottom: 2px solid var(--neon-saffron);
+            box-shadow: var(--glow-saffron);
         }
 
         header h1 {
-            margin: 0;
-            font-size: 2rem;
+            margin: 0; font-size: 2.2rem;
             color: var(--metallic-gold);
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            text-transform: uppercase; letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(244, 208, 103, 0.5);
         }
+        header h1 span { color: var(--neon-saffron); }
 
-        header h1 span {
-            color: var(--neon-saffron);
-        }
-
-       .nav-menu {
-            display: flex;
-            gap: 20px;
-        }
-
+       .nav-menu { display: flex; gap: 15px; }
        .nav-menu button {
-            background: transparent;
+            background: rgba(0,0,0,0.5);
             color: var(--text-light);
             border: 1px solid var(--neon-saffron);
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 4px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
+            padding: 10px 20px; cursor: pointer;
+            border-radius: 4px; font-weight: bold;
+            transition: all 0.3s ease; text-transform: uppercase;
+            letter-spacing: 1px;
         }
-
        .nav-menu button:hover,.nav-menu button.active {
             background: var(--neon-saffron);
             color: var(--bg-deep);
-            box-shadow: 0 0 10px var(--neon-saffron);
+            box-shadow: var(--glow-saffron);
         }
 
        .container {
-            display: flex;
-            padding: 2rem;
-            gap: 2rem;
-            height: calc(100vh - 120px);
+            display: flex; padding: 2rem; gap: 2rem;
+            height: calc(100vh - 90px);
         }
 
        .main-panel {
-            flex: 3;
-            background: var(--panel-bg);
+            flex: 3; background: var(--panel-bg);
             border: 1px solid rgba(244, 208, 103, 0.3);
-            border-radius: 8px;
-            padding: 2rem;
-            backdrop-filter: blur(10px);
-            display: none;
-            flex-direction: column;
+            border-radius: 12px; padding: 2rem;
+            backdrop-filter: blur(15px);
+            display: none; flex-direction: column;
+            overflow-y: auto;
+            position: relative;
         }
+       .main-panel.active { display: flex; animation: fadeIn 0.5s ease; }
 
-       .main-panel.active {
-            display: flex;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
        .side-panel {
-            flex: 1;
-            background: var(--panel-bg);
+            flex: 1; background: var(--panel-bg);
             border: 1px solid rgba(19, 136, 8, 0.4);
-            border-radius: 8px;
-            padding: 1.5rem;
-            backdrop-filter: blur(10px);
-            overflow-y: auto;
+            border-radius: 12px; padding: 1.5rem;
+            backdrop-filter: blur(15px); overflow-y: auto;
         }
 
-        h2 {
-            color: var(--metallic-gold);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 10px;
-            margin-top: 0;
-        }
+        h2 { color: var(--metallic-gold); border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 10px; margin-top: 0; }
+        h3 { color: var(--neon-saffron); }
 
-        /* Knowledge Graph Canvas */
+        /* Canvas Graph */
+        #graphContainer { position: relative; width: 100%; height: 450px; margin-top: 15px; }
         #graphCanvas {
-            width: 100%;
-            height: 400px;
-            background: #02050A;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 153, 51, 0.3);
-            margin-top: 15px;
+            width: 100%; height: 100%;
+            background: #010205; border-radius: 8px;
+            border: 1px solid rgba(255, 153, 51, 0.4);
+            cursor: crosshair;
+        }
+        #graphTooltip {
+            position: absolute; background: rgba(0,0,0,0.9);
+            border: 1px solid var(--neon-green); color: #fff;
+            padding: 8px 12px; border-radius: 4px; pointer-events: none;
+            display: none; font-size: 0.9rem; z-index: 10;
+        }
+
+        /* Search Bar */
+       .search-box { display: flex; gap: 15px; margin-top: 20px; }
+       .search-box input {
+            flex: 1; padding: 15px; background: rgba(0,0,0,0.6);
+            border: 1px solid var(--neon-saffron); color: white;
+            border-radius: 6px; font-size: 1rem;
+        }
+       .search-box button {
+            background: var(--neon-saffron); color: #000;
+            border: none; padding: 0 25px; font-weight: bold;
+            cursor: pointer; border-radius: 6px; font-size: 1rem;
+            transition: 0.3s;
+        }
+       .search-box button:hover { box-shadow: var(--glow-saffron); }
+
+        /* AI Results Box */
+        #aiResult {
+            margin-top: 20px; padding: 20px; background: rgba(19, 136, 8, 0.1);
+            border-left: 4px solid var(--neon-green); border-radius: 4px;
+            display: none; line-height: 1.6;
         }
 
         /* Gamification Feed */
        .feed-item {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.03); padding: 15px;
+            border-radius: 8px; margin-bottom: 15px;
             border-left: 4px solid var(--neon-saffron);
-            transition: transform 0.2s;
+            transition: transform 0.2s, background 0.2s;
+            cursor: pointer;
         }
-       .feed-item:hover { transform: translateX(5px); background: rgba(255, 255, 255, 0.1); }
-       .feed-item h4 { margin: 0 0 5px 0; color: var(--neon-saffron); }
-       .feed-item p { margin: 0; font-size: 0.9rem; }
-       .badge { display: inline-block; background: var(--metallic-gold); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; margin-top: 8px; }
+       .feed-item:hover { transform: translateX(5px); background: rgba(255, 255, 255, 0.08); }
+       .feed-item h4 { margin: 0 0 8px 0; color: var(--metallic-gold); font-size: 1rem; }
+       .feed-item p { margin: 0; font-size: 0.85rem; color: #ccc; }
+       .badge { display: inline-block; background: var(--neon-green); color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; margin-top: 10px; }
+       .badge.saffron { background: var(--neon-saffron); color: #000; }
 
-        /* LLR Progress */
-       .llr-track { margin-top: 20px; }
-       .llr-bar { width: 100%; height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; margin-top: 10px; overflow: hidden; }
-       .llr-fill { height: 100%; background: linear-gradient(90deg, var(--neon-green), var(--neon-saffron)); width: 74%; box-shadow: 0 0 10px var(--neon-saffron); }
+        /* Simulations / Labs */
+       .sim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+       .sim-card {
+            background: linear-gradient(145deg, rgba(0,0,0,0.6) 0%, rgba(19, 136, 8, 0.1) 100%);
+            border: 1px solid var(--neon-green); padding: 20px;
+            border-radius: 8px; cursor: pointer; transition: all 0.3s;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+       .sim-card:hover { box-shadow: var(--glow-green); transform: translateY(-5px); }
+       .sim-card button {
+            margin-top: 15px; background: transparent; color: var(--neon-green);
+            border: 1px solid var(--neon-green); padding: 8px; border-radius: 4px;
+            cursor: pointer; font-weight: bold; transition: 0.3s;
+        }
+       .sim-card:hover button { background: var(--neon-green); color: #000; }
 
-        /* Simulations */
-       .sim-card { background: rgba(19, 136, 8, 0.1); border: 1px solid var(--neon-green); padding: 15px; border-radius: 6px; margin-top: 15px; cursor: pointer; transition: all 0.3s;}
-       .sim-card:hover { box-shadow: 0 0 15px rgba(19, 136, 8, 0.4); }
+        /* LLR Track */
+       .llr-track { background: rgba(0,0,0,0.5); padding: 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); margin-top: 15px; }
+       .llr-bar { width: 100%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; margin-top: 15px; overflow: hidden; }
+       .llr-fill { height: 100%; background: linear-gradient(90deg, var(--neon-green), var(--neon-saffron)); width: 74%; box-shadow: var(--glow-saffron); }
+       .xapi-log { margin-top: 20px; list-style: none; padding: 0; }
+       .xapi-log li { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; display: flex; justify-content: space-between;}
+       .xapi-log li span.verb { color: var(--metallic-gold); font-weight: bold; }
+
+        /* Command Center Dropzone */
+       .dropzone {
+            border: 2px dashed var(--metallic-gold); border-radius: 12px;
+            padding: 40px; text-align: center; background: rgba(244, 208, 103, 0.05);
+            transition: 0.3s; margin-top: 20px;
+        }
+       .dropzone.dragover { background: rgba(244, 208, 103, 0.2); box-shadow: 0 0 20px var(--metallic-gold); }
+        #pathResult { margin-top: 20px; display: none; }
+       .path-step { padding: 15px; background: rgba(255,255,255,0.05); border-left: 3px solid var(--neon-saffron); margin-bottom: 10px; }
+
+        /* Modals */
+       .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center; z-index: 100;
+        }
+       .modal-content {
+            background: var(--bg-deep); border: 1px solid var(--neon-saffron);
+            width: 80%; height: 80%; border-radius: 12px; padding: 2rem;
+            box-shadow: var(--glow-saffron); display: flex; flex-direction: column;
+            position: relative;
+        }
+       .close-btn {
+            position: absolute; top: 15px; right: 20px; background: transparent;
+            color: var(--text-light); border: none; font-size: 1.5rem; cursor: pointer;
+        }
+        
+        /* Chat UI inside Modal */
+       .chat-box { flex: 1; overflow-y: auto; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #333; }
+       .chat-msg { margin-bottom: 15px; padding: 10px 15px; border-radius: 8px; max-width: 80%; line-height: 1.4;}
+       .chat-ai { background: rgba(19, 136, 8, 0.2); border: 1px solid var(--neon-green); color: #fff; align-self: flex-start; }
+       .chat-user { background: rgba(255, 153, 51, 0.2); border: 1px solid var(--neon-saffron); color: #fff; margin-left: auto; }
+       .chat-input { display: flex; gap: 10px; }
+       .chat-input input { flex: 1; padding: 10px; background: #111; border: 1px solid #555; color: white; border-radius: 4px; }
+       .chat-input button { padding: 10px 20px; background: var(--neon-green); color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
 
     </style>
 </head>
@@ -167,154 +223,262 @@
     <header>
         <h1>Pragya <span>(प्रज्ञा)</span></h1>
         <div class="nav-menu">
-            <button class="active" onclick="switchTab('knowledge-graph', this)">Skill Graph</button>
-            <button onclick="switchTab('long-labs', this)">Ambient Labs & Roleplay</button>
-            <button onclick="switchTab('llr-dash', this)">My LLR Profile</button>
-            <button onclick="switchTab('leadership', this)">Command Center</button>
+            <button class="active" onclick="switchTab('vidya-graph', this)">Vidya (Knowledge) Graph</button>
+            <button onclick="switchTab('dhyana-labs', this)">Dhyana (Focus) Labs</button>
+            <button onclick="switchTab('lakshya-llr', this)">Lakshya (Aim) Profile</button>
+            <button onclick="switchTab('netritva-cmd', this)">Netritva (Leadership)</button>
         </div>
     </header>
 
     <div class="container">
-        <div id="knowledge-graph" class="main-panel active">
-            <h2>Enterprise AI Knowledge Graph</h2>
-            <p>Dynamically mapping your 40-year legacy IP, emerging technologies, and business problem-solving patterns. Explore semantic relationships between skills and active client demands.</p>
-            <canvas id="graphCanvas"></canvas>
-            <div style="margin-top: 20px; display: flex; gap: 15px;">
-                <input type="text" placeholder="Query the graph (e.g. 'Cloud Architecture + Legacy Mainframe')..." style="flex: 1; padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid var(--neon-saffron); color: white; border-radius: 4px;">
-                <button style="background: var(--neon-saffron); color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 4px;">Retrieve Context</button>
-            </div>
-        </div>
-
-        <div id="long-labs" class="main-panel">
-            <h2>Ambient Labs & Career Simulations</h2>
-            <p>Persistent sandbox environments and GenAI roleplay designed to bridge theoretical knowledge with applied client readiness.</p>
+        <div id="vidya-graph" class="main-panel active">
+            <h2>Vidya Graph - Enterprise Neural Network</h2>
+            <p>Traversing 40 years of IP, active client stacks, and external libraries. Hover over nodes to see connections.</p>
             
-            <div class="sim-card">
-                <h3 style="margin-top:0; color: var(--neon-green);">GenAI Avatar Roleplay: Client Escalation</h3>
-                <p>Practice navigating a high-stakes client architectural dispute. The AI avatar will adapt to your tone and provide real-time psychological safety feedback.</p>
-                <span class="badge">Start Simulation</span>
+            <div id="graphContainer">
+                <canvas id="graphCanvas"></canvas>
+                <div id="graphTooltip"></div>
             </div>
 
-            <div class="sim-card">
-                <h3 style="margin-top:0; color: var(--neon-green);">Persistent Lab: Microservices Boilerplate</h3>
-                <p>Your secure cloud sandbox. Currently loaded with a Node.js/Docker boilerplate. State persists for 30 days.</p>
-                <span class="badge">Enter IDE</span>
+            <div class="search-box">
+                <input type="text" id="aiQuery" placeholder="Describe your client friction point (e.g., 'Migrate legacy Mainframe to AWS Serverless')...">
+                <button onclick="retrieveContext()">Retrieve Context</button>
+            </div>
+            
+            <div id="aiResult"></div>
+        </div>
+
+        <div id="dhyana-labs" class="main-panel">
+            <h2>Dhyana Labs - Ambient Applied Learning</h2>
+            <p>Persistent sandbox environments and psychologically safe GenAI roleplay for immediate capability application.</p>
+            
+            <div class="sim-grid">
+                <div class="sim-card">
+                    <div>
+                        <h3 style="margin-top:0; color: var(--neon-saffron);">GenAI Avatar: Escalation Roleplay</h3>
+                        <p><strong>Scenario:</strong> Client CIO is threatening to terminate the cloud migration contract due to latency issues.</p>
+                        <p style="font-size: 0.85rem; color: #aaa;">Practice de-escalation, empathy, and technical reassurance. AI adapts to your tone.</p>
+                    </div>
+                    <button onclick="openModal('roleplayModal')">Initiate Roleplay</button>
+                </div>
+
+                <div class="sim-card">
+                    <div>
+                        <h3 style="margin-top:0; color: var(--neon-green);">Persistent Lab: Microservices</h3>
+                        <p><strong>Stack:</strong> Docker, Kubernetes, Node.js, Redis</p>
+                        <p style="font-size: 0.85rem; color: #aaa;">Your personal cloud sandbox. Resources persist for 30 days. Linked to Q3 Delivery goals.</p>
+                    </div>
+                    <button onclick="openModal('ideModal')">Enter Secure IDE</button>
+                </div>
             </div>
         </div>
 
-        <div id="llr-dash" class="main-panel">
-            <h2>Longitudinal Learning Record (LLR)</h2>
-            <p>Your lifelong career assistant. Tracking structured courses, shadow learning (YouTube, HackerRank via xAPI), and applied project hours.</p>
+        <div id="lakshya-llr" class="main-panel">
+            <h2>Lakshya Profile - Longitudinal Learning Record (LLR)</h2>
+            <p>Your lifelong career assistant. Tracking structured LMS courses, ambient project work, and shadow learning via xAPI.</p>
             
             <div class="llr-track">
-                <strong>Current Capability Target: Principal Cloud Architect</strong>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <span style="color: var(--neon-saffron); font-size: 0.9rem;">Target Capability:</span>
+                        <h3 style="margin: 5px 0 0 0;">Principal Cloud Architect</h3>
+                    </div>
+                    <strong style="color: var(--neon-green); font-size: 1.2rem;">74% Ready</strong>
+                </div>
                 <div class="llr-bar"><div class="llr-fill"></div></div>
-                <p style="text-align: right; font-size: 0.8rem; margin-top: 5px;">74% Readiness Achieved</p>
             </div>
 
-            <h3 style="color: var(--metallic-gold); margin-top: 30px;">Career Pathway Nudges</h3>
-            <p><em>Market headwinds suggest an increasing demand for FinOps. We recommend completing the AWS Cost Optimization module to enhance your deployment readiness.</em></p>
-        </div>
-
-        <div id="leadership" class="main-panel">
-            <h2>Leadership Command Center</h2>
-            <p>Instantly generate bespoke learning paths from client requirements and orchestrate workforce capabilities.</p>
-            
-            <div style="background: rgba(0,0,0,0.3); padding: 20px; border: 1px dashed var(--metallic-gold); border-radius: 6px; text-align: center;">
-                <p style="color: #aaa;">Drop Client Profile, RFP, or Job Description (PDF/DOCX) Here</p>
-                <button style="background: transparent; border: 1px solid var(--metallic-gold); color: var(--metallic-gold); padding: 10px 20px; cursor: pointer; transition: 0.3s;">Browse Files</button>
-            </div>
-
-            <h3 style="margin-top: 20px; color: var(--neon-saffron);">Real-time Readiness Baselines</h3>
-            <ul style="list-style: none; padding: 0;">
-                <li style="padding: 10px; background: rgba(255,255,255,0.05); margin-bottom: 5px; display: flex; justify-content: space-between;"><span>Project Alpha (Cloud Migration)</span> <strong style="color: var(--neon-green);">92% Ready</strong></li>
-                <li style="padding: 10px; background: rgba(255,255,255,0.05); margin-bottom: 5px; display: flex; justify-content: space-between;"><span>Project Beta (GenAI Integration)</span> <strong style="color: var(--neon-saffron);">41% Ready</strong></li>
+            <h3 style="margin-top: 30px;">Recent xAPI Shadow Learning Streams</h3>
+            <ul class="xapi-log">
+                <li><span>Priya <span class="verb">committed code</span> to Github Repo (Project_Alpha)</span> <span>Today, 10:42 AM</span></li>
+                <li><span>Priya <span class="verb">completed</span> HackerRank Challenge (Advanced Python)</span> <span>Yesterday, 8:15 PM</span></li>
+                <li><span>Priya <span class="verb">watched</span> YouTube Tutorial (AWS Lambda optimization)</span> <span>Oct 24, 2:30 PM</span></li>
+                <li><span>Priya <span class="verb">participated in</span> Dhyana Lab Simulation (De-escalation)</span> <span>Oct 22, 11:00 AM</span></li>
             </ul>
         </div>
 
+        <div id="netritva-cmd" class="main-panel">
+            <h2>Netritva Center - Workforce Orchestration</h2>
+            <p>Instantly generate bespoke learning paths from raw client requirements to orchestrate deployment readiness.</p>
+            
+            <div class="dropzone" id="dropzone" ondragover="event.preventDefault(); this.classList.add('dragover');" ondragleave="this.classList.remove('dragover');" ondrop="handleDrop(event)">
+                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="var(--metallic-gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:15px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                <h3 style="margin:0;">Drop Client RFP or Job Description (PDF/Word) Here</h3>
+                <p style="color: #aaa; font-size: 0.9rem;">AI will parse the document, map required skills via the Ontology, and generate a curriculum.</p>
+            </div>
+
+            <div id="pathResult">
+                <h3 style="color: var(--neon-green);">AI Curriculum Generated: Project Titan (FinOps)</h3>
+                <div class="path-step">
+                    <strong>Step 1: Internal IP Review</strong> - Legacy Financial Security Protocols (Extract from 1998 Archive)
+                </div>
+                <div class="path-step">
+                    <strong>Step 2: External Certification</strong> - AWS Cost Optimization Mastery (Coursera API Link)
+                </div>
+                <div class="path-step">
+                    <strong>Step 3: Applied Practice</strong> - Configure FinOps Sandbox in Dhyana Labs
+                </div>
+                <button style="margin-top: 15px; background: var(--neon-saffron); color: #000; border: none; padding: 10px 20px; font-weight: bold; border-radius: 4px; cursor: pointer;">Auto-Enroll Recommended Associates (34 Matches)</button>
+            </div>
+        </div>
+
         <div class="side-panel">
-            <h2>Cult of Problem Solvers</h2>
-            <p style="font-size: 0.85rem; color: #aaa;">Ambient social feed designed to drive organic engagement and recognition.</p>
+            <h2>Samuha Feed</h2>
+            <p style="font-size: 0.85rem; color: #aaa; margin-top:-5px;">Cult of Problem Solvers</p>
             
             <div class="feed-item">
-                <h4>Priya K. unlocked 'Guru' in Python Diagnostics</h4>
-                <p>Applied learning mapped directly to the Q3 Client Delivery target.</p>
+                <h4>Rahul S. unlocked 'Savant' in Vector DBs</h4>
+                <p>Applied learning mapped directly to the Q4 GenAI Delivery target.</p>
                 <span class="badge">+500 Dopamine Pts</span>
             </div>
             <div class="feed-item">
-                <h4>New Architectural Challenge</h4>
-                <p>The Global FinTech team just dropped a legacy-to-cloud refactoring bounty.</p>
-                <span class="badge">Accept Challenge</span>
+                <h4>⚠️ Architectural Bounty Dropped</h4>
+                <p>The Global FinTech team needs a legacy-to-cloud refactoring solution. First working prototype gets executive recognition.</p>
+                <span class="badge saffron">Accept Challenge</span>
             </div>
             <div class="feed-item">
                 <h4>Shadow Learning Verified</h4>
-                <p>Rahul S. completed an advanced Coursera module. xAPI data synced to LLR.</p>
-                <span class="badge">Verified Skill</span>
+                <p>Anita K. passed an advanced Udemy React module. xAPI data synced automatically.</p>
+                <span class="badge">Skill Verified</span>
             </div>
             <div class="feed-item">
-                <h4>Trending Concept: Vector Databases</h4>
-                <p>84 associates have searched this node in the Knowledge Graph today. Don't fall behind.</p>
+                <h4>Trending Ontology Node</h4>
+                <p>142 associates have searched <em>'Retrieval-Augmented Generation'</em> today. Are your skills current?</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="roleplayModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('roleplayModal')">&times;</button>
+            <h2 style="color: var(--neon-saffron);">AI Client Simulation</h2>
+            <div class="chat-box" id="chatBox">
+                <div class="chat-msg chat-ai">
+                    <strong>CIO Avatar:</strong> "I'm looking at the latency reports for the new cloud deployment, and it's completely unacceptable. We were promised a seamless transition, and right now, my operations are stalling. Explain this to me."
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Type your response to the client...">
+                <button onclick="sendChat()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="ideModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('ideModal')">&times;</button>
+            <h2 style="color: var(--neon-green);">Persistent Lab IDE</h2>
+            <div style="flex:1; background: #1e1e1e; border-radius: 8px; border: 1px solid #444; padding: 15px; font-family: monospace; color: #d4d4d4; display: flex;">
+                <div style="width: 200px; border-right: 1px solid #444; padding-right: 15px;">
+                    <strong style="color: #fff;">EXPLORER</strong><br><br>
+                    📁 src<br>
+                    &nbsp;&nbsp;📄 index.js<br>
+                    &nbsp;&nbsp;📄 docker-compose.yml<br>
+                    📄 package.json
+                </div>
+                <div style="flex: 1; padding-left: 15px;">
+                    <span style="color: #569cd6;">const</span> <span style="color: #4fc1ff;">express</span> = <span style="color: #dcdcaa;">require</span>(<span style="color: #ce9178;">'express'</span>);<br>
+                    <span style="color: #569cd6;">const</span> <span style="color: #4fc1ff;">app</span> = <span style="color: #dcdcaa;">express</span>();<br><br>
+                    <span style="color: #6a9955;">// Ambient Lab - Your cloud state persists here.</span><br>
+                    <span style="color: #4fc1ff;">app</span>.<span style="color: #dcdcaa;">get</span>(<span style="color: #ce9178;">'/'</span>, (<span style="color: #9cdcfe;">req</span>, <span style="color: #9cdcfe;">res</span>) <span style="color: #569cd6;">=></span> {<br>
+                    &nbsp;&nbsp;<span style="color: #9cdcfe;">res</span>.<span style="color: #dcdcaa;">send</span>(<span style="color: #ce9178;">'Microservice operational.'</span>);<br>
+                    });
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Tab Switching Logic
+        // Tab Navigation
         function switchTab(tabId, btn) {
-            document.querySelectorAll('.main-panel').forEach(panel => {
-                panel.classList.remove('active');
-            });
-            document.querySelectorAll('.nav-menu button').forEach(button => {
-                button.classList.remove('active');
-            });
+            document.querySelectorAll('.main-panel').forEach(panel => panel.classList.remove('active'));
+            document.querySelectorAll('.nav-menu button').forEach(button => button.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             btn.classList.add('active');
 
-            if(tabId === 'knowledge-graph') {
-                initGraph();
-            }
+            if(tabId === 'vidya-graph') initGraph();
         }
 
-        // Interactive Knowledge Graph Animation
+        // --- Knowledge Graph Animation Logic ---
+        let animationFrameId;
         function initGraph() {
+            if(animationFrameId) cancelAnimationFrame(animationFrameId);
             const canvas = document.getElementById('graphCanvas');
             const ctx = canvas.getContext('2d');
+            const tooltip = document.getElementById('graphTooltip');
             
-            // Adjust canvas resolution
+            // Set precise dimensions
             canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = 400;
+            canvas.height = canvas.parentElement.clientHeight;
 
-            let nodes =;
-            const numNodes = 40;
+            const nodes =;
+            const numNodes = 60;
             const colors =;
             const labels =;
 
+            // Generate Nodes
             for (let i = 0; i < numNodes; i++) {
                 nodes.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    vx: (Math.random() - 0.5) * 1.5,
-                    vy: (Math.random() - 0.5) * 1.5,
-                    radius: Math.random() * 4 + 2,
+                    vx: (Math.random() - 0.5) * 1.0,
+                    vy: (Math.random() - 0.5) * 1.0,
+                    radius: Math.random() * 4 + 3,
                     color: colors[Math.floor(Math.random() * colors.length)],
-                    label: i % 5 === 0? labels[Math.floor(Math.random() * labels.length)] : ''
+                    label: (i % 7 === 0)? labels[Math.floor(Math.random() * labels.length)] : null,
+                    isHovered: false
                 });
             }
 
+            // Mouse tracking
+            let mouse = { x: null, y: null };
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                mouse.x = e.clientX - rect.left;
+                mouse.y = e.clientY - rect.top;
+            });
+            canvas.addEventListener('mouseleave', () => { mouse.x = null; mouse.y = null; tooltip.style.display = 'none'; });
+
             function animate() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let hoveredNode = null;
                 
+                // Update and Draw Nodes
+                nodes.forEach(node => {
+                    node.x += node.vx;
+                    node.y += node.vy;
+                    // Bounce off walls
+                    if (node.x < 0 |
+
+| node.x > canvas.width) node.vx *= -1;
+                    if (node.y < 0 |
+
+| node.y > canvas.height) node.vy *= -1;
+
+                    // Hover logic
+                    node.isHovered = false;
+                    if (mouse.x && Math.hypot(node.x - mouse.x, node.y - mouse.y) < node.radius + 15) {
+                        node.isHovered = true;
+                        hoveredNode = node;
+                    }
+                });
+
                 // Draw Edges
                 for (let i = 0; i < numNodes; i++) {
                     for (let j = i + 1; j < numNodes; j++) {
-                        let dx = nodes[i].x - nodes[j].x;
-                        let dy = nodes[i].y - nodes[j].y;
-                        let dist = Math.sqrt(dx * dx + dy * dy);
-                        
-                        if (dist < 100) {
+                        let dist = Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y);
+                        if (dist < 120) {
                             ctx.beginPath();
-                            ctx.strokeStyle = `rgba(255, 153, 51, ${1 - dist / 100})`;
-                            ctx.lineWidth = 1;
+                            // Glow up edges connected to hovered node
+                            if (nodes[i].isHovered |
+
+| nodes[j].isHovered) {
+                                ctx.strokeStyle = `rgba(255, 153, 51, ${1 - dist / 120})`;
+                                ctx.lineWidth = 2;
+                            } else {
+                                ctx.strokeStyle = `rgba(100, 100, 150, ${0.3 - dist / 400})`;
+                                ctx.lineWidth = 1;
+                            }
                             ctx.moveTo(nodes[i].x, nodes[i].y);
                             ctx.lineTo(nodes[j].x, nodes[j].y);
                             ctx.stroke();
@@ -324,39 +488,102 @@
 
                 // Draw Nodes
                 nodes.forEach(node => {
-                    node.x += node.vx;
-                    node.y += node.vy;
-
-                    if (node.x < 0 |
-
-| node.x > canvas.width) node.vx *= -1;
-                    if (node.y < 0 |
-
-| node.y > canvas.height) node.vy *= -1;
-
                     ctx.beginPath();
-                    ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+                    ctx.arc(node.x, node.y, node.isHovered? node.radius * 2 : node.radius, 0, Math.PI * 2);
                     ctx.fillStyle = node.color;
+                    if(node.isHovered) {
+                        ctx.shadowBlur = 15;
+                        ctx.shadowColor = node.color;
+                    } else {
+                        ctx.shadowBlur = 0;
+                    }
                     ctx.fill();
-                    ctx.shadowBlur = 10;
-                    ctx.shadowColor = node.color;
 
                     if(node.label) {
-                        ctx.font = "12px sans-serif";
-                        ctx.fillStyle = "#fff";
-                        ctx.fillText(node.label, node.x + 8, node.y + 4);
+                        ctx.font = node.isHovered? "bold 14px sans-serif" : "12px sans-serif";
+                        ctx.fillStyle = node.isHovered? "#fff" : "rgba(255,255,255,0.5)";
+                        ctx.fillText(node.label, node.x + 10, node.y + 4);
                     }
-                    ctx.shadowBlur = 0; // reset
                 });
 
-                requestAnimationFrame(animate);
+                // Tooltip
+                if (hoveredNode && hoveredNode.label) {
+                    tooltip.style.display = 'block';
+                    tooltip.style.left = (mouse.x + 15) + 'px';
+                    tooltip.style.top = (mouse.y + 15) + 'px';
+                    tooltip.innerHTML = `<strong>Concept:</strong> ${hoveredNode.label}<br><span style="color:#aaa;font-size:0.8em">3,402 successful applications</span>`;
+                } else {
+                    tooltip.style.display = 'none';
+                }
+
+                animationFrameId = requestAnimationFrame(animate);
             }
             animate();
         }
-
-        // Initialize graph on load
         window.onload = initGraph;
-        window.onresize = initGraph; // Redraw on window resize
+        window.onresize = () => { if(document.getElementById('vidya-graph').classList.contains('active')) initGraph(); };
+
+        // --- GenAI Context Retrieval Simulation ---
+        function retrieveContext() {
+            const query = document.getElementById('aiQuery').value;
+            const resBox = document.getElementById('aiResult');
+            if(!query) return;
+            
+            resBox.style.display = 'block';
+            resBox.innerHTML = `<span style="color: var(--metallic-gold);">Querying Semantic Graph...</span>`;
+            
+            setTimeout(() => {
+                resBox.innerHTML = `
+                    <h4 style="margin:0 0 10px 0; color: var(--neon-green);">Context Assembled Successfully</h4>
+                    <p style="margin:0; font-size:0.95rem;">Based on your query, the Knowledge Graph identified a connection between <strong>Legacy Module X (1998)</strong> and modern <strong>AWS Serverless Architecture</strong>. 
+                    <br><br>We have retrieved the original COBOL documentation and mapped it to a 15-minute <em>Coursera Micro-module</em> on AWS Lambda functions. We also found a community boilerplate used by Team Alpha last month.</p>
+                    <button style="margin-top: 10px; background: transparent; border: 1px solid var(--neon-green); color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Load Resources to Workspace</button>
+                `;
+            }, 1500);
+        }
+
+        // --- Modals Logic ---
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // --- Chat Simulation Logic ---
+        function sendChat() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if(!text) return;
+
+            const chatBox = document.getElementById('chatBox');
+            
+            // User message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'chat-msg chat-user';
+            userMsg.innerHTML = `<strong>You:</strong> ${text}`;
+            chatBox.appendChild(userMsg);
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // AI thinking
+            setTimeout(() => {
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'chat-msg chat-ai';
+                aiMsg.innerHTML = `<strong>AI Coach Feedback:</strong> Good empathetic start, but you missed providing a timeline for a fix. Remember the 'Acknowledge, Align, Assure' framework. Try again, offering a concrete technical check-in time.`;
+                chatBox.appendChild(aiMsg);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 1000);
+        }
+
+        // --- Drag & Drop Simulation ---
+        function handleDrop(e) {
+            e.preventDefault();
+            const dropzone = document.getElementById('dropzone');
+            dropzone.classList.remove('dragover');
+            dropzone.innerHTML = `<h3 style="color: var(--neon-saffron);">Parsing Document via NLP...</h3>`;
+            
+            setTimeout(() => {
+                dropzone.style.display = 'none';
+                document.getElementById('pathResult').style.display = 'block';
+            }, 2000);
+        }
     </script>
 </body>
 </html>
