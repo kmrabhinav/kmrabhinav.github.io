@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <!-- ...existing code... -->
+    <script>
+      // Prevent screenshot attempts
+      document.addEventListener('keydown', function(e) {
+        // Print Screen key (KeyCode 44)
+        if (e.keyCode === 44 || (e.key === 'PrintScreen')) {
+          e.preventDefault();
+          console.warn('Screenshot attempt blocked');
+          showScreenshotBlockedNotice();
+        }
+        // Alt + Print Screen
+        if (e.altKey && e.keyCode === 44) {
+          e.preventDefault();
+          console.warn('Screenshot attempt blocked');
+          showScreenshotBlockedNotice();
+        }
+        // Ctrl + Shift + S (native screenshot on some browsers)
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 's') {
+          e.preventDefault();
+          console.warn('Screenshot attempt blocked');
+          showScreenshotBlockedNotice();
+        }
+        // Cmd + Shift + 3 (Mac screenshot)
+        if (e.metaKey && e.shiftKey && e.key === '3') {
+          e.preventDefault();
+          console.warn('Screenshot attempt blocked');
+          showScreenshotBlockedNotice();
+        }
+        // Cmd + Shift + 4 (Mac screenshot)
+        if (e.metaKey && e.shiftKey && e.key === '4') {
+          e.preventDefault();
+          console.warn('Screenshot attempt blocked');
+          showScreenshotBlockedNotice();
+        }
+        // Cmd + Shift + 5 (Mac screenshot)
+        if (e.metaKey && e.shiftKey && e.key === '5') {
+          e.preventDefault();
+          console.warn('Screenshot attempt blocked');
+          showScreenshotBlockedNotice();
+        }
+      });
+
+      // Prevent right-click context menu
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+      });
+
+      // Prevent copy
+      document.addEventListener('copy', function(e) {
+        e.preventDefault();
+      });
+
+      // Prevent copy/cut shortcuts
+      document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C' || e.key === 'a' || e.key === 'A')) {
+          e.preventDefault();
+        }
+      });
+
+      // Show screenshot blocked notice
+      function showScreenshotBlockedNotice() {
+        const notice = document.createElement('div');
+        notice.style.cssText = 'position:fixed;top:20px;right:20px;background:rgba(232,83,79,0.95);color:#fff;padding:12px 20px;border-radius:6px;z-index:9999;font-family:sans-serif;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.3);animation:fadeInOut 3s ease-in-out;';
+        notice.textContent = '📸 Screenshots are disabled';
+        document.body.appendChild(notice);
+        
+        const style = document.createElement('style');
+        style.textContent = '@keyframes fadeInOut { 0% { opacity:0;transform:translateY(-10px); } 10% { opacity:1;transform:translateY(0); } 90% { opacity:1;transform:translateY(0); } 100% { opacity:0;transform:translateY(-10px); } }';
+        document.head.appendChild(style);
+        
+        setTimeout(() => notice.remove(), 3000);
+      }
+
+      // Block print screen
+      window.addEventListener('keyup', function(e) {
+        if (e.key === 'PrintScreen') {
+          e.preventDefault();
+          showScreenshotBlockedNotice();
+        }
+      });
+    </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>HealthCare Simulation v5 — Exhaustive Pathway Explorer</title>
+<style>
+:root{--bg:#0b0e17;--bg2:#131826;--bg3:#1a2236;--bg4:#222d45;--bd:rgba(255,255,255,0.06);--bd2:rgba(255,255,255,0.12);--t:#dde1ed;--t2:#8b95b0;--t3:#4e5876;--blue:#3d8ef0;--teal:#2ecfa8;--amber:#f5a623;--red:#e8534f;--green:#4caf7d;--purple:#9d7cf7;--pink:#d85fc8}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--t);font-size:13px;line-height:1.5;overflow:hidden;height:100vh;display:flex;flex-direction:column}
+#topbar{display:flex;align-items:center;gap:7px;padding:7px 13px;background:var(--bg2);border-bottom:1px solid var(--bd);flex-shrink:0;flex-wrap:wrap}
+#topbar h1{font-size:11px;font-weight:600;white-space:nowrap;color:var(--t)}
+#topbar h1 span{color:var(--teal)}
+#topbar h1 em{color:var(--t2);font-style:normal;font-weight:400}
+.plan-tabs{display:flex;gap:3px;flex-wrap:wrap}
+.ptab{padding:3px 9px;border-radius:20px;border:1px solid var(--bd2);background:var(--bg3);color:var(--t2);font-size:10px;font-weight:500;cursor:pointer;transition:all .13s;white-space:nowrap}
+.ptab:hover{background:var(--bg4)}
+.ptab.active{color:#fff;border-color:transparent}
+.ptab[data-p="PPO"].active{background:#185FA5}
+.ptab[data-p="HMO"].active{background:#3C3489}
+.ptab[data-p="HDHP"].active{background:#854F0B}
+.ptab[data-p="MA"].active{background:#0F6E56}
+.ptab[data-p="Medicaid"].active{background:#8B3120}
+.ptab[data-p="ASO"].active{background:#7B2B52}
+.filter-tabs{display:flex;gap:2px;flex-wrap:wrap}
+.ftab{padding:2px 7px;border-radius:12px;border:1px solid var(--bd);background:transparent;color:var(--t3);font-size:9px;font-weight:500;cursor:pointer;transition:all .12s;white-space:nowrap}
+.ftab:hover,.ftab.active{border-color:var(--bd2);color:var(--t2);background:var(--bg3)}
+.legend{display:flex;gap:7px;margin-left:auto;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:3px;font-size:9px;color:var(--t3)}
+.leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.leg-dash{width:12px;height:0;border-top:2px dashed;flex-shrink:0}
+#main{display:flex;flex:1;overflow:hidden}
+#canvas-col{flex:1;overflow-y:auto;overflow-x:hidden;padding:10px 9px;position:relative;min-width:0;background:var(--bg)}
+#canvas-col::-webkit-scrollbar{width:3px}
+#canvas-col::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
+.stage{margin-bottom:10px}
+.stage-lbl{font-size:8px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--t3);margin-bottom:5px;padding-left:2px;display:flex;align-items:center;gap:5px}
+.stage-lbl::after{content:'';flex:1;height:1px;background:var(--bd)}
+.lane{display:flex;gap:5px;flex-wrap:wrap;align-items:flex-start}
+.ncard{border-radius:6px;border:1.5px solid;padding:6px 8px;cursor:pointer;transition:all .12s;min-width:100px;max-width:138px;position:relative;user-select:none}
+.ncard:hover{transform:translateY(-1px);filter:brightness(1.1)}
+.ncard.sel{box-shadow:0 0 0 2px var(--blue),0 4px 14px rgba(61,142,240,.2);transform:translateY(-1px)}
+.ncard.blocked{opacity:.15;pointer-events:none;border-style:dashed}
+.ncard.filtered-out{opacity:.12}
+.nc-title{font-size:10px;font-weight:600;line-height:1.3}
+.nc-sub{font-size:8px;color:var(--t2);line-height:1.3;margin-top:1px}
+.nc-agents{font-size:8px;color:var(--t3);margin-top:2px}
+.nc-domain{font-size:7px;margin-top:2px;padding:1px 4px;border-radius:4px;display:inline-block;font-weight:600;border:1px solid;opacity:.7}
+.nc-gate{font-size:8px;margin-top:2px;padding:1px 4px;border-radius:5px;display:inline-block;font-weight:600;border:1px solid}
+/* Domain color systems */
+.d-intake{border-color:#1e4a7a;background:linear-gradient(135deg,#0d1e35,#111d2e)}.d-intake .nc-title{color:#7ab8f5}
+.d-eligib{border-color:#0d5c3e;background:linear-gradient(135deg,#071f16,#0d2018)}.d-eligib .nc-title{color:#5dcaa5}
+.d-clinical{border-color:#3a2d7a;background:linear-gradient(135deg,#150e35,#191239)}.d-clinical .nc-title{color:#a89cf7}
+.d-imaging{border-color:#5c3d0d;background:linear-gradient(135deg,#201508,#1e160a)}.d-imaging .nc-title{color:#f5c060}
+.d-procedure{border-color:#5c2e0d;background:linear-gradient(135deg,#1e0f05,#1c1007)}.d-procedure .nc-title{color:#f5956a}
+.d-rx{border-color:#1e5c2e;background:linear-gradient(135deg,#071e0e,#0a1c10)}.d-rx .nc-title{color:#6fcc8f}
+.d-coding{border-color:#3d3d3d;background:linear-gradient(135deg,#161616,#191919)}.d-coding .nc-title{color:#bbb}
+.d-claims{border-color:#5c1e3d;background:linear-gradient(135deg,#1e0716,#1c0814)}.d-claims .nc-title{color:#e88abf}
+.d-vbc{border-color:#0d3c5c;background:linear-gradient(135deg,#051525,#081424)}.d-vbc .nc-title{color:#60b8f5}
+.d-ok{border-color:#1a4d2e;background:linear-gradient(135deg,#071a0e,#0a1c10)}.d-ok .nc-title{color:#4caf7d;font-weight:700}
+.d-deny{border-color:#5c1a1a;background:linear-gradient(135deg,#1e0707,#1c0808)}.d-deny .nc-title{color:#e8534f;font-weight:700}
+.d-neutral{border-color:#333;background:linear-gradient(135deg,#131313,#161616)}.d-neutral .nc-title{color:#999}
+.d-auth{border-color:#5c3d0d;border-style:dashed;background:linear-gradient(135deg,#1c1208,#18100a)}.d-auth .nc-title{color:#f5c060}
+.d-ref{border-color:#3a2d7a;border-style:dashed;background:linear-gradient(135deg,#130f2e,#100d28)}.d-ref .nc-title{color:#a89cf7}
+.d-bh{border-color:#5c0d5c;background:linear-gradient(135deg,#1e0718,#1a0716)}.d-bh .nc-title{color:#d85fc8}
+.d-pop{border-color:#0d4c5c;background:linear-gradient(135deg,#051820,#071c24)}.d-pop .nc-title{color:#40c8e0}
+.d-reg{border-color:#3d3000;background:linear-gradient(135deg,#141000,#181200)}.d-reg .nc-title{color:#c8b040}
+.d-finance{border-color:#1a3d0d;background:linear-gradient(135deg,#091505,#0c1808)}.d-finance .nc-title{color:#80cc50}
+.d-interop{border-color:#0d2c5c;background:linear-gradient(135deg,#041020,#060e1c)}.d-interop .nc-title{color:#5090f0}
+.d-quality{border-color:#3d1a5c;background:linear-gradient(135deg,#14081e,#160a22)}.d-quality .nc-title{color:#9d7cf7}
+#conn-svg{position:absolute;top:0;left:0;pointer-events:none;z-index:0}
+.lane,.stage{position:relative;z-index:1}
+/* Detail panel */
+#detail-col{width:340px;border-left:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden;background:var(--bg2);flex-shrink:0}
+#dh{padding:10px 12px;border-bottom:1px solid var(--bd);background:var(--bg3);flex-shrink:0}
+.dh-title{font-size:13px;font-weight:700;color:var(--t)}
+.dh-sub{font-size:9px;color:var(--t3);margin-top:1px}
+.dh-domain{display:inline-block;font-size:8px;padding:1px 6px;border-radius:4px;margin-top:5px;font-weight:600;border:1px solid}
+.dh-agents{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px}
+.achip{font-size:8px;padding:2px 6px;border-radius:8px;border:1px solid var(--bd2);background:var(--bg4);color:var(--t2);font-weight:500}
+.dcov{font-size:8px;margin-top:5px;color:var(--t3)}.dcov span{color:var(--teal);font-weight:500}
+#dtabs{display:flex;border-bottom:1px solid var(--bd);background:var(--bg3);flex-shrink:0}
+.dtab{flex:1;padding:6px 2px;font-size:9px;font-weight:500;color:var(--t3);cursor:pointer;text-align:center;border-bottom:2px solid transparent;transition:all .12s}
+.dtab:hover{color:var(--t2)}
+.dtab.active{color:var(--teal);border-bottom-color:var(--teal)}
+#dbody{flex:1;overflow-y:auto;padding:10px 12px}
+#dbody::-webkit-scrollbar{width:3px}
+#dbody::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
+.dsec{margin-bottom:12px}
+.dsec-t{font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:5px;padding-bottom:3px;border-bottom:1px solid var(--bd)}
+.role-txt{font-size:10px;line-height:1.65;color:var(--t2)}
+.drow{display:flex;gap:5px;align-items:flex-start;margin-bottom:5px}
+.dicon{width:16px;height:16px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;margin-top:1px}
+.di-q{background:rgba(61,142,240,.18);color:var(--blue)}.di-i{background:rgba(76,175,125,.18);color:var(--green)}.di-w{background:rgba(245,166,35,.18);color:var(--amber)}.di-x{background:rgba(232,83,79,.18);color:var(--red)}
+.dtxt{font-size:10px;line-height:1.5;color:var(--t2)}
+.icard{background:var(--bg3);border:1px solid var(--bd);border-radius:6px;padding:7px 9px;margin-bottom:5px}
+.ic-title{font-size:10px;font-weight:600;color:var(--t);margin-bottom:1px}
+.ic-from{font-size:9px;color:var(--t3);margin-bottom:4px}
+.ic-from strong{color:var(--teal)}
+.ic-fields{display:flex;flex-wrap:wrap;gap:2px}
+.ic-field{font-size:8px;padding:1px 5px;border-radius:4px;background:var(--bg4);border:1px solid var(--bd);color:var(--t2)}
+.cover-tag{font-size:8px;padding:1px 5px;border-radius:4px;background:rgba(46,207,168,.1);border:1px solid rgba(46,207,168,.25);color:var(--teal);margin:1px 2px 1px 0;display:inline-block}
+.ss-title{font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);margin-bottom:4px;padding-bottom:2px;border-bottom:1px solid var(--bd)}
+.srow{margin-bottom:4px}
+.srow-lbl{font-size:9px;color:var(--t3);margin-bottom:1px}
+.sinput{width:100%;background:var(--bg3);border:1px solid var(--bd2);border-radius:5px;padding:4px 6px;color:var(--t);font-size:10px;outline:none}
+.sinput:focus{border-color:var(--blue)}
+.sselect{width:100%;background:var(--bg3);border:1px solid var(--bd2);border-radius:5px;padding:4px 6px;color:var(--t);font-size:10px;outline:none}
+.srwrap{display:flex;gap:5px;align-items:center}
+.srange{flex:1;accent-color:var(--teal)}
+.srval{font-size:10px;color:var(--t2);min-width:26px;text-align:right}
+.pc-row{display:flex;gap:5px;align-items:flex-start;margin-bottom:4px}
+.pc-badge{font-size:8px;padding:2px 5px;border-radius:4px;font-weight:600;flex-shrink:0;min-width:46px;text-align:center;border:1px solid transparent}
+.pc-txt{font-size:9px;line-height:1.5;color:var(--t2)}
+.pc-txt.ap{color:var(--t);font-weight:500}
+.apbox{border-radius:6px;padding:8px 10px;margin-top:4px;border:1px solid}
+.apbox-t{font-size:9px;font-weight:600;margin-bottom:3px}
+.apbox-b{font-size:10px;line-height:1.6;opacity:.85}
+#effbar{padding:6px 12px;border-top:1px solid var(--bd);background:var(--bg3);font-size:9px;color:var(--t3);min-height:28px;flex-shrink:0;line-height:1.5}
+#effbar strong{color:var(--amber)}
+.empty{padding:12px 0;color:var(--t3);font-size:10px;line-height:1.7}
+.cov-list{display:flex;flex-wrap:wrap;gap:2px;margin-top:4px}
+</style>
+</head>
+<body>
+<div id="topbar">
+  <h1>HealthCare <span>Simulation</span> <em>v5 — Exhaustive Pathway Explorer</em></h1>
+  <div class="plan-tabs">
+    <button class="ptab active" data-p="PPO">PPO</button>
+    <button class="ptab" data-p="HMO">HMO</button>
+    <button class="ptab" data-p="HDHP">HDHP/HSA</button>
+    <button class="ptab" data-p="MA">Medicare Advantage</button>
+    <button class="ptab" data-p="Medicaid">Medicaid</button>
+    <button class="ptab" data-p="ASO">ASO/Self-funded</button>
+  </div>
+  <div class="filter-tabs" id="ftabs">
+    <button class="ftab active" data-f="all">All</button>
+    <button class="ftab" data-f="clinical">Clinical</button>
+    <button class="ftab" data-f="pharmacy">Pharmacy</button>
+    <button class="ftab" data-f="claims">Claims</button>
+    <button class="ftab" data-f="behavioral">Behavioral/MH</button>
+    <button class="ftab" data-f="population">Pop. Health</button>
+    <button class="ftab" data-f="regulatory">Regulatory</button>
+    <button class="ftab" data-f="financial">Financial</button>
+    <button class="ftab" data-f="interop">Interop/Data</button>
+    <button class="ftab" data-f="quality">Quality</button>
+  </div>
+  <div class="legend">
+    <div class="leg"><div class="leg-dot" style="background:#5dcaa5"></div>Eligibility</div>
+    <div class="leg"><div class="leg-dot" style="background:#a89cf7"></div>Clinical</div>
+    <div class="leg"><div class="leg-dot" style="background:#d85fc8"></div>BH/MH</div>
+    <div class="leg"><div class="leg-dash" style="border-color:#f5c060"></div>PA gate</div>
+    <div class="leg"><div class="leg-dash" style="border-color:#a89cf7"></div>Referral</div>
+    <div class="leg"><div class="leg-dot" style="background:#4caf7d"></div>Approved</div>
+    <div class="leg"><div class="leg-dot" style="background:#e8534f"></div>Denied</div>
+  </div>
+</div>
+<div id="main">
+  <div id="canvas-col">
+    <div id="graph-root" style="position:relative">
+      <svg id="conn-svg"></svg>
+      <div id="stages-wrap"></div>
+    </div>
+  </div>
+  <div id="detail-col">
+    <div id="dh">
+      <div class="dh-title" id="dh-title">Select a node</div>
+      <div class="dh-sub" id="dh-sub">Click any pathway node for agent profile, simulation schema, and plan-type variations. Use filter tabs to isolate a domain.</div>
+      <div class="dh-agents" id="dh-agents"></div>
+      <div id="dh-covers" class="dcov"></div>
+    </div>
+    <div id="dtabs">
+      <div class="dtab active" data-tab="agent">Agent Profile</div>
+      <div class="dtab" data-tab="schema">Data Schema</div>
+      <div class="dtab" data-tab="plans">Plan Paths</div>
+      <div class="dtab" data-tab="coverage">145-Item Map</div>
+    </div>
+    <div id="dbody"><div class="empty">No node selected.<br><br>This simulation covers all 145 care pathway factors including behavioral health, maternal care, SUD, population health, regulatory compliance, interoperability, clinical decision support, financial services, and quality programs.<br><br>Click any node to see full agent profile, decisions, information inputs, editable simulation schema, plan-type variations, and which of the 145 items it addresses.</div></div>
+    <div id="effbar">Select a node to see live pathway effects and computed outputs.</div>
+  </div>
+</div>
+<script>
+const PLAN_META={PPO:{c:'#185FA5',l:'rgba(24,95,165,.18)',t:'#7ab8f5'},HMO:{c:'#3C3489',l:'rgba(60,52,137,.18)',t:'#a89cf7'},HDHP:{c:'#854F0B',l:'rgba(133,79,11,.18)',t:'#f5c060'},MA:{c:'#0F6E56',l:'rgba(15,110,86,.18)',t:'#5dcaa5'},Medicaid:{c:'#8B3120',l:'rgba(139,49,32,.18)',t:'#f5956a'},ASO:{c:'#7B2B52',l:'rgba(123,43,82,.18)',t:'#e88abf'}};
+const TIERS=[
+{id:0,lbl:'T0 — Entry & Enrollment'},
+{id:1,lbl:'T1 — Eligibility, Benefits & Financial Counseling'},
+{id:2,lbl:'T2 — Referral, Prior Auth & Clinical Decision Support'},
+{id:3,lbl:'T3 — Scheduling & Virtual Care'},
+{id:4,lbl:'T4 — Clinical Encounter & Emergency Protocols'},
+{id:5,lbl:'T5 — Specialized Clinical Pathways'},
+{id:6,lbl:'T6 — Orders: Diagnostics, Pharmacy & Procedures'},
+{id:7,lbl:'T7 — Post-Acute Care, Coding & Discharge'},
+{id:8,lbl:'T8 — Claims Submission & Adjudication'},
+{id:9,lbl:'T9 — Payment Outcomes & Disposition'},
+{id:10,lbl:'T10 — Population Health, Quality & Compliance'},
+{id:11,lbl:'T11 — Interoperability, Data Exchange & Provider Infrastructure'},
+{id:12,lbl:'T12 — Appeals, VBC Reconciliation & Final Dispositions'},
+];
+const N=[];
+function n(o){N.push(o)}
+// ═══════════════════════════════════════════════════════════
+// TIER 0 — Entry & Enrollment
+// ═══════════════════════════════════════════════════════════
+n({id:'enrollment',tier:0,label:'Member enrollment',sub:'AEP / SEP / COBRA lifecycle',dom:'d-eligib',filter:'regulatory',agents:['Enrollment Agent','Broker Agent','CMS/State Exchange'],blocked:{},gateType:'none',covers:[50,51,109,110,111],connects:[{to:'symptom',lbl:'Member active'},{to:'eligib',lbl:'Eligibility check'}],
+role:'Manages the complete member lifecycle: initial enrollment during Open Enrollment Period, Special Enrollment Period (SEP) triggers (job loss, birth, marriage, relocation, loss of other coverage), Medicare Annual Enrollment Period (AEP Oct 15–Dec 7), COBRA continuation (60-day election window, max 18/29/36 months by qualifying event), Medicaid redetermination (annual unwinding post-PHE). Each pathway has distinct rules for premium, effective date, and retroactive coverage.',
+decisions:[{t:'q',x:'Qualifying life event (QLE) present? → SEP triggered; 60-day enrollment window opens'},{t:'q',x:'Losing job-based coverage? → COBRA election (60 days); compare to marketplace plan premium'},{t:'q',x:'Medicare eligible? → AEP choice: Original Medicare vs MA vs PDP vs Medigap'},{t:'q',x:'Medicaid redetermination: still income-eligible? → renew. Income increase? → transition to marketplace.'},{t:'i',x:'Broker/navigator commission disclosure required. Plan selection drives all downstream benefit rules.'},{t:'w',x:'Late enrollment penalty: Medicare Part B (10%/year for each uncovered year); Part D (1% LICRA/month)'}],
+infoNeeds:[{title:'Member identity',from:'Applicant / Employer',fields:['SSN','Date of birth','Address','Income (for subsidy)','Current coverage status','Qualifying life event documentation']},{title:'Plan selection data',from:'Exchange / Employer / Broker',fields:['Metal tier (Bronze/Silver/Gold/Platinum)','Premium amount','Deductible','Network type','Effective date']},{title:'Government eligibility systems',from:'CMS / State Medicaid Agency',fields:['APTC eligibility','CSR eligibility','Medicaid MAGI calculation','Medicare Part A/B entitlement dates']}],
+planDiff:{PPO:'Open Enrollment Nov 1–Jan 15. SEP within 60 days of QLE. COBRA continuation at group premium + 2% admin.',HMO:'Same enrollment windows. PCP assignment required at enrollment. OON coverage not available post-enrollment.',HDHP:'Enrollment triggers HSA eligibility. Must enroll in HDHP by December 1 for full-year HSA contribution limit. No other disqualifying health coverage.',MA:'Medicare AEP Oct 15–Dec 7. MA OEP Jan 1–Mar 31 (switch MA or return to Original Medicare). IEP at age 65.',Medicaid:'Rolling enrollment (no OEP restriction). Redetermination annually. Unwinding process ongoing post-COVID PHE. 12-month continuous enrollment for children.',ASO:'Employer determines OEP dates. COBRA same 60-day window. SPD (Summary Plan Description) governs all terms.'},
+schema:{enrollment:{planType:{type:'select',val:'PPO',opts:['PPO','HMO','HDHP','MA','PDP','Medicaid','CHIP','COBRA'],lbl:'Plan enrolled'},enrollmentTrigger:{type:'select',val:'Open Enrollment',opts:['Open Enrollment','SEP — Job loss','SEP — Birth/adoption','SEP — Marriage','SEP — Move','Medicare AEP','Medicaid redetermination','COBRA election'],lbl:'Enrollment trigger'},effectiveDate:{type:'date',val:'2024-01-01',lbl:'Coverage effective date'},cobrapremium:{type:'number',val:720,lbl:'COBRA monthly premium ($)'},subsidy:{type:'number',val:0,lbl:'APTC monthly subsidy ($)'},latePenalty:{type:'select',val:'None',opts:['None','Part B late penalty','Part D late penalty'],lbl:'Late enrollment penalty'}}}});
+
+n({id:'symptom',tier:0,label:'Symptom onset',sub:'Chief complaint / ADT^A04 trigger',dom:'d-intake',filter:'clinical',agents:['Patient Agent','Human Patient'],blocked:{},gateType:'none',covers:[56,64,65,66,135],connects:[{to:'triage_routing',lbl:'Route by symptom'},{to:'er',lbl:'Emergency signs'},{to:'sepsis_code',lbl:'Sepsis/STEMI/Stroke'}],
+role:'Entry point for the care simulation. AI Patient Agent seeded with a condition profile (comorbidities, medications, SDOH factors) or a real human typing symptoms. Fires HL7 ADT^A04 (outpatient registration). A no-show probability model evaluates socioeconomic status, scheduled lead time, and modality. Risk stratification model classifies patient as low/medium/high risk. Multi-morbidity flag set if 3+ active diagnoses.',
+decisions:[{t:'q',x:'Emergency red flags (chest pain, stroke signs, sepsis, trauma, respiratory distress)? → route to emergency code node'},{t:'q',x:'Elective or chronic condition? → route to triage/scheduling flow'},{t:'q',x:'Multi-morbidity (3+ active diagnoses)? → activate complex care management flag; CDI team notified'},{t:'i',x:'Risk stratification: low/medium/high based on age, comorbidity burden, prior utilization, SDOH score'},{t:'w',x:'No-show probability >40%? → automated SMS/phone reminder + overbooking slot triggered'},{t:'w',x:'Polypharmacy (5+ medications)? → pharmacist medication reconciliation consult ordered'}],
+infoNeeds:[{title:'Patient demographics',from:'Patient Agent / Human',fields:['Member ID','Date of birth','Gender','Primary language','Address','Emergency contact','Insurance']},{title:'Clinical profile',from:'Patient Agent / EHR',fields:['Chief complaint ICD-10','Onset (days)','Severity (1-10)','Active diagnosis list','Current medications (5+)','Allergies','Prior ED visits (90d)']},{title:'Risk stratification data',from:'Population Health Agent',fields:['LACE score','Charlson Comorbidity Index','SDOH risk score','Prior utilization percentile','Readmission risk flag']}],
+planDiff:{PPO:'Patient self-routes to any specialist. Cost estimate displayed. No PCP required.',HMO:'Must contact assigned PCP first. All care routes through PCP gatekeeper.',HDHP:'Real-time cost estimate shown before any care initiated. HSA balance displayed.',MA:'Plan nurse triage line often available. PCP contact may be required. Risk stratification feeds RAF score.',Medicaid:'Directed to contracted FQHC or PCP. Non-emergency ED use actively redirected.',ASO:'May route through occupational health, EAP, or wellness concierge per employer design.'},
+schema:{patient:{memberId:{type:'text',val:'MBR-2024-001',lbl:'Member ID'},dob:{type:'date',val:'1965-03-15',lbl:'Date of birth'},symptomCode:{type:'text',val:'R06.0',lbl:'Chief complaint ICD-10'},onsetDays:{type:'number',val:3,lbl:'Symptom duration (days)'},severity:{type:'range',val:5,min:1,max:10,lbl:'Severity (1-10)'},noShowProb:{type:'range',val:15,min:0,max:100,lbl:'No-show probability %'},riskTier:{type:'select',val:'Medium',opts:['Low','Medium','High','Very High'],lbl:'Population risk tier'},comorbidityCount:{type:'number',val:2,lbl:'Active comorbidities'},medicationCount:{type:'number',val:4,lbl:'Active medications (polypharmacy if 5+)'}},trigger:{adtEvent:{type:'select',val:'ADT^A04',opts:['ADT^A04','ADT^A01','EMS_ARRIVAL'],lbl:'HL7 ADT trigger'},channel:{type:'select',val:'In-person',opts:['In-person','Telehealth','EMS','Walk-in','Portal message'],lbl:'Arrival channel'}}}});
+// ═══════════════════════════════════════════════════════════
+// TIER 1 — Eligibility, Benefits & Financial Counseling
+// ═══════════════════════════════════════════════════════════
+n({id:'triage_routing',tier:1,label:'Triage & routing',sub:'Graph specialist matching',dom:'d-intake',filter:'clinical',agents:['FrontDesk Agent'],blocked:{},gateType:'none',covers:[56,2,34],connects:[{to:'eligib',lbl:'Submit 270 eligibility'}],
+role:'Graph-based specialist matching using symptom taxonomy and clinical ontology. ESI triage scoring for ED cases. Queries payer provider directory for available in-network providers considering: availability, geographic proximity, plan tier restrictions, PCP referral requirement, and telehealth eligibility. ESI (Emergency Severity Index) scores 1-5 govern immediate acuity routing.',
+decisions:[{t:'q',x:'ESI score 1-2 (critical/emergent)? → immediate resuscitation; all resources mobilized'},{t:'q',x:'ESI score 3-5 (urgent to non-urgent)? → tiered routing based on acuity and resources needed'},{t:'q',x:'PCP referral required (HMO/MA)? → gate to referral node before specialist booking'},{t:'i',x:'Specialist matched via symptom-to-specialty graph traversal on clinical ontology'}],
+infoNeeds:[{title:'Symptom → specialty mapping',from:'Clinical ontology graph',fields:['Chief complaint ICD-10','Symptom cluster','Recommended specialty','ESI triage score','Urgency classification']},{title:'Provider network',from:'Insurance Agent (directory)',fields:['In-network specialists by taxonomy','Geographic proximity','Accepting new patients','Tier 1 vs Tier 2']}],
+planDiff:{PPO:'Direct specialist booking; no referral check.',HMO:'PCP referral mandatory before specialist booking.',HDHP:'Same as PPO. Real-time cost estimate per provider shown.',MA:'Referral + PA required. Restricted to MA plan network.',Medicaid:'Medicaid-contracted providers only. FQHC preferred.',ASO:'Per employer network. Centers of Excellence routing for high-cost cases.'},
+schema:{routing:{specialtyMatched:{type:'select',val:'Cardiology',opts:['Cardiology','Pulmonology','Orthopedics','Primary Care','Neurology','Oncology','Gastroenterology','Behavioral Health','Obstetrics','Emergency Medicine'],lbl:'Matched specialty'},esiScore:{type:'range',val:3,min:1,max:5,lbl:'ESI triage score (1=critical)'},networkTier:{type:'select',val:'Tier 1 in-network',opts:['Tier 1 in-network','Tier 2 preferred','Out-of-network'],lbl:'Network tier'},distance:{type:'number',val:3,lbl:'Distance to provider (miles)'}}}});
+
+n({id:'eligib',tier:1,label:'Eligibility verification',sub:'HIPAA 270/271 — real-time',dom:'d-eligib',filter:'claims',agents:['FrontDesk Agent','Insurance Agent'],blocked:{},gateType:'none',covers:[46,53,120,1,3],connects:[{to:'benefits',lbl:'Pull benefit detail'},{to:'uninsured',lbl:'No coverage'}],
+role:'Real-time HIPAA 270/271 transaction. FrontDesk sends 270 inquiry; payer returns 271 within seconds with: active coverage status, plan type, deductible balance, OOP accumulator, copay schedule, PCP assignment. Dual coverage triggers COB Agent. Medicare Secondary Payer (MSP) rules invoked when Medicare-eligible member also has employer coverage. MSP determines which payer is primary based on employer size and working/retired status.',
+decisions:[{t:'q',x:'Coverage active on date of service? → proceed or route to self-pay counseling'},{t:'q',x:'Plan type confirmed? → sets referral/PA rules for entire episode'},{t:'q',x:'Dual coverage detected? → activate COB Agent; Birthday Rule or MSP for primary/secondary determination'},{t:'i',x:'MSP rules: employer group size >20 employees → employer plan is primary over Medicare'},{t:'w',x:'Coverage terminating within 30 days? → alert FrontDesk; verify COBRA or SEP enrollment opportunity'}],
+infoNeeds:[{title:'Member identity',from:'Patient Agent',fields:['Member ID','Group ID','Date of birth','SSN last 4','Plan ID']},{title:'271 eligibility response',from:'Insurance Agent (payer)',fields:['Coverage effective/term dates','Plan type','Network model','Deductible individual/family','Deductible met YTD','OOP max','OOP met YTD','Copay schedule','Coinsurance %','PCP assignment (HMO)']},{title:'COB / MSP data',from:'Secondary Insurance Agent / CMS',fields:['Secondary payer ID','Birthday rule result','MSP type (ESHI/ESRD/WC/auto)','Employer group size (MSP test)']}],
+planDiff:{PPO:'Returns in/OON cost tiers. No PCP flag. No referral requirement.',HMO:'Returns PCP assignment. Flags specialist referral requirement. OON not covered (CO-22).',HDHP:'Returns deductible balance prominently. HSA balance check initiated.',MA:'Plan-specific copay schedule. HCC coding flag set. PA scope confirmed.',Medicaid:'Returns eligibility category. State PDL formulary. Near-zero cost-share. Dual eligibility (D-SNP) check.',ASO:'TPA administers. Returns employer-specific benefit design. Stop-loss threshold surfaced.'},
+schema:{member:{policyId:{type:'text',val:'POL-2024-88812',lbl:'Policy ID'},planType:{type:'select',val:'PPO',opts:['PPO','HMO','HDHP','MA','Medicaid','ASO'],lbl:'Confirmed plan type'}},financials:{deductibleInd:{type:'number',val:500,lbl:'Individual deductible ($)'},deductibleMet:{type:'number',val:120,lbl:'Deductible met YTD ($)'},oopMax:{type:'number',val:3000,lbl:'OOP max ($)'},oopMet:{type:'number',val:0,lbl:'OOP met YTD ($)'},copayPC:{type:'number',val:25,lbl:'Primary care copay ($)'},copaySpec:{type:'number',val:50,lbl:'Specialist copay ($)'},coinsurance:{type:'range',val:20,min:0,max:50,lbl:'Coinsurance %'}},cob:{secondaryCoverage:{type:'select',val:'No',opts:['Yes — Birthday Rule primary','Yes — MSP — employer primary','Yes — MSP — Medicare primary','No'],lbl:'Dual coverage / COB status'}}}});
+
+n({id:'benefits',tier:1,label:'Benefits & COB',sub:'Plan design + funding model + MSP',dom:'d-eligib',filter:'claims',agents:['Insurance Agent','COB Agent'],blocked:{},gateType:'none',covers:[46,53,89,90,91,1,3,106,107,108],connects:[{to:'referral',lbl:'HMO/MA referral gate'},{to:'pa_hub',lbl:'PA required'},{to:'schedule',lbl:'Book appointment'}],
+role:'Retrieves detailed benefit design: formulary tier structure, network model, funding mechanism (fully insured/self-funded/level-funded), carve-out vendors (PBM, RBM, behavioral health carve-out), state mandated benefits, ACA Essential Health Benefits (EHB) compliance, MHPAEA mental health parity requirements, and employer-specific enhancements. COB "lesser of" methodology applied when dual coverage exists. Stop-loss insurance details (specific/aggregate attachment points) for self-funded plans.',
+decisions:[{t:'q',x:'Fully insured vs self-funded? → determines regulatory framework: state law vs ERISA'},{t:'q',x:'Behavioral health carved out to separate vendor? → route MH/SUD claims to carve-out payer'},{t:'q',x:'MHPAEA compliance check: MH benefits at least as generous as medical/surgical? → flag if parity violation'},{t:'i',x:'ACA EHB: 10 essential health benefit categories must be covered for individual/small group plans'},{t:'w',x:'State mandated benefits (e.g. autism, infertility, chiropractic) may apply — state-specific rules'}],
+infoNeeds:[{title:'Plan benefit document',from:'Insurance Agent (payer)',fields:['Formulary type','Network model','Funding model','Stop-loss attachment ($)','BH carve-out vendor','State mandated benefits','EHB compliance status']},{title:'MHPAEA parity data',from:'Plan compliance system',fields:['MH/SUD benefit limits vs medical limits','NQTLs (non-quantitative treatment limitations) analysis','Parity documentation']},{title:'Employer plan design (ASO)',from:'TPA / HR system',fields:['Custom benefit schedule','Wellness incentive credits','Specialty carve-out rules','Self-insured declaration']}],
+planDiff:{PPO:'Broad network; in/OON tiers. FFS. State insurance law governs. EHB required for ACA plans.',HMO:'Network-only. Often capitated. BH may be carved out. MHPAEA applies.',HDHP:'HSA eligible ($4,150 ind/$8,300 family 2024). Preventive services excluded from deductible.',MA:'CMS capitation bid. Extra benefits possible (dental, vision, OTC). EHB rules differ.',Medicaid:'Payer of last resort. MHPAEA applies. State mandated benefits. EPSDT for children.',ASO:'ERISA pre-empts most state mandated benefits (except mental health parity). Stop-loss insurer must be licensed in state.'},
+schema:{planDesign:{fundingModel:{type:'select',val:'Fully insured',opts:['Fully insured','Self-funded (ASO)','Level-funded','Capitated (MA)','Government (Medicaid)'],lbl:'Funding model'},bhCarveOut:{type:'select',val:'No',opts:['Yes — Beacon Health','Yes — Optum BH','Yes — Carelon BH','No — integrated'],lbl:'Behavioral health carve-out'},mhpaeaStatus:{type:'select',val:'Compliant',opts:['Compliant','Under review','Violation flagged'],lbl:'MHPAEA parity status'},stateMandates:{type:'select',val:'None flagged',opts:['None flagged','Autism ABA','Infertility','Chiropractic','Multiple'],lbl:'State mandated benefits triggered'},stopLossInd:{type:'number',val:0,lbl:'Stop-loss individual attachment ($)'},stopLossAgg:{type:'number',val:0,lbl:'Stop-loss aggregate attachment ($)'}}}});
+
+n({id:'uninsured',tier:1,label:'Uninsured / self-pay',sub:'Financial counseling + GFE + charity care',dom:'d-finance',filter:'financial',agents:['FrontDesk Agent','Social Worker Agent','Financial Counselor Agent'],blocked:{},gateType:'none',covers:[50,51,79,80,81,82,83,84,85,86,87],connects:[{to:'schedule',lbl:'Proceed self-pay'}],
+role:'Activated when no active coverage confirmed. Social Worker + Financial Counselor Agents screen for: charity care (≤250% FPL), Medicaid presumptive eligibility, COBRA continuation, sliding-scale fees, and marketplace plans. No Surprises Act requires issuance of a Good Faith Estimate (GFE) within 3 business days when patient is uninsured or self-pay. Advanced EOB (AEOB) delivered to insured patients. Price transparency mandate requires publicly posted shoppable services rates. Prompt pay discounts offered for upfront payment. Payment plans coordinated through financing partners.',
+decisions:[{t:'q',x:'Income ≤ 250% FPL? → sliding scale fee; document for charity care write-off'},{t:'q',x:'Income ≤ 138% FPL (expansion state)? → Medicaid presumptive eligibility; enroll immediately'},{t:'q',x:'Uninsured / self-pay → issue Good Faith Estimate (GFE) within 3 business days (NSA requirement)'},{t:'q',x:'Insured patient requesting service estimate → issue Advanced EOB (AEOB) before scheduled service'},{t:'i',x:'Price transparency: CMS mandate requires machine-readable files of all prices + 300 shoppable services'},{t:'w',x:'Medical debt: CFPB rules limit credit reporting; ACA nonprofit hospital financial assistance (FAP) required'}],
+infoNeeds:[{title:'Financial status',from:'Patient Agent / Human',fields:['Household income','Family size','Employment status','State of residence','Immigration status']},{title:'GFE inputs',from:'Provider Agent / Billing',fields:['Scheduled service CPT codes','Expected provider NPI','Facility NPI','Expected date of service','Expected ICD-10 diagnosis']}],
+planDiff:{PPO:'N/A.',HMO:'N/A.',HDHP:'N/A.',MA:'N/A.',Medicaid:'Primary screening pathway. Medicaid presumptive eligibility can be granted same-day.',ASO:'N/A — but TPA may have separate charity care policies.'},
+schema:{financial:{incomeAsFPL:{type:'range',val:180,min:0,max:500,lbl:'Income as % FPL'},charityEligible:{type:'select',val:'Reviewing',opts:['Yes — full write-off','Yes — partial discount','No','Reviewing'],lbl:'Charity care eligibility'},gfeIssued:{type:'select',val:'No',opts:['Yes — within 3 days','No','Not required (insured)'],lbl:'Good Faith Estimate (GFE) issued'},selfPayDiscount:{type:'range',val:40,min:0,max:80,lbl:'Self-pay prompt pay discount %'},paymentPlan:{type:'select',val:'No',opts:['Yes — 0% interest','Yes — CareCredit','Yes — hospital plan','No'],lbl:'Payment plan arranged'},promptPayDiscount:{type:'range',val:10,min:0,max:30,lbl:'Prompt pay discount %'}}}});
+// ═══════════════════════════════════════════════════════════
+// TIER 2 — Referral, PA & Clinical Decision Support
+// ═══════════════════════════════════════════════════════════
+n({id:'referral',tier:2,label:'PCP referral (HMO/MA)',sub:'Mandatory gate — CARC CO-4 if missing',dom:'d-ref',filter:'clinical',agents:['PCP Agent','FrontDesk Agent','Insurance Agent'],blocked:{PPO:true,HDHP:true,ASO:true},gateType:'referral',covers:[16,137],connects:[{to:'pa_hub',lbl:'Referral issued → PA'},{to:'schedule',lbl:'Referral active — book'}],
+role:'Mandatory gating for HMO and most MA plans. PCP generates formal referral to specific in-network specialist. Insurance Agent validates: specialist in-network, referral within validity window (30-90 days), CPT scope matches ordered services. Without valid referral: CARC CO-4 denial. Out-of-network exception requests (item 137) require documented medical necessity and no in-network equivalent — reviewed case-by-case with PA-like process.',
+decisions:[{t:'q',x:'Symptom warrants specialist? → PCP clinical judgment and documentation'},{t:'q',x:'Specialist in-network? → OON = referral invalid for HMO; exception request process available'},{t:'q',x:'OON exception requested? (item 137) → medical necessity + no in-network equivalent required'},{t:'w',x:'Referral CPT scope mismatch on claim → automatic CARC CO-4 denial'},{t:'x',x:'Service without valid referral (HMO/MA) → CARC CO-4. Revenue unrecoverable for par providers.'}],
+infoNeeds:[{title:'PCP clinical assessment',from:'PCP Agent',fields:['ICD-10 referral diagnosis','Specialist taxonomy','Clinical justification','Urgency','Visits authorized']},{title:'OON exception criteria',from:'Medical Director Agent',fields:['In-network equivalents unavailable','Travel distance to in-network >X miles','Urgent/specialty need','Prior authorization for exception']}],
+planDiff:{PPO:'NOT required. Patient self-refers.',HMO:'MANDATORY. No referral = CARC CO-4.',HDHP:'NOT required.',MA:'Usually required. Some MA PPO plans allow self-referral.',Medicaid:'Required in most managed Medicaid plans.',ASO:'NOT required in most ASO plans.'},
+schema:{referral:{referralNumber:{type:'text',val:'REF-2024-00451',lbl:'Referral number'},urgency:{type:'select',val:'Routine',opts:['Routine','Urgent','Emergent'],lbl:'Urgency'},visitsAuth:{type:'number',val:3,lbl:'Visits authorized'},oonException:{type:'select',val:'No',opts:['Yes — approved','Yes — denied','No — in-network used'],lbl:'OON exception request'}}}});
+
+n({id:'pa_hub',tier:2,label:'Prior authorization hub',sub:'InterQual / MCG / ePA / X12 278',dom:'d-auth',filter:'clinical',agents:['UM Agent','Insurance Agent','Provider Agent'],blocked:{},gateType:'auth',covers:[7,100,122,141,142],connects:[{to:'pa_approved',lbl:'Criteria met'},{to:'pa_denied',lbl:'Criteria not met'},{to:'p2p',lbl:'Peer-to-peer'}],
+role:'Utilization Management Agent compares clinical documentation against InterQual or MCG criteria. Electronic PA (ePA) via NCPDP SCRIPT (for Rx) or FHIR-based CMS interoperability mandate (2026+) or X12 278 transaction for medical PA. Gold-carding programs allow high-performing providers to bypass PA for specific service types (item 142). CMS PA reform rules (2024): MA/Medicaid/QHP payers must implement API-based PA (HL7 FHIR US Core / Da Vinci PAS IG) by Jan 2026.',
+decisions:[{t:'q',x:'Provider gold-carded for this service type? → bypass PA entirely (item 142)'},{t:'q',x:'ePA via FHIR CDS Hooks (real-time)? → immediate criteria check during order entry in EHR'},{t:'q',x:'Clinical documentation meets InterQual/MCG? → approve or initiate P2P'},{t:'q',x:'Urgent (<72h)? → expedited review pathway'},{t:'i',x:'CMS 2024 rule: MA/Medicaid plans must provide PA decisions within 3 days (standard) / 24h (urgent) via FHIR API'},{t:'w',x:'PA denial → P2P window 48-72h. If upheld → internal appeal → IRO external review'},{t:'x',x:'Service without PA → CARC CO-197. Revenue completely unrecoverable for par providers.'}],
+infoNeeds:[{title:'Clinical documentation',from:'Provider Agent',fields:['ICD-10 diagnosis','CPT requested','Clinical notes','Prior conservative treatments','Functional limitations','Supporting lab/imaging']},{title:'Gold-card registry',from:'Insurance Agent (contracting)',fields:['Gold-card exemption status','Service categories exempted','Expiration/renewal date']},{title:'ePA system',from:'FHIR CDS Hook / X12 278',fields:['CRD (Coverage Requirements Discovery) response','DTR (Documentation Templates and Rules) questionnaire','PAS (Prior Authorization Support) response','X12 278 transaction result']}],
+planDiff:{PPO:'Selective PA. Direct specialist visits usually PA-free. Gold-card programs available.',HMO:'Broad PA: all specialist visits, imaging, procedures, specialty Rx.',HDHP:'Same as PPO for PA scope.',MA:'CMS 2024 reform: FHIR API PA mandatory. Gold-card programs expanding. Limits on certain post-acute PA.',Medicaid:'State PDL step-therapy for Rx. PA for imaging and specialty drugs.',ASO:'Per employer UM. TPA manages. Employer may bypass PA for trusted providers.'},
+schema:{authorization:{serviceType:{type:'select',val:'Advanced imaging (MRI)',opts:['Specialist visit','Advanced imaging (MRI/CT/PET)','Elective surgery','Specialty Rx','Inpatient admission','DME >$500','Behavioral health services'],lbl:'Service requiring PA'},paMethod:{type:'select',val:'Manual (InterQual)',opts:['Manual (InterQual)','Manual (MCG)','ePA — FHIR SMART on EHR','ePA — X12 278','ePA — NCPDP Script (Rx)','Gold-card bypass'],lbl:'PA submission method'},urgency:{type:'select',val:'Routine (3 days)',opts:['Routine (3 days)','Urgent (24h)','Emergent (waived)'],lbl:'PA urgency tier (CMS 2024)'},goldCard:{type:'select',val:'No',opts:['Yes — PA bypassed','No'],lbl:'Gold-card exemption'},authValidDays:{type:'number',val:90,lbl:'Auth validity (days)'}}}});
+
+n({id:'pa_approved',tier:2,label:'PA approved',sub:'Auth number issued — attach to 837',dom:'d-eligib',filter:'claims',agents:['Insurance Agent'],blocked:{},gateType:'none',covers:[7],connects:[{to:'schedule',lbl:'Proceed'}],
+role:'PA approved. Auth number tied to CPT codes, provider NPI, facility, and validity window. MUST appear on every 837 claim line. Expired, mismatched, or missing auth number → CARC CO-197 denial regardless of clinical appropriateness.',
+decisions:[{t:'i',x:'Auth number stored in payer and provider systems. Auto-populated on 837 by billing software.'},{t:'w',x:'Auth expires before service date? → reauthorization required before expiry.'},{t:'w',x:'CPT on claim differs from authorized CPT? → CO-197 even if auth exists.'}],
+infoNeeds:[{title:'Authorization record',from:'Insurance Agent (PA system)',fields:['Auth number','Authorized CPT codes','Authorized ICD-10','Valid from/to dates','Authorized facility NPI','Authorized units']}],
+planDiff:{PPO:'Auth on 837P claim line.',HMO:'Auth + referral number both required.',HDHP:'Patient cost-share starts at deductible regardless of PA approval.',MA:'CMS: 5-day notice required before revoking approved PA.',Medicaid:'PA tied to specific provider + quantity.',ASO:'TPA auth system. Longer validity windows possible.'},
+schema:{auth:{authNumber:{type:'text',val:'AUTH-2024-99871',lbl:'Auth number'},authCPT:{type:'text',val:'93306',lbl:'Authorized CPT codes'},validFrom:{type:'date',val:'2024-06-01',lbl:'Valid from'},validTo:{type:'date',val:'2024-08-31',lbl:'Valid to'},authUnits:{type:'number',val:1,lbl:'Authorized units'}}}});
+
+n({id:'pa_denied',tier:2,label:'PA denied',sub:'Medical necessity failure — appeal rights',dom:'d-deny',filter:'claims',agents:['Insurance Agent','UM Agent'],blocked:{},gateType:'none',covers:[7,33],connects:[{to:'p2p',lbl:'Request P2P'},{to:'appeal',lbl:'File appeal'}],
+role:'PA denied. CARC CO-50 (medical necessity), CO-197 (no auth), or CO-15 (auth invalid). Denial letter to provider and patient with specific InterQual/MCG criterion not met and appeal rights. P2P review is the highest-yield single intervention (75%+ overturn rate). Patient has independent appeal rights separate from provider. CMS 2024 requires specific denial reason codes via FHIR API within 3/1 business days.',
+decisions:[{t:'q',x:'P2P available and likely to succeed? → schedule P2P first (75%+ overturn)'},{t:'q',x:'Urgent? → expedited appeal (72h); notify Medical Director'},{t:'w',x:'Appeal deadlines: 180 days commercial, 120 days Medicare redetermination'},{t:'x',x:'CARC codes: CO-50 (med necessity), CO-197 (no PA), CO-15 (auth invalid)'}],
+infoNeeds:[{title:'Denial documentation',from:'Insurance Agent',fields:['CARC denial code','RARC remark code','Specific criterion not met','Denial letter','Appeal deadline']},{title:'Clinical record for appeal',from:'Provider Agent',fields:['Full encounter notes','Peer-reviewed literature','Failed alternatives','Urgency documentation']}],
+planDiff:{PPO:'Internal appeal → IRO (binding). 30 days standard, 72h expedited.',HMO:'Same.',HDHP:'Same as PPO.',MA:'5-level CMS: Redetermination → QIC → ALJ → MAC → Federal Court.',Medicaid:'State fair hearing. EQRO external review.',ASO:'ERISA appeal. IRO not binding. Federal court Section 502(a).'},
+schema:{denial:{carcCode:{type:'text',val:'CO-197',lbl:'CARC denial code'},denialReason:{type:'select',val:'Medical necessity not met',opts:['Medical necessity not met','Step therapy required','Not covered benefit','Missing documentation','Auth expired'],lbl:'Denial reason'},p2pAvailable:{type:'select',val:'Yes',opts:['Yes','No'],lbl:'P2P available'},appealDeadline:{type:'number',val:180,lbl:'Appeal deadline (days)'}}}});
+
+n({id:'p2p',tier:2,label:'Peer-to-peer review',sub:'Treating MD vs Payer MD',dom:'d-auth',filter:'clinical',agents:['Provider Agent','Medical Director Agent'],blocked:{},gateType:'auth',covers:[7],connects:[{to:'pa_approved',lbl:'Auth overturned'},{to:'appeal',lbl:'Upheld → appeal'}],
+role:'Synchronous or asynchronous negotiation between treating physician and payer Medical Director. Treating physician presents additional clinical evidence. P2P has the highest single-step overturn rate (75%+ in many specialties). CMS requires MA payers to offer P2P with same-specialty medical director from 2024.',
+decisions:[{t:'q',x:'Additional evidence presented not in original request? → evaluate for overturn'},{t:'q',x:'Payer MD same specialty as requested service? (CMS MA requirement 2024)'},{t:'i',x:'Overturned → proceed. Upheld → formal internal appeal next.'}],
+infoNeeds:[{title:'Clinical argument',from:'Provider Agent',fields:['Specific clinical findings','Peer-reviewed literature','Failed alternatives','Urgency/risks of delay']},{title:'Denial rationale',from:'Medical Director Agent',fields:['Specific criterion not met','Alternative suggested','Denial letter with CARC']}],
+planDiff:{PPO:'Available for all PA denials. 48-72h window.',HMO:'Same.',HDHP:'Same.',MA:'CMS mandates P2P. Same-specialty MD required.',Medicaid:'State-specific.',ASO:'Per TPA policy.'},
+schema:{p2p:{outcome:{type:'select',val:'Pending',opts:['Auth overturned','Auth upheld','Partial approval','Pending'],lbl:'P2P outcome'},callDuration:{type:'number',val:20,lbl:'Call duration (minutes)'}}}});
+
+n({id:'cds',tier:2,label:'Clinical decision support',sub:'CDS alerts / order sets / AI assist',dom:'d-clinical',filter:'clinical',agents:['CDS Agent','Pharmacist Agent','Provider Agent'],blocked:{},gateType:'none',covers:[57,58,66,71,72,73,74,77],connects:[{to:'encounter',lbl:'CDS alerts surfaced'},{to:'sepsis_code',lbl:'Sepsis/STEMI/Stroke alert'}],
+role:'Clinical Decision Support Agent processes all active orders and clinical data in real-time against evidence-based rules. Covers: drug-drug interaction (DDI) checking (item 57), drug-allergy cross-reactivity, dose appropriateness (renal/hepatic adjustment), duplicate therapy detection, polypharmacy flag (5+ medications — item 66), opioid risk scoring and stewardship alerts (item 71), infection control isolation flags (MRSA, C.diff, VRE — item 72), sepsis alert criteria (SIRS + suspected infection — item 73), STEMI/stroke code activation criteria (item 74), blood transfusion type-and-screen protocol triggers (item 77). All alerts logged to EHR audit trail.',
+decisions:[{t:'q',x:'Drug-drug interaction detected? → alert severity: contraindicated (block) / major (require override) / moderate (soft alert)'},{t:'q',x:'Drug-allergy cross-reactivity? → hard stop if IgE-mediated; soft alert for cross-reactive classes'},{t:'q',x:'Polypharmacy (5+ meds)? → pharmacist reconciliation consult ordered automatically'},{t:'q',x:'Sepsis criteria met (SIRS + suspected infection)? → Sepsis Alert fired; rapid response team paged'},{t:'q',x:'STEMI criteria (ST elevation + symptoms)? → STEMI Code activated; cath lab team paged'},{t:'q',x:'Stroke criteria (NIHSS score + onset <4.5h)? → Stroke Code; neurology + CT immediate'},{t:'w',x:'Opioid risk score (ORT) high? → naloxone co-prescribing; PDMP check mandatory; MEDD limit alert'},{t:'i',x:'Blood transfusion: Type & Screen ordered → confirm ABO/Rh; consent obtained; compatibility checked'}],
+infoNeeds:[{title:'Active medication list',from:'Pharmacy Agent / EHR',fields:['All active medications + doses','Allergy list (IgE-mediated vs intolerance)','Renal function (CrCl)','Hepatic function (Child-Pugh)','PDMP controlled substance history']},{title:'Clinical vitals + labs',from:'Nurse Agent / Lab Agent',fields:['Vital signs (BP, HR, Temp, RR, SpO2)','Lactate (sepsis)','Blood cultures ordered','Troponin trend (STEMI)','NIHSS score (stroke)']},{title:'CDS rule engine',from:'CDS Agent (EHR-embedded)',fields:['CDS rule fired','Alert severity (contraindicated/major/moderate)','Override reason (if overridden)','Clinical guideline cited','Evidence level (A/B/C)']}],
+planDiff:{PPO:'CDS rules same regardless of plan type.',HMO:'Same.',HDHP:'Same.',MA:'MA plan may require specific CDS documentation for HCC coding accuracy.',Medicaid:'Same. Opioid stewardship rules may be state-mandated.',ASO:'Employer may enable additional CDS modules (e.g., opioid stewardship program).'},
+schema:{cds:{ddiAlert:{type:'select',val:'None',opts:['None','Contraindicated (hard stop)','Major (override required)','Moderate (soft alert)'],lbl:'Drug-drug interaction alert'},allergyAlert:{type:'select',val:'None',opts:['None','Cross-reactive (soft)','IgE-mediated (hard stop)'],lbl:'Drug-allergy alert'},polypharmacyFlag:{type:'select',val:'No',opts:['Yes — consult ordered','No'],lbl:'Polypharmacy flag (5+ meds)'},sepsisAlert:{type:'select',val:'No',opts:['Yes — Rapid Response paged','No'],lbl:'Sepsis alert (SIRS + infection)'},stemiStroke:{type:'select',val:'No',opts:['STEMI Code activated','Stroke Code activated','No'],lbl:'STEMI/Stroke code'},opioidRisk:{type:'select',val:'Low',opts:['Low','Moderate (naloxone co-Rx)','High (PDMP + consult)'],lbl:'Opioid risk score'},bloodTransfusion:{type:'select',val:'No',opts:['Yes — T&S ordered','Yes — Crossmatch','No'],lbl:'Blood transfusion protocol'}}}});
+// ═══════════════════════════════════════════════════════════
+// TIER 3 — Scheduling & Virtual Care
+// ═══════════════════════════════════════════════════════════
+n({id:'schedule',tier:3,label:'Appointment scheduling',sub:'Date negotiation + prerequisites check',dom:'d-intake',filter:'clinical',agents:['FrontDesk Agent','Patient Agent'],blocked:{},gateType:'none',covers:[44,85,87,63],connects:[{to:'vitals',lbl:'Visit day arrives'},{to:'telehealth',lbl:'Virtual visit'},{to:'second_opinion',lbl:'Second opinion pathway'}],
+role:'FrontDesk Agent negotiates appointment date with Patient Agent. Validates all prerequisites: referral active (HMO/MA), PA auth not expired, provider calendar availability, patient transport capability. No-show prediction triggers automated reminders. Good Faith Estimate (GFE) issued for scheduled shoppable services (NSA). Price transparency via CMS-mandated machine-readable files. Preventive care scheduling per USPSTF/ACIP schedule tracked for HEDIS gap closure.',
+decisions:[{t:'q',x:'Telehealth eligible and preferred? → route to telehealth node'},{t:'q',x:'Second opinion requested? → route to second opinion pathway'},{t:'q',x:'Shoppable service? → issue Good Faith Estimate within 3 business days (NSA requirement)'},{t:'i',x:'HEDIS preventive care gaps? → prompt scheduling of screenings, immunizations, wellness visits'},{t:'w',x:'High no-show risk? → automated SMS + phone reminder + overbooking slot'}],
+infoNeeds:[{title:'Appointment prerequisites',from:'Insurance / Referral system',fields:['Referral validity (HMO)','PA auth number','Provider availability','Network confirmation']},{title:'Preventive care schedule',from:'USPSTF / ACIP registry',fields:['Age/gender-appropriate screenings due','Immunizations overdue','Wellness visit interval','HEDIS gap list']}],
+planDiff:{PPO:'Direct booking. Cost estimate shown. Preventive care free (ACA).',HMO:'Referral validity governs booking date.',HDHP:'Cost estimate shown prominently. Preventive visits free pre-deductible.',MA:'Referral + PA active through appointment. Many MA plans cover extra preventive services.',Medicaid:'NEMT benefit for transport barriers. EPSDT preventive schedule for children.',ASO:'Centers of Excellence routing. Wellness incentive programs.'},
+schema:{appointment:{modality:{type:'select',val:'In-person',opts:['In-person','Telehealth (video)','Telehealth (audio-only)','Home visit'],lbl:'Visit modality'},hedisGap:{type:'select',val:'None',opts:['None','Annual wellness visit','Colorectal cancer screen','Cervical cancer screen','Diabetes A1c','Mammogram','Flu vaccine','Multiple gaps'],lbl:'HEDIS gap to address'},gfeIssued:{type:'select',val:'N/A',opts:['Yes — issued','N/A (urgent/ED)'],lbl:'GFE issued (NSA)'},noShowRisk:{type:'select',val:'Low',opts:['Low','Medium','High'],lbl:'No-show risk (ML model)'}}}});
+
+n({id:'telehealth',tier:3,label:'Telehealth / virtual care',sub:'Modifier 95/GT — POS 02 — asynchronous',dom:'d-clinical',filter:'clinical',agents:['Provider Agent','Patient Agent'],blocked:{},gateType:'none',covers:[44,61],connects:[{to:'encounter',lbl:'Provider encounter'}],
+role:'Virtual clinical encounter including synchronous (real-time video/audio) and asynchronous (store-and-forward) modalities. State licensure must be valid where patient is located. Telehealth modifiers: 95 (real-time AV), GT (Medicare), 93 (audio-only Medicare), GQ (async). POS code 02 (telehealth). Many states now require reimbursement parity with in-person post-COVID permanent extensions. Ryan Haight Act governs controlled substance prescribing via telehealth.',
+decisions:[{t:'q',x:'Real-time video or audio-only? → modifier 95 vs 93 (Medicare audio-only)'},{t:'q',x:'Provider licensed in patient\'s state? → multistate compact; Ryan Haight for controlled substances'},{t:'q',x:'Store-and-forward (dermatology, radiology, ophthalmology)? → modifier GQ; POS may differ'},{t:'i',x:'POS 02 rates may differ from POS 11. Many states require parity 2023+.'}],
+infoNeeds:[{title:'Telehealth requirements',from:'Provider / Patient Agent',fields:['State licensure status','HIPAA-compliant platform','Telehealth benefit confirmation','Modifier + POS code']},{title:'Clinical data (virtual)',from:'Patient Agent',fields:['Self-reported vitals','Symptom description','Photos/images (store-and-forward)','Wearable device data']}],
+planDiff:{PPO:'Covered; standard copay. Parity in most states.',HMO:'In-network only. Plan may mandate specific platform.',HDHP:'Applies to deductible unless preventive.',MA:'CMS mandated. Audio-only permanent post-COVID.',Medicaid:'State-by-state. Most expanded. Audio-only critical for rural.',ASO:'Employer may carve out to dedicated vendor (Teladoc, MDLive, Amazon Clinic).'},
+schema:{visit:{platform:{type:'select',val:'Video (HIPAA)',opts:['Video (HIPAA)','Audio-only','Asynchronous (store-forward)'],lbl:'Platform type'},modifier:{type:'select',val:'95',opts:['95 (real-time AV)','GT (Medicare)','93 (audio-only)','GQ (async)'],lbl:'Telehealth modifier'},posCode:{type:'text',val:'02',lbl:'Place of service code'},stateLicensure:{type:'select',val:'Compliant',opts:['Compliant','Cross-state compact','Issue flagged'],lbl:'State licensure status'}}}});
+
+n({id:'second_opinion',tier:3,label:'Second opinion',sub:'Clinical trial eligibility + investigational Rx',dom:'d-clinical',filter:'clinical',agents:['Provider Agent','Specialist Agent','Clinical Trials Agent'],blocked:{},gateType:'none',covers:[61,62,144],connects:[{to:'encounter',lbl:'Second opinion encounter'},{to:'pa_hub',lbl:'Clinical trial PA required'}],
+role:'Second opinion pathway (item 61) — patient exercises right to seek independent clinical review, often for: cancer diagnosis, major surgery, complex chronic disease, PA denial. Some plans require second opinions before specific high-cost procedures. Clinical trials (item 62, 144): ClinicalTrials.gov matching based on ICD-10 diagnosis + eligibility criteria. ACA requires coverage of routine costs for clinical trial participants. Investigational treatments require coverage determination — excluded from standard benefits but some states mandate coverage.',
+decisions:[{t:'q',x:'Plan requires second opinion before high-cost procedure? → mandatory second opinion; PA-like process'},{t:'q',x:'Patient eligible for clinical trial? → ClinicalTrials.gov match on diagnosis + eligibility criteria'},{t:'q',x:'Clinical trial routine costs coverage? → ACA mandates routine cost coverage; investigational Rx separate'},{t:'w',x:'Investigational treatment: coverage determination required; experimental = excluded unless state mandate'}],
+infoNeeds:[{title:'Second opinion request',from:'Patient Agent / Provider Agent',fields:['Primary diagnosis ICD-10','Proposed treatment/procedure','Reason for second opinion','Urgency of original treatment']},{title:'Clinical trial matching',from:'ClinicalTrials.gov / Research Agent',fields:['NCT number','Phase (I/II/III)','Eligibility criteria met','Sponsor','Study site location','Routine cost coverage determination']}],
+planDiff:{PPO:'Second opinion covered at specialist copay. Clinical trial routine costs covered per ACA.',HMO:'Second opinion must be in-network. PA may be required.',HDHP:'Second opinion hits deductible. Clinical trial same.',MA:'Second opinion covered. Clinical trial routine costs covered per CMS guidance.',Medicaid:'Second opinion typically covered. Clinical trial varies by state.',ASO:'Per employer plan. Some ERISA plans may exclude clinical trial coverage (ERISA pre-empts state mandates).'},
+schema:{secondOpinion:{requested:{type:'select',val:'No',opts:['Yes — same diagnosis confirmed','Yes — different recommendation','No'],lbl:'Second opinion requested'},clinicalTrialMatch:{type:'select',val:'No',opts:['Yes — Phase III eligible','Yes — Phase I/II','No'],lbl:'Clinical trial match'},nctNumber:{type:'text',val:'',lbl:'NCT number (if trial enrolled'},routineCostsCovered:{type:'select',val:'Yes (ACA)',opts:['Yes (ACA)','Yes (state mandate)','Partial','No (ERISA plan)'],lbl:'Clinical trial routine costs covered'}}}});
+// ═══════════════════════════════════════════════════════════
+// TIER 4 — Clinical Encounter & Emergency Protocols
+// ═══════════════════════════════════════════════════════════
+n({id:'er',tier:4,label:'ED / Emergency',sub:'EMTALA — NSA — QPA arbitration',dom:'d-clinical',filter:'clinical',agents:['Triage Nurse Agent','ED Provider Agent'],blocked:{},gateType:'none',covers:[4,54,55,88,75,78],connects:[{to:'eligib',lbl:'Retroactive eligibility'},{to:'inpatient',lbl:'Admission decision'},{to:'sepsis_code',lbl:'Code activation'}],
+role:'EMTALA mandates screening and stabilization regardless of insurance. No PA required for emergency care. Triage Agent assigns ESI (Emergency Severity Index) 1-5. Balance billing protections (item 54): No Surprises Act prohibits balance billing for emergency care at participating facilities. Good Faith Estimate not required for ED (emergency exception). IDR (Independent Dispute Resolution) arbitration process (item 88) for OON emergency claims above QPA (Qualifying Payment Amount). Consent management (item 78): informed consent, surrogate/healthcare proxy authority, minor consent laws for specific services.',
+decisions:[{t:'q',x:'ESI 1-2 (critical/emergent)? → resuscitation bay; all resources'},{t:'q',x:'ESI 3 (urgent)? → monitored bed; STAT labs + imaging without PA'},{t:'q',x:'OON provider at in-network facility? → NSA applies; QPA arbitration if dispute (item 88)'},{t:'q',x:'Consent obtained? → informed consent, surrogate (if incapacitated), minor consent (state law)'},{t:'w',x:'NSA: OON emergency providers CANNOT balance bill above in-network cost-share. IDR process for provider disputes.'},{t:'w',x:'EMTALA: hospital cannot delay MSE (medical screening exam) for insurance verification or payment'}],
+infoNeeds:[{title:'Arrival vitals',from:'Triage Nurse Agent',fields:['HR, BP, SpO2, Temp, RR, GCS, Pain score']},{title:'Insurance (retroactive)',from:'FrontDesk Agent',fields:['Member ID, Payer name, OON status, EMTALA obligations']},{title:'Consent documentation',from:'HIM Agent',fields:['Informed consent signed','Surrogate/proxy designated','Minor consent (state-specific)','Advance directive on file','POLST form']}],
+planDiff:{PPO:'OON emergency at in-network cost-share under NSA. QPA for ancillary disputes.',HMO:'Emergency covered even if OON under EMTALA+NSA.',HDHP:'Full deductible applies post-stabilization.',MA:'CMS mandates ER coverage without PA. QPA for ancillary.',Medicaid:'ER covered. EMTALA applies.',ASO:'Stop-loss if episode exceeds attachment. NSA applies.'},
+schema:{triage:{esiScore:{type:'range',val:3,min:1,max:5,lbl:'ESI score (1=critical)'},nsaStatus:{type:'select',val:'In-network',opts:['In-network','OON — NSA applies','OON — IDR dispute'],lbl:'NSA / balance billing status'},consentObtained:{type:'select',val:'Patient — signed',opts:['Patient — signed','Surrogate / proxy','Minor consent','Implied (emergency)','Refused'],lbl:'Consent status'},admitProb:{type:'range',val:65,min:0,max:100,lbl:'Admission probability %'}}}});
+
+n({id:'sepsis_code',tier:4,label:'Sepsis / STEMI / Stroke code',sub:'Rapid response — ICU/CCU pathways',dom:'d-clinical',filter:'clinical',agents:['Rapid Response Agent','Intensivist Agent','Cardiologist Agent','Neurologist Agent'],blocked:{},gateType:'none',covers:[73,74,75,76],connects:[{to:'inpatient',lbl:'ICU admission'},{to:'vitals',lbl:'Stabilized → standard care'}],
+role:'Emergency code activation pathways: Sepsis Alert — CDS fires on SIRS criteria (Temp >38 or <36, HR >90, RR >20, WBC >12K or <4K) + suspected infection → SEP-1 bundle initiated (blood cultures ×2, lactate, broad-spectrum antibiotics within 3 hours, IVF resuscitation). STEMI Code — 12-lead ECG ST elevation → cath lab activation, door-to-balloon goal <90 minutes. Stroke Code — NIHSS assessment, CT/MRI within 25 min, tPA eligibility assessment, door-to-needle goal <60 min. ICU/CCU admission (item 75) — critical care documentation (daily critical care time CPT 99291/99292). Ventilator management (item 76) — mode, settings, weaning protocol. All codes trigger concurrent PA notification to payer within 24h.',
+decisions:[{t:'q',x:'Sepsis bundle (SEP-1): cultures + lactate + antibiotics within 3h? → compliance tracked for CMS quality'},{t:'q',x:'STEMI confirmed? → cath lab activation; PCI vs thrombolytics decision within 90 min'},{t:'q',x:'Stroke: tPA eligible? → NIHSS, CT negative for hemorrhage, onset <4.5h → administer tPA'},{t:'q',x:'Mechanical ventilation required? → ventilator mode (AC/PC/SIMV), PEEP, FiO2 titration protocol'},{t:'w',x:'CMS SEP-1 measure: strict adherence required; non-compliance = quality score impact'}],
+infoNeeds:[{title:'Sepsis bundle data',from:'Nurse / Lab Agent',fields:['Blood cultures ×2 drawn','Lactate level','Time to antibiotics','IVF bolus given','SOFA score']},{title:'STEMI data',from:'ED Provider / Cath lab',fields:['12-lead ECG time','ST elevation confirmed','Door-to-balloon time','PCI vs thrombolytic choice','Cath lab team activated']},{title:'Ventilator settings',from:'Intensivist Agent / Respiratory Therapy',fields:['Mode (AC/PC/SIMV/CPAP)','TV (tidal volume)','PEEP','FiO2','Plateau pressure','SBT (spontaneous breathing trial) date']}],
+planDiff:{PPO:'Critical care billed CPT 99291/99292. No PA for emergency.',HMO:'Same. Concurrent PA notification within 24h required.',HDHP:'Full deductible for ICU admission.',MA:'Same critical care codes. CMS SEP-1 quality measure tracked.',Medicaid:'Same. State quality programs track sepsis bundle compliance.',ASO:'Stop-loss if ICU stay exceeds individual attachment.'},
+schema:{emergency:{codeType:{type:'select',val:'None',opts:['Sepsis Alert','STEMI Code','Stroke Code','Trauma Activation','None'],lbl:'Emergency code activated'},sep1Compliance:{type:'select',val:'Full',opts:['Full — all elements','Partial — some elements','Non-compliant'],lbl:'SEP-1 bundle compliance'},dtbMinutes:{type:'number',val:82,lbl:'Door-to-balloon time (STEMI, min)'},dtnMinutes:{type:'number',val:55,lbl:'Door-to-needle time (Stroke, min)'},ventilated:{type:'select',val:'No',opts:['Yes — intubated','No'],lbl:'Mechanical ventilation'},icuBed:{type:'select',val:'No',opts:['ICU/MICU','CCU','NSICU','Step-down/PCU','No'],lbl:'ICU/CCU bed type'}}}});
+
+n({id:'vitals',tier:4,label:'Vitals & nurse intake',sub:'SOAP + SDOH + allergy + consent',dom:'d-clinical',filter:'clinical',agents:['Nurse Agent'],blocked:{},gateType:'none',covers:[45,57,66,78,59,60],connects:[{to:'encounter',lbl:'Provider sees patient'},{to:'cds',lbl:'CDS screening'}],
+role:'Structured pre-encounter data collection. Vital signs, medication reconciliation (polypharmacy check — 5+ medications), allergy review (IgE-mediated vs intolerance), SDOH screening (Z55-Z65 ICD-10 codes), advance directives status (DNR/DNI, POLST, living will, healthcare proxy — item 59), organ donation registration status (item 60), and informed consent verification. SDOH Z-codes drive care management enrollment and RAF score capture for MA plans.',
+decisions:[{t:'q',x:'SpO2 <92%? → immediate provider alert; O2 therapy; possible admission workup'},{t:'q',x:'Advance directive on file? → confirm current status; verify healthcare proxy; document in EHR'},{t:'q',x:'Organ donation registered? → document; flag for OPO (Organ Procurement Organization) notification if applicable'},{t:'q',x:'SDOH findings (food insecurity, housing, transport)? → Z-code documentation; social work referral; community resource connection via Unite Us/findhelp'},{t:'w',x:'Medication discrepancy? → pharmacist reconciliation consult; CDS drug-drug interaction check triggered'}],
+infoNeeds:[{title:'Vital signs',from:'Medical devices / Nurse',fields:['BP, HR, SpO2, Temp, RR, Weight, BMI, Pain (0-10)']},{title:'Advance directives',from:'Patient Agent / POLST registry',fields:['DNR/DNI status','Healthcare proxy name','POLST form on file','Living will location','Organ donation status']},{title:'SDOH screening',from:'Patient Agent / Social Worker',fields:['Housing stability (Z59)','Food security (Z59.4)','Transportation (Z59.1)','Social support (Z63)','Financial strain (Z59.6)','Interpersonal safety (Z55-Z65)']}],
+planDiff:{PPO:'Standard. SDOH optional.',HMO:'Capitation incentivizes SDOH capture.',HDHP:'Standard.',MA:'HCC + SDOH codes drive RAF → PMPM. Mandatory SDOH in many MA contracts.',Medicaid:'SDOH screening mandatory. Community Health Worker activation. Social care referral platforms (Unite Us, findhelp).',ASO:'Same as PPO. Employer EAP may be available.'},
+schema:{vitals:{bp:{type:'text',val:'138/88',lbl:'Blood pressure (mmHg)'},hr:{type:'number',val:88,lbl:'Heart rate (bpm)'},spo2:{type:'range',val:97,min:80,max:100,lbl:'SpO2 (%)'},painScale:{type:'range',val:4,min:0,max:10,lbl:'Pain scale (0-10)'}},adl:{advDirective:{type:'select',val:'DNR on file',opts:['DNR on file','DNI on file','Full code','POLST only','None on file'],lbl:'Advance directive status'},organDonor:{type:'select',val:'Registered',opts:['Registered','Not registered','Unknown'],lbl:'Organ donor status'}},sdoh:{housingStability:{type:'select',val:'Stable',opts:['Stable','Unstable','Unhoused'],lbl:'Housing (Z59)'},foodInsecurity:{type:'select',val:'No',opts:['Yes','No'],lbl:'Food insecurity (Z59.4)'},transportBarrier:{type:'select',val:'No',opts:['Yes','No'],lbl:'Transport barrier (Z59.1)'},sdohReferral:{type:'select',val:'None',opts:['None','Social work consult','Unite Us referral','findhelp.org referral','Community Health Worker'],lbl:'SDOH referral made'}}}});
+
+n({id:'encounter',tier:4,label:'Physician encounter',sub:'E&M / HCC / treatment plan',dom:'d-clinical',filter:'clinical',agents:['Provider Agent','CDI Agent','Patient Agent'],blocked:{},gateType:'none',covers:[5,48,64,65,68,69,70],connects:[{to:'rx',lbl:'Rx prescribed'},{to:'lab',lbl:'Lab ordered'},{to:'imaging',lbl:'Imaging ordered'},{to:'surgery',lbl:'Surgery indicated'},{to:'inpatient',lbl:'Admission decision'},{to:'bh_pathway',lbl:'MH/SUD referral'},{to:'maternal_care',lbl:'Prenatal/maternity'}],
+role:'Core clinical event. MDM complexity → E&M CPT (99202-99215). For MA plans, HCC coding at maximum ICD-10 specificity is the primary revenue driver (item 48). CDI Agent queries when documentation insufficient. Treatment plan may branch to: Rx, imaging, labs, referrals to behavioral health (item 38/39), maternity care (item 40), nutritional counseling (item 68), occupational therapy (item 69), speech-language pathology (item 70). All chronic conditions documented to maximum ICD-10 specificity for RAF score capture.',
+decisions:[{t:'q',x:'MDM level: Straightforward/Low/Moderate/High → CPT 99202-99215'},{t:'q',x:'HCC coding (MA): ALL chronic conditions to maximum ICD-10 specificity → RAF score'},{t:'q',x:'MH/SUD screening positive (PHQ-9, AUDIT, CAGE)? → route to behavioral health pathway'},{t:'q',x:'Patient pregnant or prenatal? → route to maternal care pathway'},{t:'q',x:'Nutritional counseling indicated? (diabetes, obesity, eating disorder) → dietitian referral'},{t:'w',x:'Underdocumentation → downcode risk. Overdocumentation → upcoding audit. CDI query if MDM ambiguous.'}],
+infoNeeds:[{title:'Prior history',from:'EHR / Patient Agent',fields:['Past diagnoses (ICD-10)','Prior surgeries','Family history','Review of systems','Social history']},{title:'Nurse note + SDOH',from:'Nurse Agent',fields:['Vital signs','Chief complaint SOAP','SDOH findings','Medication reconciliation','Allergy list','Advance directive status']},{title:'Screening tools',from:'Provider Agent',fields:['PHQ-9 (depression)','GAD-7 (anxiety)','AUDIT (alcohol)','CAGE (substance use)','EPDS (postpartum)','SBIRT (substance use brief intervention)']}],
+planDiff:{PPO:'Standard E&M. FFS. Direct orders.',HMO:'All orders gated by referral/PA. Capitation incentivizes fewer orders.',HDHP:'MDM level directly affects patient cost.',MA:'HCC coding mandatory and revenue-critical. CDI team critical.',Medicaid:'FQHC encounter rate. HEDIS measures tracked.',ASO:'Standard FFS. High-cost encounters trigger case management.'},
+schema:{encounter:{cptEM:{type:'select',val:'99214',opts:['99202','99203','99204','99205','99212','99213','99214','99215'],lbl:'E&M CPT'},icd10Primary:{type:'text',val:'I50.9',lbl:'Primary diagnosis (ICD-10)'},mdmLevel:{type:'select',val:'Moderate',opts:['Straightforward','Low','Moderate','High'],lbl:'Medical decision making'},bhScreening:{type:'select',val:'Negative',opts:['PHQ-9 ≥10 — MH referral','AUDIT/CAGE positive — SUD referral','SBIRT completed','Negative'],lbl:'Behavioral health screening'},maternalFlag:{type:'select',val:'No',opts:['Yes — prenatal','Yes — L&D active','Yes — postpartum','No'],lbl:'Maternal care flag'},nutritionReferral:{type:'select',val:'No',opts:['Yes — dietitian','Yes — MNT (medical nutrition therapy)','No'],lbl:'Nutritional counseling referral'}}}});
+// ═══════════════════════════════════════════════════════════
+// TIER 5 — Specialized Clinical Pathways
+// ═══════════════════════════════════════════════════════════
+n({id:'bh_pathway',tier:5,label:'Behavioral health / SUD',sub:'Carve-out + MHPAEA parity',dom:'d-bh',filter:'behavioral',agents:['BH Care Manager Agent','BH Carve-out Insurance Agent','SUD Specialist Agent'],blocked:{},gateType:'none',covers:[38,39,107],connects:[{to:'bh_claims',lbl:'BH claim submitted'},{to:'pa_hub',lbl:'PA for inpatient BH'},{to:'followup',lbl:'Follow-up / aftercare'}],
+role:'Mental health (MH) and Substance Use Disorder (SUD) treatment pathways. Item 38: Behavioral health carve-out — when employer or plan has carved BH to a separate vendor (Beacon, Optum BH, Carelon BH), claims route to the carve-out payer, not the medical payer. Coordination between carve-out and medical plan required. Item 107: MHPAEA (Mental Health Parity and Addiction Equity Act) requires: MH/SUD benefits no more restrictive than medical/surgical for quantitative limits (visits, days) and non-quantitative treatment limitations (prior auth criteria, network standards). PA rates for MH inpatient must not exceed PA rates for medical inpatient. SUD pathways (item 39): ASAM Level of Care criteria govern treatment intensity — outpatient (Level 1), intensive outpatient (Level 2.1), partial hospitalization (Level 2.5), residential (Level 3), medically managed intensive inpatient (Level 4). MAT (Medication-Assisted Treatment): buprenorphine, methadone, naltrexone.',
+decisions:[{t:'q',x:'BH carved out to separate vendor? → submit to carve-out payer using carve-out ID'},{t:'q',x:'MHPAEA parity check: is PA required for MH inpatient but not medical inpatient of same acuity? → parity violation'},{t:'q',x:'SUD level of care (ASAM): appropriate LOC for clinical presentation? → ASAM criteria review'},{t:'q',x:'MAT indicated for opioid/alcohol use disorder? → buprenorphine/naltrexone Rx; methadone clinic referral'},{t:'w',x:'42 CFR Part 2: SUD records have STRICTER confidentiality than HIPAA — requires patient consent for ALL disclosure'},{t:'w',x:'MHPAEA violation: payer must document and justify any more restrictive NQTLs or face state AG / DOL enforcement'}],
+infoNeeds:[{title:'BH clinical assessment',from:'BH Clinician / SUD Specialist',fields:['DSM-5 diagnosis','PHQ-9/GAD-7 score','ASAM level of care (SUD)','Substance use history','Suicide risk (Columbia Protocol)','Functional impairment (GAF)']},{title:'Carve-out benefit details',from:'BH Carve-out Insurance Agent',fields:['Carve-out payer ID','BH benefit limits (sessions/days)','MHPAEA parity documentation','In-network BH provider directory','42 CFR Part 2 consent status']},{title:'MAT protocol',from:'SUD Specialist Agent',fields:['MAT medication (buprenorphine/methadone/naltrexone)','DEA X-waiver status (pre-2023 elimination)','Methadone clinic location','PDMP check for MAT patient']}],
+planDiff:{PPO:'BH at medical/surgical parity. Carve-out possible. 42 CFR Part 2 protections apply.',HMO:'BH must be in-network. Carve-out possible. PCP referral may be required for BH.',HDHP:'BH services hit deductible unless preventive (depression screening, SBI).',MA:'MHPAEA applies. BH benefits in MA plan. SUD coverage varies. MAT covered under Part D (Rx).',Medicaid:'MHPAEA applies. SUD coverage required. MAT covered. 42 CFR Part 2 consent required for sharing SUD records.',ASO:'ERISA plan must comply with MHPAEA. BH carve-out common. 42 CFR Part 2 still applies.'},
+schema:{bh:{dsmDiagnosis:{type:'text',val:'F33.1 (MDD, moderate)',lbl:'DSM-5 diagnosis + ICD-10'},phq9Score:{type:'range',val:12,min:0,max:27,lbl:'PHQ-9 score'},asamLoc:{type:'select',val:'Level 2.1 IOP',opts:['Level 1 — Outpatient','Level 2.1 — IOP','Level 2.5 — PHP','Level 3.1 — Residential','Level 3.7 — Medically monitored','Level 4 — Medically managed'],lbl:'ASAM level of care (SUD)'},matMedication:{type:'select',val:'None',opts:['None','Buprenorphine','Methadone','Naltrexone (Vivitrol)','Combination'],lbl:'MAT medication'},bhCarveOut:{type:'select',val:'No',opts:['Yes — Beacon','Yes — Optum BH','Yes — Carelon BH','No — integrated'],lbl:'BH claim routes to'},cfg42:{type:'select',val:'Yes',opts:['Yes','No'],lbl:'42 CFR Part 2 consent obtained (SUD)'}}}});
+
+n({id:'maternal_care',tier:5,label:'Maternal / prenatal care',sub:'Prenatal → L&D → postpartum',dom:'d-clinical',filter:'clinical',agents:['OB/GYN Agent','Perinatology Agent','Labor & Delivery Nurse Agent'],blocked:{},gateType:'none',covers:[40,63],connects:[{to:'inpatient',lbl:'L&D admission'},{to:'followup',lbl:'Postpartum follow-up'},{to:'bh_pathway',lbl:'Postpartum depression screening'}],
+role:'Maternal care pathway (item 40): one of the highest-cost, highest-complexity pathways in commercial and Medicaid payer systems. Prenatal: first-trimester confirmation visit, genetic screening (NIPT), anatomy scan (18-20 weeks), GDM screen (24-28 weeks), Group B Strep (35-37 weeks). L&D: spontaneous vs induced labor, vaginal vs C-section delivery (DRG 775 or 783), neonatal care (neonate is a separate patient with separate claim). Postpartum: 6-week visit, postpartum depression screening (EPDS), LARC counseling. ACA preventive: prenatal care visits are free (no cost-share). Medicaid covers 60-day postpartum coverage (ARPA extension to 12 months in many states). HEDIS measure: Prenatal and Postpartum Care (PPC).',
+decisions:[{t:'q',x:'High-risk pregnancy (GDM, HTN, prior C-section, advanced maternal age >35, multiples)? → perinatology co-management'},{t:'q',x:'EPDS (Edinburgh Postnatal Depression Scale) ≥10 at postpartum visit? → route to BH pathway'},{t:'q',x:'Medicaid postpartum period: extended to 12 months in many states (ARPA)? → verify continuous eligibility'},{t:'w',x:'Medicaid enrollment: newborn auto-enrolled in mother\'s Medicaid at birth in many states'}],
+infoNeeds:[{title:'Prenatal clinical data',from:'OB/GYN Agent',fields:['Gestational age (weeks)','Parity/gravidity','GDM diagnosis (IADPSG criteria)','Blood pressure trend','Group B Strep result','NIPT result','Ultrasound findings']},{title:'L&D data',from:'L&D Nurse Agent',fields:['Delivery method (SVD/C-section)','DRG assigned (775/783)','NICU admission (neonate)','Apgar scores','Maternal hemorrhage flag','Delivery complications']}],
+planDiff:{PPO:'Prenatal visits free (ACA). L&D: hospital + professional claims. Newborn added to policy within 30-60 days.',HMO:'All prenatal visits must be in-network OB.',HDHP:'Prenatal visits free (ACA preventive). L&D: deductible applies unless OOP max already met.',MA:'Prenatal + maternity covered. Extra prenatal services possible (rideshare to appointments in some plans).',Medicaid:'Prenatal visits free. L&D fully covered. Postpartum up to 12 months (ARPA states). Newborn auto-enrolled.',ASO:'Per employer plan design. ACA preventive prenatal care required.'},
+schema:{maternal:{gestationalAge:{type:'number',val:28,lbl:'Gestational age (weeks)'},riskLevel:{type:'select',val:'Standard',opts:['Standard','High risk — GDM','High risk — HTN','High risk — Prior C-section','Very high risk — Perinatology'],lbl:'Maternal risk level'},deliveryDRG:{type:'select',val:'N/A (prenatal)',opts:['N/A (prenatal)','DRG 775 — vaginal delivery','DRG 783 — C-section'],lbl:'Delivery DRG (if L&D)'},epdsScore:{type:'range',val:6,min:0,max:30,lbl:'EPDS score (≥10 = BH referral)'},postpartumWeeks:{type:'number',val:0,lbl:'Weeks postpartum (0=not yet delivered)'}}}});
+
+n({id:'chronic_care',tier:5,label:'Chronic disease management',sub:'Diabetes / CHF / COPD / CKD pathways',dom:'d-clinical',filter:'population',agents:['Care Manager Agent','Pharmacist Agent','Disease Management Agent'],blocked:{},gateType:'none',covers:[64,65,66,68,69,70,71,118,134],connects:[{to:'encounter',lbl:'Disease management visit'},{to:'rx',lbl:'Chronic meds'},{to:'followup',lbl:'Care gap outreach'}],
+role:'Structured programs for high-burden chronic diseases (item 64): Diabetes (HbA1c management, diabetic retinopathy screen, nephropathy screen, foot exam), CHF (ejection fraction, BNP monitoring, diuretic titration, sodium restriction, daily weight), COPD (spirometry, exacerbation action plan, inhaler technique, pulmonary rehab), CKD (GFR monitoring, ACE/ARB use, dialysis preparation, referral to transplant). Multi-morbidity management (item 65) — patients with 3+ chronic conditions require care coordination across multiple specialists. Polypharmacy management (item 66) — pharmacist-led medication review for patients on 5+ medications (MTM — Medication Therapy Management, required under Medicare Part D for high-cost beneficiaries). Nutritional counseling (item 68 — dietitian referral for DM, CKD, obesity, eating disorders), OT (item 69), SLP (item 70). Pain management and opioid stewardship (item 71). Risk stratification (item 134) — low/medium/high risk tiers determine care management intensity.',
+decisions:[{t:'q',x:'HbA1c ≥9.0%? → intensified DM management; endocrinology referral; HEDIS gap closure'},{t:'q',x:'CHF decompensation (weight gain >2lb/day, worsening dyspnea)? → RPM alert; provider notification; admission risk assessment'},{t:'q',x:'Polypharmacy (5+ meds)? → MTM referral; Beers Criteria review for elderly; drug burden index'},{t:'q',x:'High-risk tier? → outreach for care gap closure; disease management enrollment; care manager assigned'},{t:'w',x:'Opioid: daily MEDD >90? → pain management referral; PDMP check; urine drug screen; risk mitigation agreement'}],
+infoNeeds:[{title:'Disease-specific data',from:'Provider Agent / RPM Agent',fields:['HbA1c (DM)','BNP/NT-proBNP (CHF)','FEV1/FVC (COPD)','GFR (CKD)','Ejection fraction (CHF)','Daily weight trend','Inhaler technique assessed']},{title:'Medication review',from:'Pharmacist Agent',fields:['Complete medication list (all prescribers)','Beers Criteria violations (elderly)','MEDD calculation (opioids)','Drug burden index','MTM eligibility (Medicare Part D)']},{title:'Risk stratification',from:'Population Health Agent',fields:['Risk tier (low/medium/high)','LACE score','Readmission risk flag','HEDIS gaps by condition','Care management enrollment status']}],
+planDiff:{PPO:'Disease management programs optional enrollment.',HMO:'Disease management often mandatory for high-risk members. Case management proactive outreach.',HDHP:'High deductible may discourage chronic care visits. VBID (Value-Based Insurance Design) reduces cost-share for high-value chronic care services.',MA:'Disease management critical for RAF/HCC score and Stars quality. CCM (Chronic Care Management) CPT 99490/99491 billed monthly.',Medicaid:'Disease management required for managed Medicaid. HEDIS measures tie to quality bonus payments.',ASO:'Employer wellness programs overlay. High-cost claimant case management. Stop-loss triggers intensive management.'},
+schema:{chronic:{primaryCondition:{type:'select',val:'Diabetes',opts:['Diabetes (T2DM)','Heart Failure','COPD','CKD','Hypertension','Asthma','Multi-morbidity (3+)'],lbl:'Primary chronic condition'},hba1c:{type:'number',val:7.8,lbl:'HbA1c % (DM)'},riskTier:{type:'select',val:'Medium',opts:['Low','Medium','High','Very High'],lbl:'Risk stratification tier'},mtmEligible:{type:'select',val:'No',opts:['Yes — enrolled','Yes — not yet enrolled','No'],lbl:'MTM eligible (Medicare Part D)'},ccmCPT:{type:'select',val:'No',opts:['Yes — 99490 (20+ min/mo)','Yes — 99491 (physician)','No'],lbl:'CCM billing (99490/91)'},opioidMEDD:{type:'number',val:0,lbl:'Opioid daily MEDD (morphine equivalents)'},careGapCount:{type:'number',val:2,lbl:'Open HEDIS care gaps'}}}});
+
+n({id:'wound_infusion',tier:5,label:'Wound care / infusion therapy',sub:'HOPD / home infusion / OPAT',dom:'d-clinical',filter:'clinical',agents:['Wound Care Nurse Agent','Infusion Pharmacist Agent'],blocked:{},gateType:'none',covers:[67],connects:[{to:'home_health',lbl:'Home infusion via HHA'},{to:'coding',lbl:'Code wound care episode'}],
+role:'Wound care (item 67): chronic wound management for diabetic foot ulcers, venous stasis ulcers, pressure injuries (Stage 2-4). HOPD wound care center vs home wound care via HHA. Wound care CPT codes: 97597 (debridement), 97602, 11042-11047. Wound VAC (vacuum-assisted closure) requires DMEPOS authorization. Infusion therapy: OPAT (Outpatient Parenteral Antibiotic Therapy) for serious infections — IV antibiotics, biologics, IVIG, home TPN. Home infusion pharmacy must be accredited (URAC/ACHC). PA required for most home infusion. Site of care optimization: home vs HOPD vs infusion suite — cost differential 3-10x.',
+decisions:[{t:'q',x:'Wound stage and complexity → appropriate site: HOPD wound center vs home wound care vs inpatient'},{t:'q',x:'Wound VAC indicated? → DMEPOS authorization required; clinical necessity criteria'},{t:'q',x:'OPAT candidate? → infection controllable outpatient? → home infusion PA + accredited pharmacy'},{t:'w',x:'Site of care: home infusion 3-10x less costly than HOPD for same medication — plan may require home first'}],
+infoNeeds:[{title:'Wound assessment',from:'Wound Care Nurse Agent',fields:['Wound stage','Wound dimensions (L×W×D)','Wound bed characteristics','Tunneling/undermining','Infection signs','Prior treatments tried']},{title:'Infusion therapy',from:'Infusion Pharmacist Agent / Provider',fields:['Medication (antibiotic/biologic/IVIG/TPN)','Infusion duration/frequency','Home infusion pharmacy NPI (URAC accredited)','IV access type (PICC/port/peripheral)','PA status']}],
+planDiff:{PPO:'Wound care covered at specialist copay. Home infusion requires PA.',HMO:'In-network wound care center only. Home infusion in-network pharmacy.',HDHP:'Wound care and infusion fees hit deductible.',MA:'Site-of-care requirements may mandate home infusion over HOPD.',Medicaid:'Wound care covered. Home infusion via HCBS waiver or Medicaid home health benefit.',ASO:'Employer may mandate site-of-care optimization for infusion (home required if clinically appropriate).'},
+schema:{wound:{woundType:{type:'select',val:'Diabetic foot ulcer',opts:['Diabetic foot ulcer','Venous stasis ulcer','Pressure injury Stage 2','Pressure injury Stage 3-4','Surgical wound'],lbl:'Wound type'},infusionIndicated:{type:'select',val:'No',opts:['Yes — OPAT','Yes — IVIG','Yes — Biologic','Yes — TPN','No'],lbl:'Infusion therapy indicated'},siteOfCare:{type:'select',val:'HOPD wound center',opts:['HOPD wound center','Home wound care (HHA)','Home infusion','Infusion suite (freestanding)','Inpatient'],lbl:'Site of care'},woundVAC:{type:'select',val:'No',opts:['Yes — DMEPOS auth required','No'],lbl:'Wound VAC (negative pressure therapy)'}}}});
+// ═══════════════════════════════════════════════════════════
+// TIER 6 — Orders: Diagnostics, Pharmacy & Procedures
+// ═══════════════════════════════════════════════════════════
+n({id:'lab',tier:6,label:'Lab / blood work',sub:'CLIA — in-house or reference lab',dom:'d-imaging',filter:'clinical',agents:['Nurse Agent','Lab Agent'],blocked:{},gateType:'none',covers:[8],connects:[{to:'coding',lbl:'Results → encounter'}],
+role:'Lab orders typically PA-free but may be carved out to a reference lab. Lab Agent assigns STAT vs routine turnaround, issues critical value alerts. OON reference lab → CARC CO-22 denial.',
+decisions:[{t:'q',x:'STAT or routine? → STAT within 1h; routine 24-48h'},{t:'w',x:'Reference lab OON? → CARC CO-22; use contracted vendor'},{t:'i',x:'Critical value → immediate provider alert'}],
+infoNeeds:[{title:'Lab order',from:'Provider Agent',fields:['Test panel','Turnaround class','ICD-10 dx','STAT flag']},{title:'Network lab',from:'Insurance Agent',fields:['In-network lab vendor','Carve-out vendor']}],
+planDiff:{PPO:'Often carved to LabCorp/Quest.',HMO:'In-network only.',HDHP:'Hits deductible.',MA:'CMS fee schedule.',Medicaid:'State fee schedule.',ASO:'Employer direct-contract.'},
+schema:{lab:{tests:{type:'text',val:'CBC, CMP, BNP, HbA1c',lbl:'Test panel'},labVendor:{type:'select',val:'In-house (CLIA)',opts:['In-house (CLIA)','LabCorp','Quest','Reference lab (other)'],lbl:'Lab vendor'},stat:{type:'select',val:'Routine',opts:['STAT (1h)','Routine (24-48h)','Send-out (3-5d)'],lbl:'Turnaround'}}}});
+
+n({id:'imaging',tier:6,label:'Imaging / radiology',sub:'X-ray → CT → MRI → PET → Nuclear',dom:'d-imaging',filter:'clinical',agents:['Provider Agent','Radiology Agent','RBM Agent'],blocked:{},gateType:'auth',covers:[9,100],connects:[{to:'pa_hub',lbl:'Advanced → RBM PA'},{to:'coding',lbl:'No PA needed'}],
+role:'PA requirement spectrum from X-ray (no PA) to PET/Nuclear (always PA). CT/MRI require PA through RBM (eviCore/Carelon). Gold-card for high-performing groups. ePA via FHIR CDS Hooks for real-time imaging appropriateness checking.',
+decisions:[{t:'q',x:'X-ray/basic ultrasound? → no PA; proceed'},{t:'q',x:'CT/MRI/PET/Nuclear? → RBM PA required'},{t:'w',x:'Imaging without PA → CO-197 denial. Revenue unrecoverable.'}],
+infoNeeds:[{title:'Clinical order',from:'Provider Agent',fields:['Imaging modality','Body region','ICD-10 indication','Prior imaging','Conservative treatment tried']},{title:'RBM check',from:'RBM Agent',fields:['Criteria result','Alternative offered','Auth number']}],
+planDiff:{PPO:'CT/MRI require RBM PA.',HMO:'Broad PA scope.',HDHP:'Fees hit deductible.',MA:'CMS 2024 reform limits some imaging PA.',Medicaid:'State RBM program.',ASO:'Per employer UM.'},
+schema:{imaging:{modality:{type:'select',val:'MRI',opts:['X-ray (no PA)','Ultrasound','CT scan','MRI','PET scan','Nuclear scan','Echo/ECG','DEXA'],lbl:'Imaging modality'},paRequired:{type:'select',val:'Yes',opts:['Yes','No'],lbl:'PA required'},rbmVendor:{type:'select',val:'eviCore',opts:['eviCore','Carelon','Plan self-managed','None'],lbl:'RBM vendor'}}}});
+
+n({id:'rx',tier:6,label:'Rx prescription hub',sub:'eRx → RTPB → PBM — NCPDP D.0',dom:'d-rx',filter:'pharmacy',agents:['Provider Agent','PBM Agent','Pharmacy Agent'],blocked:{},gateType:'auth',covers:[17,18,19,20,21,22,23,24,25,57,100,115,143],connects:[{to:'rx_pa',lbl:'Non-formulary / specialty'},{to:'rx_generic',lbl:'Generic fill'},{to:'rx_specialty',lbl:'Specialty Rx'}],
+role:'Provider transmits eRx via NCPDP SCRIPT. Real-Time Prescription Benefit (RTPB) shows formulary tier, PA requirements, step therapy, generic alternatives, and OOP cost before finalizing. PBM adjudicates in real-time at point-of-sale via NCPDP D.0. CDS drug-drug interaction and allergy check runs simultaneously (item 57). Formulary management (item 115): Pharmacy & Therapeutics (P&T) committee sets the drug formulary based on clinical evidence and cost-effectiveness; formulary updates quarterly. Step therapy / formulary exceptions (item 143) govern non-preferred drug access pathway. Electronic PA (ePA) via NCPDP Script 2017 or FHIR (item 100) speeds PA turnaround.',
+decisions:[{t:'q',x:'Drug on formulary? Tier 1-5? → determines patient copay'},{t:'q',x:'Step therapy required? → preferred drugs first; exception if failed/contraindicated'},{t:'q',x:'Specialty drug (Tier 5)? → specialty pharmacy routing; REMS check'},{t:'q',x:'ePA needed? → NCPDP Script ePA or FHIR CDS Hooks for real-time determination'},{t:'w',x:'Non-formulary or step therapy not met → Rx PA. NCPDP reject returned real-time at pharmacy.'}],
+infoNeeds:[{title:'Prescription details',from:'Provider Agent',fields:['Drug name + strength','Days supply','Quantity','Indication ICD-10','Substitution allowed']},{title:'Formulary + RTPB',from:'PBM Agent',fields:['Formulary tier (1-5)','Step therapy requirements','PA required','Generic alternatives','RTPB OOP estimate','P&T committee tier status']},{title:'Drug safety',from:'Pharmacy Agent / CDS',fields:['Drug-drug interactions','Dose appropriateness (renal/hepatic)','REMS enrollment','Duplicate therapy']}],
+planDiff:{PPO:'Standard 5-tier formulary. Step therapy selectively applied.',HMO:'Restricted formulary. Step therapy strictly enforced.',HDHP:'Preventive generics pre-deductible per ACA.',MA:'MA-PDL formulary. LIS members pay $0-$10. DIR fees clawback.',Medicaid:'State PDL. $0-$4 copay. Manufacturer rebates negotiated.',ASO:'Custom employer formulary via PBM contract.'},
+schema:{prescription:{drugName:{type:'text',val:'Furosemide 40mg',lbl:'Drug name + strength'},formularyTier:{type:'select',val:'Tier 2 (generic)',opts:['Tier 1 (preferred generic)','Tier 2 (generic)','Tier 3 (preferred brand)','Tier 4 (non-preferred)','Tier 5 (specialty)'],lbl:'Formulary tier'},epaMeth:{type:'select',val:'Manual',opts:['Manual','NCPDP Script ePA','FHIR CDS Hooks'],lbl:'ePA method'},pbm:{type:'select',val:'CVS/Caremark',opts:['CVS/Caremark','Express Scripts','OptumRx','MedImpact'],lbl:'PBM'}}}});
+
+n({id:'rx_pa',tier:6,label:'Rx prior auth',sub:'Step therapy / formulary exception',dom:'d-rx',filter:'pharmacy',agents:['PBM Agent'],blocked:{},gateType:'auth',covers:[21,143],connects:[{to:'rx_generic',lbl:'PA approved'},{to:'rx_denied',lbl:'PA denied'}],
+role:'Required for non-formulary, step therapy incomplete, quantity limit, or specialty not yet authorized. PBM evaluates in real-time or 24h (urgent) / 72h (standard). Step therapy exception (item 143): must document prior drug failure, contraindication, or medical necessity.',
+decisions:[{t:'q',x:'Step drugs tried and documented as failed? → exception basis'},{t:'q',x:'Medical necessity for formulary exception?'},{t:'w',x:'NCPDP real-time reject at pharmacy counter'}],
+infoNeeds:[{title:'Step therapy history',from:'PBM Agent',fields:['Prior drugs dispensed','Failure reason','Time on each step drug']},{title:'Exception basis',from:'Provider Agent',fields:['Necessity letter','Contraindication documentation']}],
+planDiff:{PPO:'72h standard / 24h urgent.',HMO:'Stricter step therapy.',HDHP:'Same scope.',MA:'CMS 24h urgent / 72h standard.',Medicaid:'State PDL exceptions.',ASO:'Employer may waive.'},
+schema:{rxAuth:{exceptionBasis:{type:'select',val:'Step fail',opts:['Step fail','Medical necessity','Contraindication','None'],lbl:'Exception basis'},paDecision:{type:'select',val:'Pending',opts:['Approved','Denied','Pending'],lbl:'Rx PA decision'},ncpdpCode:{type:'text',val:'75',lbl:'NCPDP reject code'}}}});
+
+n({id:'rx_generic',tier:6,label:'Generic Rx dispensed',sub:'Retail / mail-order — MAC pricing',dom:'d-rx',filter:'pharmacy',agents:['Pharmacy Agent'],blocked:{},gateType:'none',covers:[18,22,23,24,25],connects:[{to:'rx_paid',lbl:'Claim paid'}],
+role:'Generic dispensed at retail or mail-order. NCPDP D.0 real-time adjudication. PBM pays pharmacy at MAC (Maximum Allowable Cost). Pharmacy fulfillment (item 22), main order (item 23), pharmacy pickup (item 24), Rx claims (item 25). Accumulator adjustment programs may prevent manufacturer coupons from counting toward deductible.',
+decisions:[{t:'q',x:'Refill too soon? → NCPDP reject 79'},{t:'i',x:'MAC pricing: PBM pays at maximum allowable cost, not AWP'},{t:'w',x:'Accumulator adjustment: manufacturer coupon may not count toward deductible/OOP'}],
+infoNeeds:[{title:'Fill details',from:'Pharmacy Agent',fields:['Drug NDC','Days supply','Quantity','Pharmacy NPI']},{title:'PBM adjudication',from:'PBM Agent',fields:['MAC price','Patient copay','Accumulator update']}],
+planDiff:{PPO:'Tier 1 copay $5-15.',HMO:'Network pharmacy only.',HDHP:'Preventive generics pre-deductible.',MA:'LIS: $0-$3.35 (Tier 1).',Medicaid:'$0-$4.',ASO:'Employer custom copay.'},
+schema:{fill:{macPrice:{type:'number',val:8,lbl:'MAC price ($)'},patientCopay:{type:'number',val:10,lbl:'Patient copay ($)'},daysSupply:{type:'number',val:30,lbl:'Days supply'}}}});
+
+n({id:'rx_specialty',tier:6,label:'Specialty Rx',sub:'Limited distribution / REMS / DIR fees',dom:'d-rx',filter:'pharmacy',agents:['Specialty Pharmacy Agent','Insurance Agent'],blocked:{},gateType:'auth',covers:[19,20,25],connects:[{to:'rx_pa',lbl:'PA required'},{to:'rx_paid',lbl:'Dispensed'}],
+role:'High-cost biologic, oncology, rare disease, gene therapy. Limited distribution networks. REMS programs. Annual cost $50K-$500K+. Manufacturer PAP and foundation grants for patient OOP. DIR (Direct and Indirect Remuneration) fees: PBMs retroactively clawback pharmacy payment based on performance metrics under Part D — significant pharmacy margin impact.',
+decisions:[{t:'q',x:'REMS program? → provider certified; patient enrolled; pharmacy certified'},{t:'q',x:'PA required? → almost always yes'},{t:'w',x:'DIR fees (Part D): retroactive clawback reduces pharmacy net payment significantly'}],
+infoNeeds:[{title:'Drug + REMS',from:'Provider / Specialty Pharmacy',fields:['Drug name (biologic/biosimilar)','REMS enrollment','Provider certification']},{title:'Financial assistance',from:'Manufacturer / Foundation',fields:['PAP eligibility','Copay card','Accumulator adjustment status']}],
+planDiff:{PPO:'Specialty tier coinsurance (20-30%) to OOP max.',HMO:'Mandatory specialty pharmacy.',HDHP:'Full coinsurance to OOP max.',MA:'Part D catastrophic: $0 above OOP max (2024 IRA). DIR fees.',Medicaid:'PDL preferred biosimilar. State rebates.',ASO:'Specialty carve-out possible.'},
+schema:{specialty:{drugClass:{type:'select',val:'Biologic',opts:['Biologic','Oncology','Rare disease','Gene therapy','Infused'],lbl:'Drug class'},annualCost:{type:'number',val:85000,lbl:'Estimated annual cost ($)'},dirFeeRisk:{type:'select',val:'Yes',opts:['Yes — Medicare Part D','No'],lbl:'DIR fee clawback risk'}}}});
+
+n({id:'surgery',tier:6,label:'Surgical procedure',sub:'IP / HOPD / ASC — PA mandatory — NSA',dom:'d-procedure',filter:'clinical',agents:['Surgeon Agent','Anesthesia Agent','Nurse Agent'],blocked:{},gateType:'auth',covers:[10,55,88,138],connects:[{to:'postop',lbl:'Post-op recovery'},{to:'coding',lbl:'Code surgical episode'}],
+role:'Surgical procedures require confirmed PA. Setting: inpatient OR (DRG — facility billing via 837I), HOPD (APC — institutional billing), ASC (lowest cost — professional + facility). Facility vs professional billing split (item 138): facility fee on 837I, professional fee on 837P — separate claims, separate adjudication. NSA (item 55): OON ancillary providers (anesthesiologist, assistant surgeon, pathologist) trigger No Surprises Act protections — balance billing prohibited; IDR process (item 88) for provider-payer disputes above QPA.',
+decisions:[{t:'q',x:'PA confirmed pre-operatively? → proceed. Missing → CO-197 denial'},{t:'q',x:'Setting: ASC vs HOPD vs inpatient? → cost differential 2-3x'},{t:'q',x:'OON ancillary providers? → NSA applies; QPA arbitration if dispute (IDR process)'},{t:'w',x:'Observation vs inpatient admission: clinically minor but financially massive for SNF eligibility and DRG billing'}],
+infoNeeds:[{title:'PA confirmation',from:'Insurance Agent',fields:['Auth number','Authorized CPTs','Auth valid through surgical date','Facility NPI']},{title:'Professional vs facility split',from:'Surgeon + Facility',fields:['Professional claim (837P) — surgeon NPI','Facility claim (837I) — facility NPI','Anesthesia claim (separate)','Pathology (separate if biopsy)']}],
+planDiff:{PPO:'NSA for OON ancillary. ASC/HOPD patient choice.',HMO:'In-network facility only.',HDHP:'Full facility fee hits deductible.',MA:'CMS 2024 reform limits some surgical PA.',Medicaid:'State fee schedule.',ASO:'Reference-based pricing possible.'},
+schema:{surgery:{setting:{type:'select',val:'Hospital outpatient (HOPD)',opts:['Inpatient OR','Hospital outpatient (HOPD)','Ambulatory surgery center (ASC)'],lbl:'Surgical setting'},facilityVsProfBilling:{type:'select',val:'Both — separate claims',opts:['Both — separate claims','Professional only','Facility only'],lbl:'Facility vs professional billing'},nsaStatus:{type:'select',val:'All in-network',opts:['All in-network','OON ancillary — NSA applies','OON ancillary — IDR dispute'],lbl:'NSA / OON ancillary status'},paConfirmed:{type:'select',val:'Yes',opts:['Yes','No — reschedule'],lbl:'PA confirmed pre-op'}}}});
+
+n({id:'inpatient',tier:6,label:'Inpatient admission',sub:'DRG — ADT^A01 — concurrent review',dom:'d-clinical',filter:'clinical',agents:['Admitting Provider','Nurse Agent','Insurance Agent'],blocked:{},gateType:'auth',covers:[6,117],connects:[{to:'discharge',lbl:'Discharge planning'},{to:'coding',lbl:'Code DRG episode'}],
+role:'Admission triggers ADT^A01. ADT notifications (item 117): payer must be notified within 24h. ADT^A01 (admit), ADT^A02 (transfer), ADT^A03 (discharge) — all trigger downstream workflows. Observation vs inpatient (23-hour hold): critical for SNF Medicare eligibility and DRG vs APC billing. DRG (MS-DRG) = principal diagnosis + CC/MCC + procedure = bundled payment for entire inpatient episode.',
+decisions:[{t:'q',x:'Observation vs inpatient? → InterQual IP criteria; critical for SNF eligibility'},{t:'q',x:'ADT notification within 24h? → late = initial denial then retrospective'},{t:'w',x:'Readmission within 30 days for HRRP condition? → CMS financial penalty to hospital'}],
+infoNeeds:[{title:'ADT trigger',from:'EHR / ADT system',fields:['ADT^A01 (admit)','ADT^A02 (transfer)','ADT^A03 (discharge)','Patient location','Admitting physician NPI']},{title:'DRG assignment',from:'Medical Coder Agent',fields:['Principal ICD-10 dx','CC/MCC conditions','DRG number','DRG weight','Expected LOS']}],
+planDiff:{PPO:'Obs vs IP cost-share differs.',HMO:'IP PA within 24h; concurrent review every 2-3d.',HDHP:'Full deductible per admission.',MA:'3-day IP rule for SNF. CMS 2024: cannot deny IP if criteria met.',Medicaid:'State per-diem or DRG hybrid.',ASO:'Stop-loss if episode exceeds attachment.'},
+schema:{admission:{obsVsIP:{type:'select',val:'Inpatient',opts:['Inpatient','Observation'],lbl:'Obs vs inpatient'},drg:{type:'text',val:'291',lbl:'DRG assigned'},drgWeight:{type:'number',val:1.62,lbl:'DRG relative weight'},adtNotification:{type:'select',val:'24h submitted',opts:['24h submitted','Late','Emergent waiver'],lbl:'ADT PA notification'}}}});
+// ═══════════════════════════════════════════════════════════
+// TIER 7 — Post-Acute Care, Coding & Discharge
+// ═══════════════════════════════════════════════════════════
+n({id:'postop',tier:7,label:'Post-op / PACU recovery',sub:'PACU → SNF/IRF/Home routing',dom:'d-clinical',filter:'clinical',agents:['Nurse Agent','PT/OT Agent'],blocked:{},gateType:'none',covers:[11,12,69,70],connects:[{to:'discharge',lbl:'Discharge criteria met'}],
+role:'Post-op PACU monitoring (Aldrete score ≥9 for discharge). LACE score for readmission risk. OT (item 69) and SLP (item 70) assessed for functional recovery needs post-surgery. TCM enrollment for high-risk patients.',
+decisions:[{t:'q',x:'Aldrete ≥9? → proceed to floor or home'},{t:'q',x:'LACE ≥10? → high readmission risk; enroll in TCM (99495/99496)'},{t:'w',x:'OT/SLP evaluation needed? → functional assessment; orders placed before discharge'}],
+infoNeeds:[{title:'Post-op status',from:'Nurse / Surgeon Agent',fields:['Aldrete score','Pain control','Wound assessment','Hemodynamic stability']},{title:'OT/SLP assessment',from:'PT/OT/SLP Agent',fields:['ADL performance','Therapy tolerance (hrs/day)','Speech/swallowing status','Home environment safety']}],
+planDiff:{PPO:'Standard post-op.',HMO:'All post-acute in-network; PA required.',HDHP:'Fees continue to OOP max.',MA:'SNF 3-day IP rule; extra home benefits possible.',Medicaid:'HCBS waiver preferred.',ASO:'Stop-loss for catastrophic episodes.'},
+schema:{postop:{alderetteScore:{type:'range',val:9,min:0,max:10,lbl:'Aldrete PACU score'},laceScore:{type:'range',val:4,min:0,max:19,lbl:'LACE readmission risk'},otslpNeeded:{type:'select',val:'No',opts:['Yes — OT eval','Yes — SLP eval','Yes — Both','No'],lbl:'OT/SLP evaluation needed'}}}});
+
+n({id:'discharge',tier:7,label:'Discharge planning',sub:'ADT^A03 — post-acute routing',dom:'d-clinical',filter:'clinical',agents:['Case Manager Agent','Insurance Agent'],blocked:{},gateType:'none',covers:[6,42,43,52,117],connects:[{to:'snf',lbl:'SNF/IRF (03/62)'},{to:'home_health',lbl:'Home health (06)'},{to:'hospice',lbl:'Hospice (51)'},{to:'followup',lbl:'Home (01)'}],
+role:'Discharge planning determines post-acute destination using clinical criteria. ADT^A03 fires on patient departure. UB-04 discharge status codes: 01 (home), 03 (SNF), 06 (home health), 51 (hospice), 62 (IRF), 20 (expired). EOB (item 52): at discharge, patient should receive or be directed to plan\'s EOB summary explaining financial responsibility. CMS HRRP penalties for 30-day readmissions for targeted conditions.',
+decisions:[{t:'q',x:'Therapy ≥3h/day + complex care? → IRF (Status 62)'},{t:'q',x:'SNF: Medicare 3-day qualifying IP stay confirmed? → covered. Observation only → NOT covered.'},{t:'q',x:'Homebound + skilled care need? → Home Health (Status 06)'},{t:'w',x:'Medicare SNF: observation days DO NOT count toward 3-day qualifying stay. Critical misunderstanding.'}],
+infoNeeds:[{title:'Clinical status',from:'Provider / Nursing',fields:['Discharge criteria met','Functional status','Wound status','Medication reconciliation','Follow-up scheduled']},{title:'Post-acute eligibility',from:'Case Manager',fields:['3-day IP rule met (SNF)','Homebound status','Therapy capacity (IRF)','Life expectancy (Hospice)']}],
+planDiff:{PPO:'Standard post-acute benefit.',HMO:'In-network only; PA required.',HDHP:'Post-acute fees continue to OOP max.',MA:'3-day IP rule + SNF PA. MA may have tighter SNF coverage.',Medicaid:'HCBS waiver preferred over SNF.',ASO:'Stop-loss applies to post-acute.'},
+schema:{discharge:{dispositionCode:{type:'select',val:'01 (home)',opts:['01 (home)','03 (SNF)','06 (home health)','51 (hospice)','62 (IRF)','20 (expired)'],lbl:'UB-04 discharge status code'},snf3DayMet:{type:'select',val:'Yes',opts:['Yes','No','N/A'],lbl:'Medicare 3-day IP rule met'},eobDelivered:{type:'select',val:'Portal',opts:['Paper mail','Portal','Not yet generated'],lbl:'EOB delivery to patient'}}}});
+
+n({id:'snf',tier:7,label:'SNF / IRF rehab',sub:'Discharge status 03/62',dom:'d-clinical',filter:'clinical',agents:['Therapy Agent','Case Manager Agent'],blocked:{},gateType:'none',covers:[12,43],connects:[{to:'followup',lbl:'Improving → community'},{to:'hospice',lbl:'Declining → palliative'}],
+role:'SNF (1-3h/day therapy or continuous skilled nursing need) or IRF (3+h/day, discharge status 62). Medicare SNF: days 1-20 fully covered; days 21-100 with daily coinsurance ($200/day 2024); days 100+ = patient OOP. 3-day qualifying IP stay (not observation) required before SNF coverage.',
+decisions:[{t:'q',x:'Therapy ≥3h/day? → IRF (Status 62)'},{t:'q',x:'3-day qualifying IP stay confirmed? → SNF covered. Observation only → NOT covered.'},{t:'w',x:'Concurrent review: coverage ends when skilled need no longer met.'}],
+infoNeeds:[{title:'Therapy assessment',from:'PT/OT/ST Agents',fields:['Therapy hours/day','FIM score','Rehabilitation potential']},{title:'SNF authorization',from:'Insurance Agent',fields:['SNF PA approved','In-network SNF','Days authorized']}],
+planDiff:{PPO:'Benefit days per plan.',HMO:'In-network only; PA required.',HDHP:'Fees to OOP max.',MA:'3-day IP rule still applies. MA may cover fewer days.',Medicaid:'HCBS waiver preferred.',ASO:'Stop-loss for extended stays.'},
+schema:{rehab:{facilityType:{type:'select',val:'SNF',opts:['SNF','IRF','LTACH'],lbl:'Post-acute type'},medicareDaysUsed:{type:'number',val:0,lbl:'Medicare SNF days used'},therapyHrsDay:{type:'number',val:1.5,lbl:'Therapy hours/day'}}}});
+
+n({id:'home_health',tier:7,label:'Home health / DME / RPM',sub:'Homebound — CPT 99457/99458',dom:'d-clinical',filter:'clinical',agents:['Home Health Nurse Agent','RPM Agent'],blocked:{},gateType:'none',covers:[42,45],connects:[{to:'followup',lbl:'Stable → ambulatory'}],
+role:'Medicare-certified home health: intermittent skilled nursing, PT/OT/SLP, home health aide. Patient must be homebound. DME: DMEPOS supplier must be enrolled with Medicare. RPM via IoT sensors streams SpO2, weight, BP with AI-driven alert thresholds. CPT 99457 (RPM monitoring 20+ min/month). SDOH transport barrier flags trigger NEMT coordination.',
+decisions:[{t:'q',x:'Homebound status confirmed? → HH eligible'},{t:'q',x:'RPM telemetry alert? (weight +2lb/day, SpO2 <92%) → provider notification'},{t:'w',x:'DMEPOS supplier must be enrolled with Medicare. Non-enrolled = denial.'}],
+infoNeeds:[{title:'Homebound certification',from:'Provider Agent',fields:['Homebound status','Skilled nursing need','Frequency/duration order','Form 485']},{title:'RPM enrollment',from:'RPM Agent',fields:['Device provisioned','Alert thresholds set','Patient consent']}],
+planDiff:{PPO:'Medicare-certified HHA for Medicare-eligible.',HMO:'In-network HHA; PA required.',HDHP:'Fees hit OOP.',MA:'Extra benefits: meals, transport, in-home safety mods.',Medicaid:'HCBS waiver: PCA, adult day, respite.',ASO:'Limited HH benefit.'},
+schema:{homeHealth:{homeboundStatus:{type:'select',val:'Confirmed',opts:['Confirmed','Not met'],lbl:'Homebound status'},rpmAlert:{type:'select',val:'None set',opts:['None set','Weight +2lb/day','SpO2 <92%','HR >110','All'],lbl:'RPM active alert'},dmeType:{type:'select',val:'None',opts:['None','CPAP','Wheelchair','Walker','IV pump','O2'],lbl:'DME ordered'}}}});
+
+n({id:'hospice',tier:7,label:'Hospice / palliative care',sub:'6-month prognosis — comfort focus',dom:'d-clinical',filter:'clinical',agents:['Palliative Care Agent','Hospice RN Agent'],blocked:{},gateType:'none',covers:[41,59,60],connects:[{to:'death',lbl:'Patient expires'},{to:'followup',lbl:'Improves — revoke'}],
+role:'Curative care discontinued; interdisciplinary comfort care. Medicare Hospice Benefit: physician certifies life expectancy ≤6 months. Patient waives curative coverage for terminal diagnosis. Advance directives (item 59) reviewed and honored (DNR, POLST, living will). Organ donation (item 60): hospice nurses trained to facilitate organ donation discussions with OPO. Four hospice levels: routine home care (most common), continuous home care, inpatient respite, general inpatient. Unique: administered under traditional Medicare even for MA enrollees.',
+decisions:[{t:'q',x:'Life expectancy ≤6 months? → physician certification required; re-cert at 90/60/60-day intervals'},{t:'q',x:'Advance directives honored? → confirm DNR/POLST; proxy notified; code status documented'},{t:'i',x:'Patient improves → hospice revoked; curative care resumes; no penalty'},{t:'w',x:'MA patients: hospice under traditional Medicare FFS, NOT the MA plan.'}],
+infoNeeds:[{title:'Hospice eligibility',from:'Provider / Hospice Medical Director',fields:['Terminal diagnosis ICD-10','Life expectancy prognosis','Patient election statement','Curative waiver']},{title:'Advance directives',from:'Patient Agent / POLST registry',fields:['DNR/DNI confirmed','Healthcare proxy notified','POLST form on file','Organ donation status']}],
+planDiff:{PPO:'Commercial hospice varies.',HMO:'In-network hospice; PA may be required.',HDHP:'Same as PPO.',MA:'Medicare Hospice Benefit under traditional Medicare, NOT MA plan.',Medicaid:'Medicaid Hospice Benefit in all states.',ASO:'Per employer design.'},
+schema:{hospice:{prognosis:{type:'select',val:'< 6 months',opts:['< 6 months','6-12 months','>12 months (not eligible)'],lbl:'Life expectancy'},hospiceLevel:{type:'select',val:'Routine home care',opts:['Routine home care','Continuous home care','Inpatient respite','General inpatient'],lbl:'Level of care'},advDirectiveHonored:{type:'select',val:'Yes',opts:['Yes','Pending confirmation','No — conflict flagged'],lbl:'Advance directive honored'}}}});
+
+n({id:'coding',tier:7,label:'Medical coding',sub:'ICD-10 / CPT / HCC / DRG',dom:'d-coding',filter:'claims',agents:['Medical Coder Agent','CDI Agent'],blocked:{},gateType:'none',covers:[48,96,65],connects:[{to:'claim_build',lbl:'Build 837 EDI claim'}],
+role:'Coder translates documentation into codes. Professional: ICD-10 + CPT + modifiers. Inpatient: DRG (MS-DRG). MA: HCC codes = primary revenue driver (each valid HCC adds monthly PMPM from CMS). CDI Agent queries when documentation insufficient. CARC/RARC taxonomy (item 96) determines denial communication. Multi-morbidity (item 65): all CC/MCC conditions coded to maximum specificity for highest DRG weight.',
+decisions:[{t:'q',x:'E&M level supportable by MDM? → assign 99202-99215'},{t:'q',x:'DRG: principal dx + CC/MCC → DRG weight → bundled payment'},{t:'i',x:'HCC coding (MA): every chronic condition to max ICD-10 specificity → RAF score → PMPM'},{t:'w',x:'Upcoding = FWA risk. Undercoding (miss HCCs) = MA revenue leakage.'}],
+infoNeeds:[{title:'Clinical documentation',from:'Provider Agent',fields:['Encounter notes','Discharge summary','Operative report','CDI query responses']},{title:'HCC reference (MA)',from:'CMS HCC model v28',fields:['ICD-10 → HCC mapping','RAF calculation','Hierarchical condition logic']}],
+planDiff:{PPO:'CPT + modifier accuracy drives FFS revenue.',HMO:'Capitation; encounter coding for quality.',HDHP:'Patient bill from CPT detail.',MA:'HCC coding is primary revenue lever. CDI team critical.',Medicaid:'State encounter data; HEDIS coding.',ASO:'Full CPT+ICD-10 breakdown to employer.'},
+schema:{coding:{cptPrimary:{type:'text',val:'99214',lbl:'Primary CPT'},icd10Dx:{type:'text',val:'I50.9, E11.9',lbl:'ICD-10 codes'},hccCode:{type:'text',val:'HCC 85 (CHF)',lbl:'HCC code (MA)'},drg:{type:'text',val:'N/A',lbl:'DRG (IP only)'},modifier:{type:'text',val:'25',lbl:'Modifiers (25,59,GT,95)'},rafImpact:{type:'select',val:'High (chronic)',opts:['Minimal','Moderate','High (chronic)','Very high (severe)'],lbl:'RAF score impact'}}}});
+// ═══════════════════════════════════════════════════════════
+// TIER 8 — Claims Submission & Adjudication
+// ═══════════════════════════════════════════════════════════
+n({id:'claim_build',tier:8,label:'Claim build (837 EDI)',sub:'837P/I — clearinghouse — timely filing',dom:'d-claims',filter:'claims',agents:['Billing Agent','Clearinghouse Agent'],blocked:{},gateType:'none',covers:[98,99,112,113,114,121,138],connects:[{to:'adjudication',lbl:'Accepted → adjudication'}],
+role:'Billing Agent assembles HIPAA 837 EDI. 837P (professional/CMS-1500): physician and ancillary services. 837I (institutional/UB-04): hospital, SNF, home health. Item 138: facility vs professional billing split — two separate 837 transactions with different billing entities. Clearinghouse (Availity, Change Healthcare, Waystar) validates format (item 99) → 999 acceptance/rejection. 277CA for individual claim status (item 121). Clean claim rules (item 98): must be error-free on all required fields. Timely filing limits by payer (item 97): commercial 90-365 days, Medicare 12 months. NPI Type 1 (individual provider) and Type 2 (organization) management (item 113). TIN/taxonomy code management (item 114). Provider credentialing via CAQH ProView (item 112).',
+decisions:[{t:'q',x:'837P vs 837I? → by provider type and setting'},{t:'q',x:'PA auth number present and matching? → mandatory. Missing = CO-197'},{t:'q',x:'Within timely filing window? → past window = CO-29; no appeal rights'},{t:'w',x:'999 rejection (format error) ≠ payer denial. Correct and resubmit; does not consume timely filing.'},{t:'w',x:'Referral number missing for HMO? → CO-4 denial at adjudication despite clean 999 acceptance'}],
+infoNeeds:[{title:'Provider credentialing (CAQH)',from:'CAQH ProView / Provider system',fields:['Rendering NPI (Type 1)','Billing NPI (Type 2)','Taxonomy code','TIN','CAQH attestation date','State license expiry','DEA registration (if controlled substances)']},{title:'Coded claim data',from:'Medical Coder Agent',fields:['ICD-10 dx codes','CPT codes','Modifiers','POS code','Dates of service','Units','DRG (IP)']},{title:'Authorization data',from:'Insurance Agent',fields:['PA auth number','Referral number (HMO)','COB secondary payer data']}],
+planDiff:{PPO:'837P. No referral loop required.',HMO:'Referral number in Loop 2300 REF mandatory.',HDHP:'Same as PPO.',MA:'837I for inpatient. RAPS + EDGE for HCC/RAF separately.',Medicaid:'State MMIS companion guide governs format.',ASO:'TPA clearinghouse. SFTP + custom feeds.'},
+schema:{claim:{claimType:{type:'select',val:'837P (professional)',opts:['837P (professional)','837I (institutional)'],lbl:'Claim type'},billedAmount:{type:'number',val:425,lbl:'Billed amount ($)'},renderingNPI:{type:'text',val:'1234567890',lbl:'Rendering NPI (Type 1)'},billingNPI:{type:'text',val:'0987654321',lbl:'Billing NPI (Type 2)'},taxonomyCode:{type:'text',val:'207Q00000X',lbl:'Taxonomy code'},timelyFilingDays:{type:'number',val:90,lbl:'Timely filing limit (days)'},clearinghouse:{type:'select',val:'Availity',opts:['Availity','Change Healthcare','Waystar','Claim.MD','Other'],lbl:'Clearinghouse used'}}}});
+
+n({id:'adjudication',tier:8,label:'Claims adjudication',sub:'Auto 85% + manual 15% + IBNR',dom:'d-claims',filter:'claims',agents:['Insurance Agent','Clinical Reviewer Agent','FWA Agent'],blocked:{},gateType:'none',covers:[29,30,92,95],connects:[{to:'payment_integrity',lbl:'FWA screening'},{to:'claim_paid',lbl:'Auto-approved'},{to:'manual_review',lbl:'Complex → manual'},{to:'era_processing',lbl:'835 ERA generated'}],
+role:'Payer adjudication engine. Auto (85%): eligibility match, PA validation, NCCI edit check, benefit calculation, COB. Manual (15%): high-dollar, clinical necessity, coding accuracy. ERA/835 processing (item 95): every adjudicated claim generates an 835 Electronic Remittance Advice with CARC/RARC codes — auto-posted to provider billing system. IBNR (Incurred But Not Reported — item 92): payer actuaries set reserves for claims incurred but not yet submitted; affects plan financial statements and premium rate-setting. COB "lesser of" calculation when dual coverage exists.',
+decisions:[{t:'q',x:'Auto path: eligibility valid? PA matches? NCCI clear? → pay at contracted rate'},{t:'q',x:'IBNR reserve: claim received — actuarial IBNR estimate reduced by actual claim'},{t:'w',x:'NCCI bundling → downcode CO-97. Timely filing → CO-29. OON HMO → CO-22.'},{t:'x',x:'Auto-denials: CO-197, CO-27, CO-29, CO-22, CO-4'}],
+infoNeeds:[{title:'Claim data',from:'Clearinghouse / 837',fields:['CPT/ICD-10 codes','PA auth','Provider NPI','DOS','Billed amount']},{title:'IBNR actuarial data',from:'Actuary Agent',fields:['Claim lag factors by service type','IBNR reserve balance','Development pattern by month']},{title:'ERA/835 output',from:'Adjudication system',fields:['CARC codes','RARC codes','Allowed amount','Plan payment','Patient responsibility']}],
+planDiff:{PPO:'FFS adjudication.',HMO:'Capitation PMPM separate from FFS carve-outs.',HDHP:'Deductible applied before plan payment.',MA:'EDGE server encounter data submitted for RAF.',Medicaid:'State MMIS adjudication.',ASO:'TPA adjudicates. Employer funded account debited.'},
+schema:{adjudication:{autoAdjRate:{type:'range',val:85,min:50,max:100,lbl:'Auto-adjudication rate %'},allowedAmount:{type:'number',val:210,lbl:'Allowed amount ($)'},ibnrReserve:{type:'number',val:15000000,lbl:'IBNR reserve balance ($)'},eraGenerated:{type:'select',val:'Yes',opts:['Yes','Pending'],lbl:'835 ERA generated'}}}});
+
+n({id:'era_processing',tier:8,label:'ERA/835 processing',sub:'Electronic Remittance Advice + CARC/RARC',dom:'d-claims',filter:'claims',agents:['Billing Agent','Insurance Agent'],blocked:{},gateType:'none',covers:[95,96,52],connects:[{to:'claim_paid',lbl:'Claim paid'},{to:'claim_denied',lbl:'Denied'}],
+role:'835 Electronic Remittance Advice is the machine-readable payment explanation. Item 95: ERA auto-posts to provider billing system for straight-through reconciliation. Item 96: CARC (Claim Adjustment Reason Code) taxonomy — standardized codes explaining every payment adjustment (CO = contractual obligation, PR = patient responsibility, OA = other adjustment). RARC (Remittance Advice Remark Codes) provide supplemental detail. CARC CO-97 (bundled), CO-50 (medical necessity), CO-22 (OON), CO-29 (timely filing), CO-197 (no auth). Patient-facing EOB (item 52) generated in parallel — same underlying data, translated to plain language for member.',
+decisions:[{t:'i',x:'835 ERA: line-item CARC/RARC per claim line — auto-posted to provider billing system'},{t:'i',x:'EOB: same data translated to plain language for member — paper or portal delivery'},{t:'w',x:'835/EOB discrepancy? → billing team investigates before adjusting accounts receivable'}],
+infoNeeds:[{title:'835 ERA content',from:'Insurance adjudication system',fields:['CARC code per line','RARC remark code','Allowed amount','Plan payment','Patient responsibility','Deductible applied','OOP applied','Provider check number / EFT trace']},{title:'EOB for member',from:'Insurance Agent',fields:['Billed amount','Allowed amount','Plan paid','Patient owes (copay + deductible + coinsurance)','OOP balance updated','EOB delivery method']}],
+planDiff:{PPO:'835 ERA + EOB via portal.',HMO:'Same.',HDHP:'EOB shows full allowed amount as deductible applied.',MA:'14-day electronic payment. CMS-specific CARC/RARC.',Medicaid:'State-specific remittance codes.',ASO:'TPA 835 + employer reporting.'},
+schema:{era:{carcCode:{type:'select',val:'None (paid)',opts:['None (paid)','CO-22 (OON)','CO-29 (timely filing)','CO-50 (med necessity)','CO-97 (bundled)','CO-197 (no PA)','CO-4 (no referral)'],lbl:'Primary CARC code'},eobDelivery:{type:'select',val:'Patient portal',opts:['Patient portal','Paper mail','Both'],lbl:'EOB delivery to member'}}}});
+
+n({id:'payment_integrity',tier:8,label:'Payment integrity / FWA',sub:'AI analytics — RAC/MAC audits',dom:'d-coding',filter:'claims',agents:['FWA Agent','SIU Agent','RAC Audit Agent'],blocked:{},gateType:'none',covers:[26,27,28,93,94,145],connects:[{to:'claim_paid',lbl:'Clean — pay'},{to:'manual_review',lbl:'Flagged'},{to:'recovery',lbl:'Overpayment'}],
+role:'Pre-pay and post-pay AI analytics for FWA (item 93). Distinct from claims underpayment (item 28): underpayment detection — payer paid less than contracted rate; provider must appeal or adjust. RAC/MAC audit responses (item 94): Medicare Recovery Audit Contractors (RACs) and Medicare Administrative Contractors (MACs) conduct automated and complex reviews; providers must have appeal processes and response teams. Items 26 (payment integrity), 27 (overpayments), 28 (underpayments) all addressed here.',
+decisions:[{t:'q',x:'Upcoding or unbundling detected? → downcode or deny'},{t:'q',x:'Underpayment: allowed amount below contracted rate? → provider billing appeals'},{t:'q',x:'RAC/MAC audit received? → medical record response required within 45 days'},{t:'w',x:'Post-pay overpayment → demand letter; offset future claims; 60-day voluntary refund (Medicare)'}],
+infoNeeds:[{title:'FWA analytics',from:'FWA Agent AI',fields:['Upcoding probability score','Peer comparison percentile','Duplicate claim flag','Underpayment detection']},{title:'RAC audit data',from:'RAC Audit Agent',fields:['Audit type (automated/complex)','Additional documentation request (ADR)','Response deadline (45 days)','Appeal rights (5-level Medicare)']}],
+planDiff:{PPO:'Pre-pay AI + post-pay RAC audits.',HMO:'Same.',HDHP:'Same.',MA:'CMS RADV audits HCC/RAF accuracy.',Medicaid:'State PIU + CMS MFCU.',ASO:'TPA integrity. Stop-loss insurer reviews.'},
+schema:{fwa:{upcoding:{type:'select',val:'Not flagged',opts:['Flagged — downcoded','Not flagged'],lbl:'Upcoding detection'},underpayment:{type:'select',val:'No',opts:['Yes — provider appeal pending','No'],lbl:'Underpayment detected'},racAudit:{type:'select',val:'No audit',opts:['ADR received — 45d response','Complex audit','No audit'],lbl:'RAC/MAC audit status'},overpayment:{type:'number',val:0,lbl:'Overpayment identified ($)'}}}});
+
+n({id:'manual_review',tier:8,label:'Manual adjudication',sub:'Clinical + coding review queue',dom:'d-claims',filter:'claims',agents:['Clinical Reviewer Agent','Insurance Agent'],blocked:{},gateType:'none',covers:[30,94],connects:[{to:'claim_paid',lbl:'Approved'},{to:'code_adj',lbl:'Code adjusted'},{to:'claim_denied',lbl:'Denied'}],
+role:'Complex claims requiring human clinical review. Types: clinical necessity (does documentation support billed service?), coding accuracy, high-dollar (>$10K), SIU (suspected fraud), RAC complex review (item 94). 835 ERA returned with CARC/RARC.',
+decisions:[{t:'q',x:'Documentation supports billed CPT level? → approve as billed'},{t:'q',x:'E&M overstated? → downcode with CARC'},{t:'w',x:'Provider has 30 days to respond to ADR before automatic denial'}],
+infoNeeds:[{title:'Full clinical record',from:'Provider Agent',fields:['Encounter notes','Operative report','Discharge summary']},{title:'RAC additional info',from:'Provider Agent',fields:['ADR response within 45 days','Medical records per request','Attestation statement']}],
+planDiff:{PPO:'835 ERA + CARC/RARC.',HMO:'Same.',HDHP:'Same.',MA:'Medicare-specific codes. CMS AIR process.',Medicaid:'State-specific remittance.',ASO:'TPA manual review.'},
+schema:{review:{reviewType:{type:'select',val:'Clinical necessity',opts:['Clinical necessity','Coding accuracy','High-dollar','SIU referral','RAC complex audit'],lbl:'Review type'},outcome:{type:'select',val:'Approved',opts:['Approved as billed','Code adjustment','Partial denial','Full denial'],lbl:'Outcome'},carcCode:{type:'text',val:'CO-50',lbl:'CARC code (if denied)'}}}});
+// ═══════════════════════════════════════════════════════════
+// TIER 9 — Payment Outcomes & Disposition
+// ═══════════════════════════════════════════════════════════
+n({id:'claim_paid',tier:9,label:'Claim paid',sub:'EFT + 835 ERA + EOB + prompt pay',dom:'d-ok',filter:'claims',agents:['Insurance Agent'],blocked:{},gateType:'none',covers:[29,52,83,95],connects:[],
+role:'Final successful disposition. EFT to provider bank account. 835 ERA with CARC/RARC auto-posted to billing system. EOB (item 52) delivered to patient via portal or paper. Prompt pay discounts (item 83): commercial payers in many states pay discounted rate (1-2%) if provider submits clean claim and payer pays early. Prompt pay laws: state-mandated timely payment (30 days commercial, 14 days Medicare electronic) with interest penalty for late payment.',
+decisions:[{t:'i',x:'EFT to provider. 835 ERA auto-posts to billing system if ERA enrolled.'},{t:'i',x:'EOB: billed, allowed, plan paid, patient responsibility, deductible and OOP balance updated.'},{t:'w',x:'Prompt pay discount: payer may deduct 1-2% if paid early per contract.'},{t:'w',x:'Late payment interest: state laws impose 1-18% APR if payment delayed beyond statutory window.'}],
+infoNeeds:[{title:'Adjudication output',from:'Insurance system',fields:['Allowed amount','Plan payment','Patient responsibility','Deductible applied','OOP applied','EFT routing','Prompt pay discount applied']}],
+planDiff:{PPO:'30-day commercial standard.',HMO:'Same. Referral auth verified before payment.',HDHP:'Full itemized EOB. Deductible balance shown prominently.',MA:'14-day electronic payment (CMS rule).',Medicaid:'State payment cycle. Provider accepts Medicaid fee as payment in full.',ASO:'Employer account debited. TPA weekly aggregate to CFO.'},
+schema:{payment:{eftAmount:{type:'number',val:210,lbl:'EFT to provider ($)'},patientBalance:{type:'number',val:50,lbl:'Patient balance billed ($)'},promptPayDiscount:{type:'number',val:0,lbl:'Prompt pay discount deducted ($)'},paymentDate:{type:'date',val:'2024-07-30',lbl:'EFT date'}}}});
+
+n({id:'rx_paid',tier:9,label:'Rx claim paid',sub:'NCPDP D.0 — PBM remittance — DIR',dom:'d-ok',filter:'pharmacy',agents:['PBM Agent'],blocked:{},gateType:'none',covers:[25,20],connects:[],
+role:'PBM adjudicated and paid in real-time at point-of-sale. PBM pays pharmacy at MAC (generics) or specialty contract rate. DIR fees (item 20): CMS allows PBMs to retroactively clawback pharmacy payment post-dispensing under Medicare Part D based on performance metrics (PDC, star ratings) — significant pharmacy financial uncertainty. 2024 IRA regulation: DIR fees now must be applied at point-of-sale (prospective DIR), eliminating retroactive clawbacks starting 2024.',
+decisions:[{t:'i',x:'PBM pays pharmacy at MAC or specialty rate. Deductible and OOP accumulators updated.'},{t:'i',x:'2024 IRA: DIR fees now applied prospectively at POS, not retroactively — pharmacy gets more predictable net payment.'},{t:'w',x:'DIR clawback (pre-2024 Part D): pharmacy net payment may be 20-30% less than posted contract rate.'}],
+infoNeeds:[{title:'PBM remittance',from:'PBM Agent',fields:['PBM payment to pharmacy ($)','Patient copay ($)','DIR fee (if applicable)','2024 prospective DIR applied?','Accumulator updated','NDC adjudicated']}],
+planDiff:{PPO:'Standard remittance.',HMO:'Network pharmacy only.',HDHP:'Deductible accumulator updated.',MA:'2024 IRA: prospective DIR. Pharmacy nets more predictably.',Medicaid:'State fee schedule. Manufacturer rebates post-dispensing.',ASO:'PBM rebates may flow to employer.'},
+schema:{remittance:{paidAmount:{type:'number',val:8,lbl:'PBM payment ($)'},patientPaid:{type:'number',val:10,lbl:'Patient cost-share ($)'},dirType:{type:'select',val:'None',opts:['Prospective DIR (2024 IRA)','Retroactive DIR (pre-2024)','None'],lbl:'DIR fee type'},accumUpdate:{type:'select',val:'Deductible + OOP',opts:['Deductible only','OOP only','Deductible + OOP','None'],lbl:'Accumulator updated'}}}});
+
+n({id:'rx_denied',tier:9,label:'Rx rejected',sub:'NCPDP reject — point-of-sale',dom:'d-deny',filter:'pharmacy',agents:['PBM Agent'],blocked:{},gateType:'none',covers:[25],connects:[],
+role:'NCPDP real-time reject at pharmacy counter. Patient and pharmacist see reject immediately. Pharmacist may override select edits. Patient options: cash price (GoodRx, Mark Cuban Cost Plus Drugs), manufacturer coupon, therapeutic alternative, PA initiation. PDMP (Prescription Drug Monitoring Program) check mandatory for controlled substances.',
+decisions:[{t:'q',x:'Override available? → pharmacist judgment edits, vacation supply, emergency dispensing'},{t:'q',x:'Cash price lower than deductible-phase insurance? → show GoodRx comparison'},{t:'w',x:'Controlled substance: PDMP check required; state-specific emergency dispensing rules'}],
+infoNeeds:[{title:'NCPDP reject',from:'PBM Agent',fields:['NCPDP reject code','Reject reason','Override codes','Therapeutic alternatives','PA initiation pathway']}],
+planDiff:{PPO:'Formulary exception pathway.',HMO:'Step therapy required.',HDHP:'Cash price may be lower than deductible-phase.',MA:'24h urgent Rx PA. Transition fill for new enrollees.',Medicaid:'State exception pathway.',ASO:'PBM hotline override.'},
+schema:{rejection:{ncpdpCode:{type:'text',val:'75',lbl:'NCPDP reject code'},reason:{type:'select',val:'Prior auth required',opts:['Prior auth required','Refill too soon (79)','Quantity exceeded','Coverage terminated','Non-formulary'],lbl:'Reject reason'},patientOption:{type:'select',val:'PA initiated',opts:['Pay cash (GoodRx)','Formulary exception','Therapeutic alternative','PA initiated'],lbl:'Patient option'}}}});
+
+n({id:'code_adj',tier:9,label:'Code adjustment',sub:'Corrected claim — NCCI edit',dom:'d-claims',filter:'claims',agents:['Insurance Agent','Medical Coder Agent'],blocked:{},gateType:'none',covers:[31,96],connects:[{to:'claim_paid',lbl:'Pay adjusted amount'},{to:'appeal',lbl:'Provider disputes'}],
+role:'Claim repriced after code correction. E&M downcoded, procedure bundled per NCCI, modifier stripped. Adjusted 835 ERA with CARC/RARC (item 96). Provider may dispute through formal appeal.',
+decisions:[{t:'q',x:'E&M level adjustment → pay at adjusted rate'},{t:'q',x:'NCCI bundling → deny separately billed component (CO-97)'},{t:'w',x:'Provider disputes → formal appeal with MDM worksheet within 180 days'}],
+infoNeeds:[{title:'Code adjustment detail',from:'Insurance / Clinical Reviewer',fields:['Original CPT','Adjusted CPT','NCCI edit triggered','Adjusted allowed amount']}],
+planDiff:{PPO:'180-day appeal window.',HMO:'Same.',HDHP:'Patient EOB updated.',MA:'Medicare-specific RARC codes.',Medicaid:'State MMIS edit logic.',ASO:'TPA code edits.'},
+schema:{adjustment:{originalCPT:{type:'text',val:'99215',lbl:'Original CPT billed'},adjustedCPT:{type:'text',val:'99214',lbl:'Adjusted CPT'},adjustedAmount:{type:'number',val:175,lbl:'Adjusted allowed amount ($)'}}}});
+
+n({id:'claim_denied',tier:9,label:'Claim denied',sub:'277 denial — CARC/RARC taxonomy',dom:'d-deny',filter:'claims',agents:['Insurance Agent','Appeal Agent'],blocked:{},gateType:'none',covers:[32,96,97],connects:[{to:'appeal',lbl:'File formal appeal'}],
+role:'Claim denied. 835 ERA with CARC and RARC taxonomy (item 96). Timely filing limits (item 97): commercial 90-365 days, Medicare 12 months — CO-29 is the most avoidable denial reason (provider administrative failure). Provider classifies as correctable (resubmit with fix) vs appealable (medical necessity, auth disputes). Common CARC codes: CO-4 (no referral), CO-11 (dx error), CO-16 (missing info), CO-18 (duplicate), CO-22 (OON), CO-29 (timely filing), CO-50 (medical necessity), CO-97 (bundled), CO-197 (no PA).',
+decisions:[{t:'q',x:'Correctable denial? (CO-16, CO-11) → correct and resubmit; does not consume timely filing window'},{t:'q',x:'Appealable? (CO-50, CO-197) → file internal appeal within deadline'},{t:'w',x:'Appeal deadline: 180 days commercial, 120 days Medicare redetermination'},{t:'x',x:'CO-29 timely filing exceeded → no appeal rights; revenue permanently lost'}],
+infoNeeds:[{title:'835 ERA denial detail',from:'Insurance Agent',fields:['CARC code','RARC remark code','Denial reason','Appeal rights + deadline','Correctable vs non-correctable']}],
+planDiff:{PPO:'Internal appeal → IRO (binding). ACA 3-level.',HMO:'Same. CO-4 most common unique HMO denial.',HDHP:'Same as PPO.',MA:'5-level CMS appeal.',Medicaid:'State fair hearing.',ASO:'ERISA appeal. IRO not binding.'},
+schema:{denial:{carcCode:{type:'select',val:'CO-50',opts:['CO-4 (no referral)','CO-11 (dx error)','CO-16 (missing info)','CO-22 (OON)','CO-29 (timely filing)','CO-50 (med necessity)','CO-97 (bundled)','CO-197 (no PA)'],lbl:'CARC denial code'},rarcCode:{type:'text',val:'N390',lbl:'RARC remark code'},appealDeadline:{type:'number',val:180,lbl:'Appeal deadline (days)'}}}});
+
+n({id:'recovery',tier:9,label:'Overpayment recovery',sub:'Demand letter / offset / subrogation / RAC',dom:'d-claims',filter:'claims',agents:['Payment Integrity Agent','SIU Agent'],blocked:{},gateType:'none',covers:[27,47,94],connects:[{to:'appeal',lbl:'Provider disputes'}],
+role:'Overpayment recovery (item 27). Subrogation (item 47): when a third party (auto insurer, workers\' comp, liability insurer) is responsible for the patient\'s medical bills, the health plan has the right of subrogation — it can recover amounts it paid from the third-party settlement or insurer. Subrogation agent pursues recovery after claims paid. Medicare 60-day voluntary refund rule (FCA). RAC audit recovery (item 94).',
+decisions:[{t:'q',x:'Third-party liability (auto/WC/liability)? → subrogation; file lien on settlement; third-party insurer is primary'},{t:'q',x:'Voluntary refund within 60 days (Medicare)? → avoids interest and FCA liability'},{t:'q',x:'Offset against future claims? → most common method'},{t:'w',x:'Subrogation: health plan must be reimbursed before patient keeps any liability settlement proceeds (make-whole rule varies by state)'}],
+infoNeeds:[{title:'Overpayment detail',from:'Payment Integrity Agent',fields:['Claims overpaid','Amount','Root cause','Recovery method']},{title:'Subrogation data',from:'Subrogation Agent',fields:['Third-party liability case','Liability insurer','Settlement amount','Health plan lien amount','Make-whole doctrine applicability']}],
+planDiff:{PPO:'Standard demand + offset. Subrogation.',HMO:'Same.',HDHP:'Same.',MA:'CMS 60-day rule. RADV for RAF.',Medicaid:'State PIU. MFCU for fraud. Medicaid third-party liability (TPL) — Medicaid always pays last.',ASO:'TPA subrogation vendor. ERISA gives strong subrogation rights (no make-whole defense under ERISA — McCutchen ruling).'},
+schema:{recovery:{method:{type:'select',val:'Future claim offset',opts:['Future claim offset','Refund request','Subrogation (third-party)','RAC audit recovery'],lbl:'Recovery method'},subrogationCase:{type:'select',val:'No',opts:['Yes — auto liability','Yes — workers comp','Yes — general liability','No'],lbl:'Subrogation case'},amount:{type:'number',val:0,lbl:'Recovery amount ($)'}}}});
+
+n({id:'bh_claims',tier:9,label:'BH claims adjudication',sub:'Carve-out payer — MHPAEA audit',dom:'d-bh',filter:'behavioral',agents:['BH Carve-out Agent','MHPAEA Compliance Agent'],blocked:{},gateType:'none',covers:[38,107],connects:[{to:'claim_paid',lbl:'BH claim paid'},{to:'claim_denied',lbl:'BH claim denied'}],
+role:'Behavioral health claims route to carve-out payer (if carved out) or integrated medical payer. MHPAEA parity audit: regulator or plan auditor compares PA denial rates, session limits, cost-sharing, and NQTL (Non-Quantitative Treatment Limitation) criteria between medical/surgical and MH/SUD benefits. If MH/SUD PA denial rate is materially higher than medical/surgical, parity violation may be found. DOL, CMS, and state insurance departments enforce MHPAEA. Penalty: plan must provide comparable access or face corrective action and fines.',
+decisions:[{t:'q',x:'Claim routes to carve-out payer or integrated medical payer?'},{t:'q',x:'MHPAEA parity check: is PA denial rate for MH services comparable to medical services?'},{t:'w',x:'MHPAEA violation: DOL/CMS enforcement; plan must correct NQTLs and reimburse retroactively'},{t:'i',x:'42 CFR Part 2: SUD claims require patient consent for any disclosure — stricter than HIPAA'}],
+infoNeeds:[{title:'Carve-out routing',from:'Benefits system',fields:['BH carve-out payer ID','Member ID for carve-out','BH benefit category (MH/SUD)']},{title:'MHPAEA parity metrics',from:'MHPAEA Compliance Agent',fields:['MH PA denial rate vs medical PA denial rate','MH session limits vs medical day limits','NQTLs documented and justified','Parity analysis report']}],
+planDiff:{PPO:'MHPAEA applies. Integrated or carved-out.',HMO:'MHPAEA applies. BH must be in-network.',HDHP:'Same.',MA:'MHPAEA applies.',Medicaid:'MHPAEA applies. 42 CFR Part 2 for SUD.',ASO:'ERISA + MHPAEA. DOL enforces.'},
+schema:{bhClaims:{claimRouting:{type:'select',val:'Integrated payer',opts:['Integrated payer','Carve-out — Beacon','Carve-out — Optum BH','Carve-out — Carelon BH'],lbl:'BH claim routing'},mhpaeaCompliance:{type:'select',val:'Compliant',opts:['Compliant','Under review','Violation flagged — corrective action'],lbl:'MHPAEA parity status'},cfg42Consent:{type:'select',val:'On file',opts:['On file','Not obtained — claim held','N/A (not SUD)'],lbl:'42 CFR Part 2 consent (SUD claims)'}}}});
+// ═══════════════════════════════════════════════════════════
+// TIER 10 — Population Health, Quality & Compliance
+// ═══════════════════════════════════════════════════════════
+n({id:'quality_hub',tier:10,label:'Quality programs hub',sub:'HEDIS / Stars / CAHPS / PCMH / P4P',dom:'d-quality',filter:'quality',agents:['Quality Agent','Stars Analyst Agent','NCQA Agent'],blocked:{},gateType:'none',covers:[63,103,104,105,118,128,129,130,133,140],connects:[{to:'pop_health',lbl:'Population health data'},{to:'vbc',lbl:'VBC quality bonus'}],
+role:'Comprehensive quality program management. Item 103: CMS Star Ratings (1-5 stars) for MA and Part D plans — driven by HEDIS measures, CAHPS scores, HOS (Health Outcomes Survey), and operational metrics. Item 104: NCQA HEDIS quality measures — standardized metrics including diabetes control (HbA1c), preventive screenings (mammogram, colorectal, cervical), medication adherence, postpartum care, follow-up after ED. Item 105: URAC accreditation — validates health plan, utilization management, pharmacy benefit management, and disease management programs meet industry standards. Item 128: PCMH (Patient-Centered Medical Home) designation by NCQA — recognizes practices that deliver comprehensive primary care; qualifies for enhanced reimbursement under many payer contracts. Item 129: Quality Bonus Payments (QBP) for MA plans with 4+ Stars — CMS pays 5% quality bonus on benchmark that compounds into member benefit or plan surplus. Item 130: Pay-for-Performance (P4P) metrics — specific quality thresholds that trigger bonus or penalty payments under VBC contracts. Item 133: Care gap identification and outreach — automated identification of HEDIS gaps (missing screenings, A1c not done, med adherence flags) with multi-channel outreach (phone, portal, mail). Item 140: Quality reporting for HEDIS, Stars, CAHPS, and VBC incentives.',
+decisions:[{t:'q',x:'Stars rating ≥4.0? → QBP triggered (5% CMS bonus on benchmark); member rebate or enhanced benefits'},{t:'q',x:'HEDIS measure gap identified? → automated outreach; provider alert; care gap closure incentive'},{t:'q',x:'URAC accreditation renewal due? → conduct readiness assessment; submit measures to URAC'},{t:'q',x:'PCMH designation active? → enhanced reimbursement applicable; care coordination metrics tracked'},{t:'i',x:'CAHPS survey: administered annually or 90 days post-discharge; patient experience score → Stars impact'},{t:'w',x:'Stars below 3.0 for 3+ years → MA plan may lose ability to enroll new members (CMS Low-Performing Plan Notice)'}],
+infoNeeds:[{title:'HEDIS measure data',from:'NCQA Data Submission System',fields:['Administrative data (claims-based measures)','Hybrid data (chart abstraction + claims)','Survey-based (CAHPS, HOS)','Measure rates by denominator/numerator']},{title:'Stars rating inputs',from:'CMS Stars System',fields:['Part C quality measures (20+)','Part D quality measures (6+)','CAHPS patient experience score','Improvement measures','Display measures']},{title:'PCMH designation',from:'NCQA PCMH recognition system',fields:['Team-based care competencies','Patient access standards','Care coordination metrics','Quality improvement activities','Health IT requirements']}],
+planDiff:{PPO:'HEDIS reported for commercial plans to employer/regulator. No Stars.',HMO:'HEDIS submitted to NCQA. Commercial Stars/NCQA accreditation.',HDHP:'Same as PPO.',MA:'CMS Stars rating directly affects QBP (5% bonus if 4+ Stars) and benchmark. Critical financial driver.',Medicaid:'HEDIS for managed Medicaid submitted to state. Quality incentive payments tied to HEDIS rates.',ASO:'Employer may require HEDIS-like quality reporting from TPA. Used for benefit renewal and wellness program design.'},
+schema:{quality:{starsRating:{type:'range',val:4,min:1,max:5,lbl:'CMS Stars rating (MA)'},hedisGapsClosed:{type:'number',val:3,lbl:'HEDIS gaps closed this quarter'},cahpsScore:{type:'range',val:4,min:1,max:5,lbl:'CAHPS patient experience score'},uracAccreditation:{type:'select',val:'Active',opts:['Active','Pending renewal','Lapsed'],lbl:'URAC accreditation status'},pcmhDesignation:{type:'select',val:'No',opts:['Level 1','Level 2','Level 3','No'],lbl:'PCMH designation level'},qbpBonus:{type:'select',val:'Yes (4+ Stars)',opts:['Yes (5 Stars — 5%)','Yes (4-4.5 Stars — 5%)','No (<4 Stars)'],lbl:'CMS Quality Bonus Payment'}}}});
+
+n({id:'pop_health',tier:10,label:'Population health',sub:'Risk stratification / care management / gaps',dom:'d-pop',filter:'population',agents:['Population Health Agent','Care Manager Agent','Disease Management Agent'],blocked:{},gateType:'none',covers:[49,118,119,125,133,134,135],connects:[{to:'chronic_care',lbl:'Disease management'},{to:'quality_hub',lbl:'Quality reporting'},{to:'followup',lbl:'Care gap outreach'}],
+role:'Population health management programs (item 49): disease management, case management, and utilization management. Item 134: risk stratification — members segmented into low/medium/high/very-high risk tiers using predictive models (age, diagnoses, prior utilization, pharmacy, SDOH). Item 135: predictive analytics for readmission risk — ML models using LACE score, social risk factors, medication adherence data. Item 118: care gap identification and outreach campaigns — automated identification via HEDIS claims data + chart review of members with missing screenings, out-of-range labs, or lapsed chronic disease visits. Item 119: patient portal and Personal Health Record (PHR) access — members access EOBs, care gap alerts, health records via portal. Item 125: social care network referral platforms — Unite Us, findhelp.org, NowPow — close the loop from SDOH screening to community resource connection. Item 49 care management: Chronic Care Management (CCM, CPT 99490), Transitional Care Management (TCM, CPT 99495/99496), Behavioral Health Integration (BHI, CPT 99484).',
+decisions:[{t:'q',x:'Member risk tier high or very-high? → intensive case management assigned; monthly outreach'},{t:'q',x:'Readmission risk score >30%? → post-discharge call within 48h; TCM enrollment'},{t:'q',x:'HEDIS care gap detected? → automated outreach (portal, SMS, phone, mail) until gap closed or exclusion documented'},{t:'q',x:'SDOH social need identified? → route to Unite Us / findhelp.org / NowPow for community resource connection'},{t:'i',x:'Patient portal access: member views EOBs, care gaps, care plan, lab results; two-way secure messaging'},{t:'i',x:'CCM billing (99490): $62/month for 20+ min/month of chronic care management for members with 2+ chronic conditions'}],
+infoNeeds:[{title:'Risk stratification data',from:'Population Health Agent / Analytics',fields:['Predictive risk score (ML model)','Risk tier (low/medium/high/very-high)','Readmission probability (30-day)','SDOH risk score','Prior year total cost of care']},{title:'HEDIS gap data',from:'NCQA / Claims analytics',fields:['Measure name','Denominator eligible','Numerator met?','Gap open date','Outreach attempts (date + channel)']},{title:'Social care network',from:'Unite Us / findhelp.org',fields:['SDOH need category','Referral sent date','Community resource name','Referral outcome (accepted/closed/pending)']}],
+planDiff:{PPO:'Disease management voluntary enrollment.',HMO:'Disease management often required for high-risk members. Capitation incentivizes proactive outreach.',HDHP:'High deductible may create financial barrier to chronic care — VBID reduces cost-share.',MA:'Pop health critical for RAF/HCC and Stars. CCM billed monthly. High-risk member outreach mandatory for Stars.',Medicaid:'Care management required for managed Medicaid. State quality incentive payments. Social care referrals (Unite Us) increasingly required.',ASO:'Employer wellness programs overlay. High-cost claimant identification. Stop-loss triggers intensive management above threshold.'},
+schema:{popHealth:{riskTier:{type:'select',val:'Medium',opts:['Low','Medium','High','Very High'],lbl:'Risk stratification tier'},readmissionRisk:{type:'range',val:18,min:0,max:100,lbl:'30-day readmission probability %'},openHedisGaps:{type:'number',val:2,lbl:'Open HEDIS care gaps'},sdohNeedsIdentified:{type:'number',val:1,lbl:'SDOH social needs identified'},uniteUsReferral:{type:'select',val:'No',opts:['Yes — referral sent','Yes — accepted','No'],lbl:'Social care network referral (Unite Us/findhelp)'},ccmEnrolled:{type:'select',val:'No',opts:['Yes — 99490 active','Yes — 99491 active','No'],lbl:'CCM enrollment status'}}}});
+
+n({id:'regulatory_hub',tier:10,label:'Regulatory compliance',sub:'HIPAA / HITECH / ACA / state mandates / URAC',dom:'d-reg',filter:'regulatory',agents:['Compliance Agent','Privacy Officer Agent','Legal Agent'],blocked:{},gateType:'none',covers:[101,102,105,106,107,108,141],connects:[],
+role:'Comprehensive regulatory compliance hub. Item 101: HIPAA Privacy & Security Rule — Protected Health Information (PHI) safeguards, minimum necessary standard, patient rights (access, amendment, accounting of disclosures). Covered entities (health plans, providers, clearinghouses) and business associates must comply. Item 102: HITECH Act — strengthened HIPAA; breach notification requirements: breaches affecting 500+ individuals reported to HHS within 60 days and published on HHS "Wall of Shame"; breaches <500 reported annually. Item 105: URAC accreditation — voluntary but increasingly required for network access; covers health plan, UM, pharmacy, disease management standards. Item 106: State mandated benefits — autism ABA therapy, infertility treatment, chiropractic — required for fully insured plans in certain states; ERISA self-funded plans generally exempt. Item 107: MHPAEA compliance (see behavioral health node). Item 108: ACA Essential Health Benefits (EHB) — 10 categories required for individual and small-group plans: ambulatory, emergency, hospitalization, maternity, mental health/SUD, prescription drugs, rehabilitative, laboratory, preventive, pediatric. Item 141: PA reform compliance — CMS interoperability rule (2024) requires FHIR-based PA API by January 2026.',
+decisions:[{t:'q',x:'PHI breach detected? → breach risk assessment (4 factors); if reportable, notify HHS within 60 days; notify individuals within 60 days'},{t:'q',x:'Business Associate Agreement (BAA) in place for all vendors who handle PHI?'},{t:'q',x:'State mandated benefit triggered for this service? → check if plan is fully insured (state law applies) or self-funded (ERISA exemption)'},{t:'q',x:'ACA EHB compliance: are all 10 categories covered? → for individual/small-group plans'},{t:'q',x:'PA reform (2024 CMS rule): FHIR-based PA API operational by Jan 2026?'},{t:'w',x:'HIPAA Security Rule: 18 HIPAA administrative, physical, and technical safeguards; annual security risk assessment required'}],
+infoNeeds:[{title:'HIPAA compliance data',from:'Privacy Officer Agent',fields:['Annual privacy training completed','BAAs in place with all BAs','Security risk assessment date','PHI access audit logs','Breach log (60-day reporting)']},{title:'State mandate tracker',from:'Legal / Compliance Agent',fields:['State of coverage','Plan funding model (insured vs ERISA)','Applicable state mandates','Mandate compliance status']},{title:'ACA EHB compliance',from:'Compliance Agent',fields:['All 10 EHB categories covered?','Benchmark plan used','Annual limits prohibition compliant','Preventive services (USPSTF A/B) free?']}],
+planDiff:{PPO:'Fully insured → state law + ACA EHB. HIPAA.',HMO:'Same as PPO for compliance framework.',HDHP:'ACA EHB required for individual/small-group HDHP.',MA:'CMS regulatory oversight (not state insurance). HIPAA applies.',Medicaid:'CMS + state Medicaid agency oversight. HIPAA applies.',ASO:'ERISA pre-empts most state insurance mandates. HIPAA applies. MHPAEA applies (DOL enforces).'},
+schema:{regulatory:{hipaaBreachRisk:{type:'select',val:'No breach',opts:['No breach','Breach — assessed non-reportable','Breach — HHS notification sent'],lbl:'HIPAA breach status'},baaComplete:{type:'select',val:'Yes',opts:['Yes','No — gaps identified'],lbl:'BAA coverage complete'},stateMandateCheck:{type:'select',val:'Compliant',opts:['Compliant','ERISA exempt','State mandate applies — covered'],lbl:'State mandated benefit check'},acaEhbCompliant:{type:'select',val:'Yes',opts:['Yes','Under review','Deficiency identified'],lbl:'ACA EHB compliance (individual/small-group)'},pahirfaapiDate:{type:'select',val:'In progress',opts:['Operational','In progress','Not started'],lbl:'FHIR PA API (CMS 2024 rule — due Jan 2026)'}}}});
+// ═══════════════════════════════════════════════════════════
+// TIER 11 — Interoperability, Data Exchange & Provider Infrastructure
+// ═══════════════════════════════════════════════════════════
+n({id:'interop_hub',tier:11,label:'Interoperability & data exchange',sub:'FHIR R4 / CMS APIs / payer-to-payer',dom:'d-interop',filter:'interop',agents:['Interop Agent','FHIR Server Agent','CMS API Agent'],blocked:{},gateType:'none',covers:[99,100,116,117,120,121,122,123,124],connects:[{to:'eligib',lbl:'Real-time eligibility (270/271)'},{to:'pa_hub',lbl:'ePA (278/FHIR)'},{to:'pop_health',lbl:'Care gap data exchange'}],
+role:'All EDI and API-based data exchange. Item 99: clearinghouse processing of X12 transactions — 837P/I (claims), 835 (remittance), 270/271 (eligibility), 278 (prior auth). Item 100: electronic prior authorization (ePA) — NCPDP Script (pharmacy) and FHIR-based (CMS interoperability rule). Item 116: FHIR R4 / HL7 data exchange — the standard for modern healthcare APIs; replaces legacy HL7 v2 for payer/provider data sharing. Item 117: ADT notifications — real-time admission, discharge, transfer notifications required by CMS Conditions of Participation for care coordination. Item 120: real-time eligibility verification via 270/271. Item 121: real-time claim status via 276/277. Item 122: PA via X12 278 transaction. Item 123: CMS interoperability rules — Patient Access API (FHIR R4, required 2021) gives patients access to their claims data; Provider Directory API; Drug Formulary API; Prior Authorization API (2026). Item 124: payer-to-payer data exchange — when member switches plans, new plan must request and old plan must provide claims history via FHIR.',
+decisions:[{t:'q',x:'Real-time eligibility needed? → 270/271 X12 (existing) or FHIR coverage read (modern)'},{t:'q',x:'Prior auth submission? → X12 278 (existing) or FHIR PAS (Prior Auth Support) IG (2026)'},{t:'q',x:'Member switching plans? → payer-to-payer FHIR data exchange triggered; prior plan must respond within 1 business day'},{t:'q',x:'Patient requesting data via Patient Access API? → FHIR R4 USCDI claims data available within 24h'},{t:'i',x:'ADT notifications: payer-facing ADT feed triggers concurrent review workflow within 24h of admission'},{t:'w',x:'FHIR PA API compliance deadline: January 2026 — CMS enforcement for MA, Medicaid, CHIP, QHP plans'}],
+infoNeeds:[{title:'X12 transaction data',from:'Clearinghouse Agent',fields:['270/271 (eligibility)','276/277 (claim status)','278 (prior auth)','835 (remittance)','837P/I (claims)']},{title:'FHIR API endpoints',from:'FHIR Server Agent',fields:['Patient Access API (FHIR R4)','Provider Directory API','Drug Formulary API','Prior Authorization API (2026)','Payer-to-Payer API']},{title:'CMS interoperability',from:'CMS API Agent',fields:['Patient Access API compliance date','Provider Directory API up-to-date?','ADT notification feed active?','Payer-to-payer exchange live?']}],
+planDiff:{PPO:'All X12 + FHIR APIs required for ACA-regulated commercial plans.',HMO:'Same.',HDHP:'Same.',MA:'CMS interoperability rules in full force. FHIR PA API by Jan 2026.',Medicaid:'CMS interoperability rules apply. FHIR PA API by Jan 2026.',ASO:'ERISA plans not subject to CMS interop rules. Some voluntarily adopt FHIR.'},
+schema:{interop:{x12Eligibility:{type:'select',val:'Active (270/271)',opts:['Active (270/271)','Active (FHIR coverage)','Both'],lbl:'Eligibility check method'},epaMethod:{type:'select',val:'X12 278',opts:['X12 278','NCPDP Script ePA','FHIR PAS (in progress)','Manual'],lbl:'ePA method'},fhirPatientAccess:{type:'select',val:'Compliant',opts:['Compliant','In progress','Non-compliant'],lbl:'Patient Access API (FHIR R4)'},payerToPayer:{type:'select',val:'Active',opts:['Active','Not implemented','In progress'],lbl:'Payer-to-payer FHIR exchange'},adtNotificationFeed:{type:'select',val:'Active',opts:['Active','Partial','Not active'],lbl:'ADT notification feed active'}}}});
+
+n({id:'provider_infra',tier:11,label:'Provider infrastructure',sub:'Credentialing / NPI / contracts / pricing',dom:'d-interop',filter:'interop',agents:['Credentialing Agent','Contracting Agent','Network Management Agent'],blocked:{},gateType:'none',covers:[35,36,37,112,113,114,136,139],connects:[{to:'triage_routing',lbl:'Network directory query'},{to:'vbc',lbl:'VBC contract terms'}],
+role:'Provider infrastructure management. Item 36: provider credentialing — CAQH ProView is the standard centralized repository; providers complete primary source verification (PSV) of license, DEA, malpractice, board certification; payers pull credentialing data directly from CAQH. Item 112: CAQH ProView credentialing. Item 113: NPI (National Provider Identifier) — Type 1 (individual practitioner) and Type 2 (organization); required on all HIPAA transactions. Item 114: TIN/taxonomy code management — Tax Identification Number links to billing entity; taxonomy code describes provider specialty. Item 136: provider onboarding and roster management — new provider contracting, network participation, directory listing. Item 37: provider contracts — fee schedules (CPT-specific rates), capitation contracts, VBC contracts. Item 35: provider pricing models — Fee-for-Service (FFS), capitation (PMPM per assigned member), value-based care (shared savings, risk, episode payments). Item 139: global payment / episode-of-care bundles (BPCI — Bundled Payments for Care Improvement): CMS BPCI Advanced program bundles 90-day post-acute care for 32 clinical episodes. Episode initiator (acute care hospital) accountable for total episode spend.',
+decisions:[{t:'q',x:'Provider credentialing complete? (CAQH ProView PSV) → network participation approved; directory listing live'},{t:'q',x:'NPI Type 1 and Type 2 both enrolled with CMS? → required for Medicare/Medicaid billing'},{t:'q',x:'Contract type: FFS vs capitation vs VBC vs BPCI episode? → drives billing and reconciliation logic'},{t:'q',x:'BPCI episode triggered (hip/knee replacement, COPD, CHF, etc.)? → 90-day episode cost tracking begins'},{t:'w',x:'Credentialing expiration (license, malpractice, DEA)? → provider must be re-credentialed or suspended from network'}],
+infoNeeds:[{title:'CAQH ProView data',from:'Credentialing Agent / CAQH',fields:['License (state + type)','DEA registration','Board certification','Malpractice insurance (dates, limits)','Education + training','Sanction history (OIG exclusion list)']},{title:'NPI registry',from:'CMS NPPES registry',fields:['NPI Type 1 (individual)','NPI Type 2 (organization)','Taxonomy code','Enrollment status (Medicare/Medicaid)','Deactivation date']},{title:'Contract terms',from:'Contracting Agent',fields:['Contract type (FFS/capitation/VBC/BPCI)','Fee schedule rates by CPT','Capitation PMPM','Shared savings rate','BPCI episode definitions']}],
+planDiff:{PPO:'FFS contracts with many providers. VBC overlay programs.',HMO:'Capitation contracts common for PCPs. FFS for specialists.',HDHP:'FFS contracts same as PPO.',MA:'CMS bidding model + contract between MA plan and providers. VBC contracts. BPCI Advanced for post-acute.',Medicaid:'State fee schedule. Provider enrollment in state Medicaid (separate from commercial credentialing).',ASO:'Employer contracts with TPA who holds the provider network. Reference-based pricing (RBP) may be used.'},
+schema:{providerInfra:{caqhStatus:{type:'select',val:'Current',opts:['Current','Expiring within 90 days','Expired — suspended'],lbl:'CAQH ProView status'},npiEnrolled:{type:'select',val:'Yes — Medicare + Medicaid',opts:['Yes — Medicare + Medicaid','Yes — Medicare only','Not enrolled'],lbl:'CMS NPI enrollment'},contractType:{type:'select',val:'FFS',opts:['FFS','Capitation','Two-sided VBC','BPCI Episode','Hybrid FFS + VBC'],lbl:'Contract type'},bpciEpisode:{type:'select',val:'No',opts:['Yes — Hip/Knee replacement','Yes — CHF','Yes — COPD','Yes — CABG','No'],lbl:'BPCI Advanced episode active'}}}});
+// ═══════════════════════════════════════════════════════════
+// TIER 12 — Appeals, VBC Reconciliation & Final Dispositions
+// ═══════════════════════════════════════════════════════════
+n({id:'appeal',tier:12,label:'Appeals process',sub:'Internal → IRO → 5-level (MA) — ERISA',dom:'d-claims',filter:'claims',agents:['Appeal Agent','Provider Agent','IRO Agent'],blocked:{},gateType:'none',covers:[33,88],connects:[{to:'claim_paid',lbl:'Overturned — pay'},{to:'final_deny',lbl:'All levels exhausted'}],
+role:'Multi-level appeal process. Grievance (service/access complaint) vs Appeal (adverse coverage/payment determination) — different regulatory tracks. ACA: internal appeal (30 days standard, 72h urgent) → external IRO (binding for state-regulated plans). IDR process (item 88) for NSA balance billing disputes. Medicare: 5-level process. ERISA self-funded: IRO not binding; federal court ERISA Section 502(a) is final recourse.',
+decisions:[{t:'q',x:'Grievance (service quality) or Appeal (coverage denial)? → different regulatory track'},{t:'q',x:'NSA dispute (balance billing above QPA)? → IDR arbitration process (item 88)'},{t:'q',x:'External IRO? → independent reviewer evaluates (binding for ACA state-regulated plans)'},{t:'w',x:'ERISA self-funded: IRO NOT binding. Federal court ERISA 502(a) is final.'},{t:'x',x:'All levels exhausted → write off, state insurance complaint, CMS complaint, civil litigation'}],
+infoNeeds:[{title:'Appeal documentation',from:'Provider Agent',fields:['Denial letter + CARC/RARC','Full medical record','Peer-reviewed literature','Prior auth documentation']},{title:'IDR arbitration (NSA)',from:'Certified IDR Entity',fields:['QPA (Qualifying Payment Amount)','OON billed amount','IDR entity assignment','Batching eligibility','Final IDR determination']}],
+planDiff:{PPO:'ACA: internal (30/60d) → external IRO (45d/72h). State-regulated. IRO binding.',HMO:'Same. Expedited 72h for urgent.',HDHP:'Same.',MA:'CMS 5-level: Redetermination → QIC → ALJ → MAC → Federal Court.',Medicaid:'State fair hearing. EQRO external review.',ASO:'ERISA 502(a) after exhausting plan appeals. IRO not binding.'},
+schema:{appeal:{appealLevel:{type:'select',val:'Level 1 — internal',opts:['Level 1 — internal','Level 2 — external IRO','NSA — IDR arbitration','Level 3 — ALJ (Medicare)','Level 4 — MAC','Level 5 — Federal Court'],lbl:'Appeal level'},idrQPA:{type:'number',val:0,lbl:'QPA (qualifying payment amount, $ — NSA IDR)'},outcome:{type:'select',val:'Pending',opts:['Pending','Overturned — pay','Upheld — deny','IDR — payer rate upheld','IDR — OON amount upheld'],lbl:'Appeal/IDR outcome'}}}});
+
+n({id:'followup',tier:12,label:'Follow-up visit',sub:'HEDIS 7/30-day — TCM — care continuity',dom:'d-clinical',filter:'clinical',agents:['Provider Agent','Care Manager Agent'],blocked:{},gateType:'none',covers:[13,104,118,140],connects:[{to:'readmit',lbl:'Worsens — readmit'},{to:'wellness',lbl:'Stable — episode closed'}],
+role:'Scheduled follow-up post-discharge or after acute episode. HEDIS measure: follow-up within 7 or 30 days for AMI, CHF, COPD, behavioral health. TCM CPT 99495 (7-day), 99496 (14-day). HEDIS compliance drives Stars ratings and quality bonuses. Care gap closure.',
+decisions:[{t:'q',x:'HEDIS-qualifying follow-up within 7 or 30 days? → capture HEDIS; bill TCM'},{t:'q',x:'Condition worsening? → intensify; readmission risk assessment; RPM alerts'},{t:'i',x:'HEDIS measure closed → Stars quality credit → MA quality bonus revenue'}],
+infoNeeds:[{title:'Post-discharge status',from:'Provider / RPM Agent',fields:['Days since discharge','HEDIS status','Medication adherence','Wound status','RPM telemetry']},{title:'Care management',from:'Care Manager Agent',fields:['Disease management enrollment','SDOH barrier resolution','Community resource connections']}],
+planDiff:{PPO:'HEDIS tracked.',HMO:'Stars/HEDIS drives bonus.',HDHP:'Deductible may discourage follow-up.',MA:'HEDIS 7/30-day = Stars measure = CMS quality bonus.',Medicaid:'HEDIS quality incentive.',ASO:'Employer wellness KPI.'},
+schema:{followup:{daysSinceDisch:{type:'number',val:7,lbl:'Days since discharge'},hedisCompliant:{type:'select',val:'Yes (7-day)',opts:['Yes (7-day)','Yes (30-day)','No — HEDIS gap'],lbl:'HEDIS compliance'},tcmCPT:{type:'select',val:'99495 (7-day)',opts:['99495 (7-day)','99496 (14-day)','Not billed'],lbl:'TCM CPT billed'}}}});
+
+n({id:'vbc',tier:12,label:'VBC reconciliation',sub:'Shared savings / risk / capitation / BPCI',dom:'d-vbc',filter:'quality',agents:['Actuary Agent','Payer Agent','ACO Agent'],blocked:{},gateType:'none',covers:[35,126,127,131,132,139],connects:[{to:'wellness',lbl:'Savings distributed'},{to:'final_deny',lbl:'Shared risk penalty'}],
+role:'Value-Based Care financial reconciliation. Item 126: ACO (Accountable Care Organization) shared savings — Medicare Shared Savings Program (MSSP) tracks total cost of care for ACO-attributed members against risk-adjusted benchmarks. Item 127: MSSP Track 1 (one-sided, savings only) vs Track 2/3 (two-sided, savings + risk). Item 131: Total Cost of Care (TCOC) models. Item 132: Episode-based payment models — BPCI Advanced program. Item 139: global payment / episode bundles distinct from FFS/capitation. RAF accuracy critical (HCC undercoding reduces PMPM). Stars quality bonus (5% on benchmark for 4+ stars MA plans) is separate revenue stream. CMS RADV audits RAF accuracy post-reconciliation.',
+decisions:[{t:'q',x:'Actual spend < risk-adjusted benchmark? → shared savings calculation → bonus distributed per contract'},{t:'q',x:'BPCI episode spend vs target price? → episode initiator accountable for 90-day post-acute spend'},{t:'q',x:'RADV audit (MA)? → CMS audits RAF accuracy; overstated HCC → recoupment'},{t:'w',x:'Stars quality bonus: 4+ stars → 5% QBP on benchmark; applies on top of VBC performance'}],
+infoNeeds:[{title:'MSSP / VBC data',from:'Actuary / ACO Agent',fields:['Total attributed spend','Risk-adjusted benchmark','Actual vs benchmark variance','Quality score adjustment','Shared savings rate']},{title:'BPCI episode data',from:'Episode Initiator Agent',fields:['Episode trigger (DRG)','90-day episode spend','Target price','Episode quality metrics','Reconciliation result']}],
+planDiff:{PPO:'FFS baseline. VBC overlay programs.',HMO:'Capitation primary. ACO structures.',HDHP:'VBID reduces cost-share for high-value services.',MA:'Stars QBP + MSSP/ACO REACH + HCC RAF. CMS RADV audits.',Medicaid:'DSRIP. VBC managed Medicaid contracts.',ASO:'Employer direct contracting (ERDC) with ACO. Employer captures shared savings.'},
+schema:{vbc:{model:{type:'select',val:'Two-sided shared savings',opts:['FFS only','One-sided MSSP','Two-sided MSSP','Full capitation','BPCI episode','Global budget'],lbl:'VBC model'},rafScore:{type:'number',val:1.24,lbl:'Risk adjustment factor (RAF)'},benchmarkSpend:{type:'number',val:12400000,lbl:'Risk-adjusted benchmark ($)'},actualSpend:{type:'number',val:11800000,lbl:'Actual total spend ($)'},savingsRate:{type:'range',val:50,min:0,max:100,lbl:'Shared savings rate %'},bpciEpisodeCost:{type:'number',val:0,lbl:'BPCI 90-day episode cost ($)'}}}});
+
+n({id:'readmit',tier:12,label:'Readmission (30-day)',sub:'CMS HRRP penalty — root cause analysis',dom:'d-clinical',filter:'clinical',agents:['ED Triage Agent','Case Manager Agent'],blocked:{},gateType:'none',covers:[14],connects:[{to:'er',lbl:'Return to ED'}],
+role:'Unplanned readmission within 30 days. CMS HRRP penalizes hospitals up to 3% of ALL Medicare base DRG payments for excess readmissions for: AMI, CHF, Pneumonia, COPD, CABG, TKA/THA. Root cause analysis mandatory. TCM failure is the most common preventable cause.',
+decisions:[{t:'q',x:'Readmission for HRRP condition? → HRRP penalty calculation triggered'},{t:'q',x:'Planned vs unplanned? → only unplanned count'},{t:'w',x:'HRRP penalty applies to ALL Medicare DRG payments in following fiscal year'}],
+infoNeeds:[{title:'Readmission details',from:'Admitting system',fields:['Days since index admission','Index DRG (HRRP condition?)','Planned vs unplanned','Root cause classification']}],
+planDiff:{PPO:'No direct payer penalty for commercial.',HMO:'Readmit rate may affect contract renewal.',HDHP:'New deductible cycle may deter seeking needed care.',MA:'HRRP still applies to hospitals. Stars tracks.',Medicaid:'State quality incentive programs.',ASO:'Stop-loss may apply to new episode.'},
+schema:{readmission:{daysSinceIndex:{type:'number',val:12,lbl:'Days since index admission'},hrrpCondition:{type:'select',val:'Heart failure',opts:['Heart failure','AMI','Pneumonia','COPD','CABG','TKA/THA','Other'],lbl:'HRRP condition'},rootCause:{type:'select',val:'Medication non-adherence',opts:['Medication non-adherence','Care gap','Inadequate follow-up','Disease progression','Unrelated condition','SDOH barrier'],lbl:'Root cause'}}}});
+
+n({id:'wellness',tier:12,label:'Episode closed',sub:'HEDIS credited — Stars — RAF finalized',dom:'d-ok',filter:'quality',agents:['Care Manager Agent'],blocked:{},gateType:'none',covers:[63,104,140],connects:[],
+role:'Episode successfully closed. HEDIS measure credited. RAF/HCC score updated for MA. CAHPS survey triggered. Next preventive care scheduled per USPSTF/ACIP guidelines.',
+decisions:[{t:'i',x:'HEDIS measure closed → Stars quality credit → MA quality bonus revenue from CMS'},{t:'i',x:'CAHPS survey sent → satisfaction score → Stars impact'},{t:'i',x:'RAF/HCC finalized → EDGE reconciliation → final PMPM for the period'}],
+infoNeeds:[{title:'Closure',from:'Care Manager / Quality Team',fields:['HEDIS measure closed','CAHPS survey sent','RAF/HCC finalized','Next preventive due']}],
+planDiff:{PPO:'Preventive scheduled.',HMO:'PCP notified.',HDHP:'Annual deductible resets.',MA:'Stars credit. RAF finalized.',Medicaid:'Quality incentive credit.',ASO:'Employer quality metrics.'},
+schema:{closure:{hedisCredit:{type:'select',val:'Yes',opts:['Yes','No — gap remains'],lbl:'HEDIS measure closed'},cahpsScore:{type:'range',val:4,min:1,max:5,lbl:'CAHPS patient experience (1-5)'},rafUpdated:{type:'select',val:'Updated',opts:['Updated','Pending','N/A'],lbl:'RAF/HCC score updated'}}}});
+
+n({id:'final_deny',tier:12,label:'Final denial',sub:'All remedies exhausted',dom:'d-deny',filter:'claims',agents:['Insurance Agent'],blocked:{},gateType:'none',covers:[32,54,55],connects:[],
+role:'All appeal levels exhausted; denial upheld. Balance billing protections (item 54): participating providers cannot balance bill beyond cost-share for covered services. NSA (item 55): emergency and surprise billing protections apply regardless. Provider options: write-off, civil litigation, state insurance complaint, CMS complaint, OIG hotline.',
+decisions:[{t:'x',x:'All levels exhausted. Final denial stands.'},{t:'w',x:'Par providers cannot balance bill for covered services.'},{t:'w',x:'NSA: emergency providers cannot balance bill above in-network cost-share regardless of network status.'}],
+infoNeeds:[{title:'Final determination',from:'Insurance / IRO / Court',fields:['Final denial at all levels','Provider write-off','Patient hardship options','Complaint pathways']}],
+planDiff:{PPO:'Balance bill if non-par (with consent, non-emergency).',HMO:'Zero balance bill for par.',HDHP:'Same as PPO.',MA:'CMS prohibits balance billing above in-network rates.',Medicaid:'Zero patient liability for covered services.',ASO:'ERISA does not prohibit balance billing for non-par.'},
+schema:{finalDisp:{writeOffType:{type:'select',val:'Provider write-off',opts:['Provider write-off','Bad debt','Hardship waiver','Legal action','CMS complaint'],lbl:'Write-off type'},balanceBillStatus:{type:'select',val:'Prohibited (par)',opts:['Prohibited (par provider)','Permitted (non-par + consent)','NSA prohibits (emergency)'],lbl:'Balance billing status (NSA / item 54)'}}}});
+
+n({id:'death',tier:12,label:'Death — final disposition',sub:'ADT^A03 status 20 — estate',dom:'d-neutral',filter:'clinical',agents:['Provider Agent','HIM Agent'],blocked:{},gateType:'none',covers:[15,59,60],connects:[],
+role:'Patient expiration. ADT^A03 with UB-04 discharge status 20 (expired). Death certificate completed within 72h. Advance directives (item 59) honored. Organ donation (item 60): OPO (Organ Procurement Organization) contacted at time of death per CMS Conditions of Participation. Final claim submitted. Estate inherits appeal rights for denied claims.',
+decisions:[{t:'i',x:'Death certificate filed with state vital records within 72h'},{t:'i',x:'Organ donation: OPO contacted; procurement process initiated if registered donor and medically suitable'},{t:'w',x:'Advance directive honored: DNR/POLST followed; no resuscitation if documented'},{t:'w',x:'Estate notified of outstanding patient balance. Estate retains full appeal rights.'}],
+infoNeeds:[{title:'Death documentation',from:'Provider Agent',fields:['Death certificate','Time/cause of death','ICD-10 underlying cause','Advance directive honored']},{title:'Organ donation',from:'OPO Agent',fields:['Donor registration status','Medical suitability assessment','Organs/tissues recovered','Recipient matched']}],
+planDiff:{PPO:'Final claim to commercial payer.',HMO:'Same.',HDHP:'OOP max limits estate liability.',MA:'Medicare Hospice final claim to Medicare FFS.',Medicaid:'Estate recovery may apply.',ASO:'Stop-loss for catastrophic final episode.'},
+schema:{finalDisp:{organDonation:{type:'select',val:'Unknown',opts:['Donor — OPO contacted','Not registered donor','Medically unsuitable','OPO contacted — declined by family'],lbl:'Organ donation status'},advDirectiveHonored:{type:'select',val:'Yes',opts:['Yes — DNR honored','Yes — POLST followed','No — family overrode','N/A — full code'],lbl:'Advance directive honored'},estateBalance:{type:'number',val:0,lbl:'Outstanding balance to estate ($)'}}}});
+// ═══════════════════════════════════════════════════════════
+// ENGINE
+// ═══════════════════════════════════════════════════════════
+let plan='PPO', selId=null, activeTab='agent', activeFilter='all';
+const SD={};
+N.forEach(nd=>{SD[nd.id]={};if(nd.schema)Object.values(nd.schema).forEach(sec=>Object.entries(sec).forEach(([k,f])=>{SD[nd.id][k]=f.val}))});
+
+function isVisible(nd){
+  if(activeFilter==='all')return true;
+  return nd.filter===activeFilter;
+}
+
+function renderGraph(){
+  const wrap=document.getElementById('stages-wrap');
+  wrap.innerHTML='';
+  const tm={};N.forEach(nd=>{if(!tm[nd.tier])tm[nd.tier]=[];tm[nd.tier].push(nd)});
+  TIERS.forEach(t=>{
+    const nodes=tm[t.id];if(!nodes||!nodes.length)return;
+    const visible=nodes.filter(nd=>isVisible(nd));
+    if(!visible.length)return;
+    const sec=document.createElement('div');sec.className='stage';
+    const lbl=document.createElement('div');lbl.className='stage-lbl';lbl.textContent=t.lbl;sec.appendChild(lbl);
+    const lane=document.createElement('div');lane.className='lane';
+    nodes.forEach(nd=>{
+      const blk=nd.blocked&&nd.blocked[plan];
+      const vis=isVisible(nd);
+      const card=document.createElement('div');
+      card.className='ncard '+nd.dom+(blk?' blocked':'')+(selId===nd.id?' sel':'')+((!vis)?' filtered-out':'');
+      card.id='nc-'+nd.id;
+      let gate='';
+      if(!blk&&nd.gateType==='auth')gate='<div class="nc-gate" style="background:rgba(245,166,35,.13);color:#f5c060;border-color:#854F0B">PA gate</div>';
+      if(!blk&&nd.gateType==='referral')gate='<div class="nc-gate" style="background:rgba(168,156,247,.13);color:#a89cf7;border-color:#3C3489">Referral gate</div>';
+      if(blk)gate='<div class="nc-gate" style="background:rgba(255,255,255,.04);color:#4e5876;border-color:#2a2f3a">Bypassed — '+plan+'</div>';
+      const coverCount=nd.covers?nd.covers.length:0;
+      card.innerHTML='<div class="nc-title">'+nd.label+'</div><div class="nc-sub">'+nd.sub+'</div>'+gate+'<div class="nc-agents">'+nd.agents[0]+(nd.agents.length>1?' +'+(nd.agents.length-1):'')+'</div>'+(coverCount?'<div style="font-size:7px;color:#4e5876;margin-top:2px">covers '+coverCount+' item'+(coverCount>1?'s':'')+'</div>':'');
+      if(!blk)card.addEventListener('click',()=>{selId=selId===nd.id?null:nd.id;renderGraph();renderDetail()});
+      lane.appendChild(card);
+    });
+    sec.appendChild(lane);wrap.appendChild(sec);
+  });
+  setTimeout(drawConns,80);
+}
+
+function drawConns(){
+  const root=document.getElementById('graph-root');
+  const svg=document.getElementById('conn-svg');
+  const rr=root.getBoundingClientRect();
+  const h=document.getElementById('stages-wrap').scrollHeight+40;
+  svg.style.height=h+'px';svg.setAttribute('width',rr.width);svg.setAttribute('height',h);
+  let mk='<defs><marker id="mh" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#3a405a"/></marker><marker id="mhs" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#3d8ef0"/></marker><marker id="mhok" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#4caf7d"/></marker><marker id="mhd" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#e8534f"/></marker></defs>';
+  N.forEach(nd=>{
+    if(!nd.connects)return;
+    nd.connects.forEach(conn=>{
+      const se=document.getElementById('nc-'+nd.id);
+      const de=document.getElementById('nc-'+conn.to);
+      if(!se||!de)return;
+      const sr=se.getBoundingClientRect(),dr=de.getBoundingClientRect();
+      const x1=sr.left+sr.width/2-rr.left,y1=sr.bottom-rr.top;
+      const x2=dr.left+dr.width/2-rr.left,y2=dr.top-rr.top-4;
+      const my=(y1+y2)/2;
+      const isSel=selId&&(selId===nd.id||selId===conn.to);
+      const isDeny=conn.lbl&&(conn.lbl.toLowerCase().includes('den')||conn.lbl.toLowerCase().includes('exhaust')||conn.lbl.toLowerCase().includes('penalty'));
+      const isOk=conn.lbl&&(conn.lbl.toLowerCase().includes('approv')||conn.lbl.toLowerCase().includes('paid')||conn.lbl.toLowerCase().includes('stable')||conn.lbl.toLowerCase().includes('closed')||conn.lbl.toLowerCase().includes('savings'));
+      const stroke=isSel?'#3d8ef0':isDeny?'#e8534f':isOk?'#4caf7d':'#2a3050';
+      const sw=isSel?1.8:1;
+      const mke=isSel?'mhs':isDeny?'mhd':isOk?'mhok':'mh';
+      const op=isSel?0.95:selId?0.08:0.35;
+      mk+='<path d="M'+x1+','+y1+' C'+x1+','+my+' '+x2+','+my+' '+x2+','+y2+'" fill="none" stroke="'+stroke+'" stroke-width="'+sw+'" opacity="'+op+'" marker-end="url(#'+mke+')"/>';
+      if(isSel&&conn.lbl){
+        const lx=(x1+x2)/2,ly=my;
+        const tw=conn.lbl.length*4.2+10;
+        mk+='<rect x="'+(lx-tw/2)+'" y="'+(ly-8)+'" width="'+tw+'" height="13" rx="4" fill="#131826" stroke="'+stroke+'" stroke-width="0.5" opacity="0.97"/>';
+        mk+='<text x="'+lx+'" y="'+(ly+2)+'" text-anchor="middle" font-size="8" fill="'+stroke+'" font-family="DM Sans,sans-serif" opacity="0.97">'+conn.lbl+'</text>';
+      }
+    });
+  });
+  svg.innerHTML=mk;
+}
+
+function renderDetail(){
+  const titleEl=document.getElementById('dh-title');
+  const subEl=document.getElementById('dh-sub');
+  const agentsEl=document.getElementById('dh-agents');
+  const coversEl=document.getElementById('dh-covers');
+  const body=document.getElementById('dbody');
+  const eff=document.getElementById('effbar');
+  if(!selId){
+    titleEl.textContent='Select a node';
+    subEl.textContent='Click any pathway node for agent profile, schema, plan-type variations, and 145-item coverage map.';
+    agentsEl.innerHTML='';coversEl.innerHTML='';
+    body.innerHTML='<div class="empty">No node selected.<br><br>v5 adds:<br>• Behavioral health / SUD (items 38-39, 107)<br>• Maternal/prenatal care (item 40)<br>• Member enrollment / COBRA / AEP / SEP (items 50-51, 109-111)<br>• Clinical Decision Support (items 57-58, 71-74)<br>• Emergency codes: Sepsis/STEMI/Stroke (items 73-75)<br>• Population health & risk stratification (items 49, 118, 134-135)<br>• Quality programs: Stars/HEDIS/PCMH/URAC (items 103-105, 128-130)<br>• Regulatory compliance: HIPAA/HITECH/ACA/MHPAEA (items 101-102, 106-108)<br>• Interoperability: FHIR R4 / CMS APIs / payer-to-payer (items 116, 123-124)<br>• Provider infrastructure: credentialing/NPI/VBC/BPCI (items 35-37, 112-114, 126-132)<br>• Subrogation (item 47)<br>• GFE/AEOB/price transparency (items 85-88)<br>• Second opinion + clinical trials (items 61-62, 144)<br>• Wound care/infusion therapy (item 67)<br>• Chronic disease & pain management (items 64-71)</div>';
+    eff.innerHTML='67 nodes across 13 tiers — covering all 145 care pathway factors.';
+    return;
+  }
+  const nd=N.find(x=>x.id===selId);if(!nd)return;
+  titleEl.textContent=nd.label;
+  subEl.textContent=nd.sub;
+  agentsEl.innerHTML=nd.agents.map(a=>'<span class="achip">'+a+'</span>').join('');
+  if(nd.covers&&nd.covers.length){
+    coversEl.innerHTML='<span>Covers items: </span>'+nd.covers.map(c=>'<span class="cover-tag">#'+c+'</span>').join('');
+  } else {coversEl.innerHTML='';}
+  const pm=PLAN_META[plan];
+  const planNote=nd.planDiff[plan]||'No specific variation noted.';
+  eff.innerHTML='<strong>'+plan+':</strong> '+planNote;
+  if(activeTab==='agent')renderAgentTab(nd,body);
+  else if(activeTab==='schema')renderSchemaTab(nd,body);
+  else if(activeTab==='plans')renderPlansTab(nd,body);
+  else renderCoverageTab(nd,body);
+}
+
+function renderAgentTab(nd,body){
+  const icons={q:'?',i:'i',w:'!',x:'X'};
+  const cls={q:'di-q',i:'di-i',w:'di-w',x:'di-x'};
+  let h='<div class="dsec"><div class="dsec-t">What this agent does</div><div class="role-txt">'+nd.role+'</div></div>';
+  if(nd.decisions&&nd.decisions.length){
+    h+='<div class="dsec"><div class="dsec-t">Decisions made at this step</div>';
+    nd.decisions.forEach(d=>{h+='<div class="drow"><div class="dicon '+cls[d.t]+'">'+icons[d.t]+'</div><div class="dtxt">'+d.x+'</div></div>'});
+    h+='</div>';
+  }
+  if(nd.infoNeeds&&nd.infoNeeds.length){
+    h+='<div class="dsec"><div class="dsec-t">Information inputs — what is needed and from whom</div>';
+    nd.infoNeeds.forEach(inf=>{
+      h+='<div class="icard"><div class="ic-title">'+inf.title+'</div><div class="ic-from">From: <strong>'+inf.from+'</strong></div><div class="ic-fields">'+inf.fields.map(f=>'<span class="ic-field">'+f+'</span>').join('')+'</div></div>'
+    });
+    h+='</div>';
+  }
+  if(nd.connects&&nd.connects.length){
+    h+='<div class="dsec"><div class="dsec-t">Routes to</div>';
+    nd.connects.forEach(c=>{
+      const isDeny=c.lbl&&(c.lbl.toLowerCase().includes('den')||c.lbl.toLowerCase().includes('exhaust'));
+      const isOk=c.lbl&&(c.lbl.toLowerCase().includes('approv')||c.lbl.toLowerCase().includes('paid')||c.lbl.toLowerCase().includes('stable'));
+      const col=isDeny?'#e8534f':isOk?'#4caf7d':PLAN_META[plan].t;
+      const dest=N.find(x=>x.id===c.to);
+      h+='<div style="display:flex;gap:6px;align-items:center;margin-bottom:4px"><span style="width:6px;height:6px;border-radius:50%;background:'+col+';flex-shrink:0"></span><span style="font-size:9px;color:#8b95b0">'+c.lbl+'</span><span style="font-size:8px;color:#4e5876">→ '+(dest?dest.label:c.to)+'</span></div>';
+    });
+    h+='</div>';
+  }
+  body.innerHTML=h;
+}
+
+function renderSchemaTab(nd,body){
+  if(!nd.schema||!Object.keys(nd.schema).length){body.innerHTML='<div class="empty">No schema fields for this node.</div>';return}
+  let h='';
+  Object.entries(nd.schema).forEach(([secKey,fields])=>{
+    h+='<div style="margin-bottom:10px"><div class="ss-title">'+secKey+'</div>';
+    Object.entries(fields).forEach(([fk,f])=>{
+      const cur=SD[selId]?.[fk]??f.val;
+      h+='<div class="srow"><div class="srow-lbl">'+f.lbl+'</div>';
+      if(f.type==='select'){
+        h+='<select class="sselect" data-n="'+selId+'" data-f="'+fk+'" onchange="upd(this)">';
+        (f.opts||[]).forEach(o=>{h+='<option value="'+o+'"'+(o==cur?' selected':'')+'>'+o+'</option>'});
+        h+='</select>';
+      }else if(f.type==='range'){
+        h+='<div class="srwrap"><input type="range" class="srange" min="'+f.min+'" max="'+f.max+'" step="1" value="'+cur+'" data-n="'+selId+'" data-f="'+fk+'" oninput="upd(this);document.getElementById(\'rv-'+fk+'\').textContent=this.value"><span class="srval" id="rv-'+fk+'">'+cur+'</span></div>';
+      }else if(f.type==='date'){
+        h+='<input type="date" class="sinput" value="'+cur+'" data-n="'+selId+'" data-f="'+fk+'" onchange="upd(this)">';
+      }else{
+        h+='<input type="'+(f.type==='number'?'number':'text')+'" class="sinput" value="'+cur+'" data-n="'+selId+'" data-f="'+fk+'" oninput="upd(this)">';
+      }
+      h+='</div>';
+    });
+    h+='</div>';
+  });
+  body.innerHTML=h;
+}
+
+function renderPlansTab(nd,body){
+  let h='<div class="dsec"><div class="dsec-t">How this step changes by plan type</div>';
+  Object.entries(nd.planDiff).forEach(([p,txt])=>{
+    const isActive=p===plan;
+    const pm=PLAN_META[p]||{c:'#888',l:'rgba(128,128,128,.15)',t:'#aaa'};
+    h+='<div class="pc-row"><div class="pc-badge" style="background:'+(isActive?pm.c:pm.l)+';color:'+(isActive?'#fff':pm.t)+';border-color:'+pm.c+'">'+p+'</div><div class="pc-txt'+(isActive?' ap':'')+'">'+txt+'</div></div>';
+  });
+  h+='</div>';
+  const pm=PLAN_META[plan];
+  if(nd.planDiff[plan]){
+    h+='<div class="apbox" style="background:'+pm.l+';border-color:'+pm.c+'"><div class="apbox-t" style="color:'+pm.t+'">'+plan+' — active pathway</div><div class="apbox-b" style="color:'+pm.t+'">'+nd.planDiff[plan]+'</div></div>';
+  }
+  body.innerHTML=h;
+}
+
+const ITEM_LABELS={
+  1:'Plan/benefit/copays/deductibles/OOP',2:'Provider network',3:'Plan types (PPO/HMO/etc)',4:'ED visit',5:'Outpatient visit',6:'Admission/discharge/transfers',7:'Prior authorization',8:'Lab tests',9:'Radiology/imaging',10:'Surgical procedures',11:'Post-op care',12:'Rehabilitation',13:'Follow-up visits',14:'Readmissions',15:'Death',16:'Referrals',17:'Rx prescription',18:'Generic drugs',19:'Specialty drugs',20:'PBM',21:'Rx prior authorization',22:'Pharmacy fulfillment',23:'Mail order',24:'Pharmacy pickup',25:'Rx claims',26:'Claims payment integrity',27:'Claims overpayments',28:'Claims underpayments',29:'Claim approval',30:'Claims manual adjudication',31:'Claims code adjustment',32:'Claims denial',33:'Claims appeal',34:'Provider network (dup)',35:'Provider pricing/FFS/capitation/VBC',36:'Provider credentialing',37:'Provider contracts',38:'Behavioral health carve-outs',39:'Substance use disorder',40:'Maternal care (prenatal/L&D/postpartum)',41:'Palliative care & hospice',42:'Home health & DME',43:'SNF post-acute',44:'Telehealth',45:'SDOH screening',46:'Coordination of Benefits (COB)',47:'Subrogation',48:'Risk adjustment / HCC coding',49:'Care management programs',50:'Member enrollment lifecycle',51:'COBRA / continuation coverage',52:'EOB (Explanation of Benefits)',53:'Medicare Secondary Payer (MSP)',54:'Balance billing protections',55:'No Surprises Act',56:'Triage protocols (ESI)',57:'Allergy / drug-drug interaction',58:'Clinical decision support (CDS)',59:'Advance directives / DNR',60:'Organ donation',61:'Second opinion pathways',62:'Clinical trials',63:'Vaccination & preventive care',64:'Chronic disease management',65:'Multi-morbidity / comorbidity',66:'Polypharmacy management',67:'Wound care & infusion therapy',68:'Nutritional counseling',69:'Occupational therapy',70:'Speech-language pathology',71:'Pain management & opioid stewardship',72:'Infection control / isolation',73:'Sepsis alert pathways',74:'Stroke/STEMI/Trauma codes',75:'ICU / critical care',76:'Ventilator management',77:'Blood transfusion protocols',78:'Consent management',79:'Patient financial counseling',80:'Sliding fee scale / indigent care',81:'Medical debt collections',82:'Self-pay discount programs',83:'Prompt pay discounts',84:'Payment plans & financing',85:'Good Faith Estimate (GFE)',86:'Advanced EOB (AEOB)',87:'Price transparency (CMS)',88:'Surprise billing arbitration (IDR)',89:'Third-party administrator (TPA)',90:'Stop-loss insurance',91:'Reinsurance treaties',92:'IBNR claims reserves',93:'FWA detection',94:'RAC/MAC audit responses',95:'ERA/835 processing',96:'CARC/RARC taxonomy',97:'Timely filing limits',98:'Clean claim submission',99:'Clearinghouse processing (837/835/270/278)',100:'Electronic Prior Auth (ePA)',101:'HIPAA Privacy & Security',102:'HITECH breach notification',103:'CMS Star Ratings',104:'NCQA HEDIS measures',105:'URAC accreditation',106:'State mandated benefits',107:'MHPAEA mental health parity',108:'ACA Essential Health Benefits',109:'Medicaid redetermination',110:'Medicare AEP workflows',111:'Special Enrollment Period (SEP)',112:'CAQH ProView credentialing',113:'NPI management (Type 1 & 2)',114:'TIN/taxonomy code management',115:'Formulary management / P&T committee',116:'FHIR R4 / HL7 data exchange',117:'ADT notifications',118:'Care gap identification & outreach',119:'Patient portal / PHR access',120:'Real-time eligibility (270/271)',121:'Real-time claim status (276/277)',122:'PA via X12 278',123:'CMS interoperability rules (FHIR APIs)',124:'Payer-to-payer data exchange',125:'Social care network referrals (Unite Us)',126:'ACO shared savings (MSSP)',127:'MSSP Track 1/2/3',128:'PCMH designation',129:'Quality Bonus Payments (QBP) MA',130:'Pay-for-performance (P4P)',131:'Total Cost of Care (TCOC)',132:'Episode-based payments (BPCI)',133:'Care gaps alerts & outreach',134:'Risk stratification (low/medium/high)',135:'Predictive analytics (readmission risk)',136:'Provider onboarding & roster management',137:'OON exception requests',138:'Facility vs professional billing split',139:'Global payment / episode bundles',140:'Quality reporting (HEDIS/Stars/CAHPS)',141:'PA reform compliance (CMS interop)',142:'Gold-carding programs',143:'Step therapy / formulary exceptions',144:'Clinical trials coverage',145:'FWA detection (distinct)'
+};
+
+function renderCoverageTab(nd,body){
+  if(!nd.covers||!nd.covers.length){body.innerHTML='<div class="empty">No specific 145-item mappings for this node.</div>';return}
+  let h='<div class="dsec"><div class="dsec-t">145-item framework coverage</div><div style="font-size:9px;color:#8b95b0;margin-bottom:8px">This node addresses '+nd.covers.length+' item(s) from the exhaustive care pathway framework.</div>';
+  nd.covers.forEach(c=>{
+    h+='<div style="display:flex;gap:7px;align-items:flex-start;margin-bottom:7px;padding:6px 8px;background:rgba(46,207,168,.06);border:1px solid rgba(46,207,168,.15);border-radius:6px"><span style="font-size:9px;font-weight:700;color:#2ecfa8;flex-shrink:0;min-width:22px">#'+c+'</span><span style="font-size:10px;color:#9ba3b8;line-height:1.45">'+(ITEM_LABELS[c]||'Item '+c)+'</span></div>';
+  });
+  h+='</div>';
+  const allCovered=new Set();N.forEach(n=>{if(n.covers)n.covers.forEach(c=>allCovered.add(c))});
+  const total=145;
+  const covered=allCovered.size;
+  h+='<div class="dsec"><div class="dsec-t">Overall framework coverage</div><div style="font-size:10px;color:#8b95b0">v5 simulation covers <span style="color:#2ecfa8;font-weight:600">'+covered+'/'+total+'</span> items across all '+N.length+' nodes.</div><div style="height:6px;background:rgba(255,255,255,.06);border-radius:3px;margin-top:6px;overflow:hidden"><div style="height:100%;width:'+(covered/total*100).toFixed(0)+'%;background:linear-gradient(90deg,#2ecfa8,#3d8ef0);border-radius:3px"></div></div></div>';
+  body.innerHTML=h;
+}
+
+window.upd=function(el){
+  const nid=el.dataset.n,fid=el.dataset.f;
+  if(!SD[nid])SD[nid]={};SD[nid][fid]=el.value;
+  computeEffects(nid);
+};
+
+function computeEffects(nid){
+  const eff=document.getElementById('effbar');
+  const nd=N.find(x=>x.id===nid);if(!nd)return;
+  const d=SD[nid]||{};
+  const fx=[];
+  if(nid==='eligib'){
+    const rem=Math.max(0,(parseFloat(d.deductibleInd||0)-parseFloat(d.deductibleMet||0)));
+    const oopRem=Math.max(0,parseFloat(d.oopMax||0)-parseFloat(d.oopMet||0));
+    fx.push('Deductible remaining: $'+rem.toLocaleString());
+    fx.push('OOP remaining: $'+oopRem.toLocaleString());
+    if(plan==='HDHP'&&rem>0)fx.push('HDHP: patient pays 100% until deductible met');
+  }
+  if(nid==='vitals'){
+    if(parseFloat(d.spo2||97)<94)fx.push('⚠ ALERT: SpO2 <94% — escalate immediately');
+    if(parseFloat(d.painScale||0)>=8)fx.push('⚠ ALERT: Severe pain ≥8/10');
+  }
+  if(nid==='symptom'){
+    if(parseFloat(d.noShowProb||0)>40)fx.push('⚠ High no-show risk — reminder sequence activated');
+    if(parseInt(d.comorbidityCount||0)>=3)fx.push('Multi-morbidity flag set — complex care management');
+    if(parseInt(d.medicationCount||0)>=5)fx.push('Polypharmacy flag — pharmacist MTM consult ordered');
+  }
+  if(nid==='cds'){
+    if(d.sepsisAlert==='Yes — Rapid Response paged')fx.push('⚠ SEPSIS ALERT: Rapid response team paged; SEP-1 bundle initiated');
+    if(d.stemiStroke&&d.stemiStroke!=='No')fx.push('⚠ CODE ACTIVATED: '+d.stemiStroke);
+  }
+  if(nid==='adjudication'){
+    const rate=parseFloat(d.autoAdjRate||85);
+    fx.push(rate+'% auto-adjudicated. Allowed: $'+parseFloat(d.allowedAmount||0).toLocaleString());
+  }
+  if(nid==='vbc'){
+    const bench=parseFloat(d.benchmarkSpend||0);
+    const actual=parseFloat(d.actualSpend||0);
+    const rate=parseFloat(d.savingsRate||50)/100;
+    const diff=bench-actual;
+    if(diff>0)fx.push('Savings: $'+diff.toLocaleString()+' → bonus: $'+Math.round(diff*rate).toLocaleString());
+    else if(diff<0)fx.push('Overspend: $'+Math.abs(diff).toLocaleString()+' → risk penalty owed');
+  }
+  if(nid==='readmit'&&d.hrrpCondition&&d.hrrpCondition!=='Other')fx.push('HRRP penalty: hospital absorbs Medicare DRG payment reduction');
+  if(nid==='quality_hub'){
+    if(parseFloat(d.starsRating||0)>=4)fx.push('⭐ '+d.starsRating+' Stars → CMS Quality Bonus Payment (5%) triggered');
+    else fx.push('⚠ Stars below 4.0 — QBP not triggered');
+  }
+  if(nid==='pop_health'){
+    if(d.riskTier==='High'||d.riskTier==='Very High')fx.push('High risk tier — intensive case management assigned');
+    if(parseFloat(d.readmissionRisk||0)>30)fx.push('Readmission risk >30% — post-discharge call within 48h');
+  }
+  if(nid==='chronic_care'){
+    if(parseFloat(d.opioidMEDD||0)>90)fx.push('⚠ Opioid MEDD >90 — pain management referral + PDMP check required');
+    if(parseFloat(d.hba1c||0)>=9.0)fx.push('⚠ HbA1c ≥9.0% — intensified DM management needed');
+  }
+  const planNote=nd.planDiff[plan]||'';
+  eff.innerHTML='<strong>'+plan+':</strong> '+planNote+(fx.length?' | '+fx.join(' | '):'');
+}
+
+document.querySelectorAll('.ptab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');plan=btn.dataset.p;
+    renderGraph();renderDetail();
+  });
+});
+document.querySelectorAll('.dtab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');activeTab=tab.dataset.tab;
+    renderDetail();
+  });
+});
+document.querySelectorAll('.ftab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');activeFilter=tab.dataset.f;
+    renderGraph();
+  });
+});
+window.addEventListener('resize',drawConns);
+renderGraph();renderDetail();
+</script>
+</body>
+</html>
