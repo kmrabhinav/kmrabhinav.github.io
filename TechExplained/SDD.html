@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spec-Driven Development &amp; Harness Engineering — Mastery Map</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+:root{
+  --bg:#0a1018;
+  --bg-grid: rgba(94,230,214,0.05);
+  --panel:#0f1b29;
+  --panel-edge:#1c2c40;
+  --ink:#dce6ef;
+  --ink-dim:#7e8fa3;
+  --amber:#f2a93b;
+  --cyan:#5ee6d6;
+  --violet:#b98eff;
+  --rose:#ff6b6b;
+  --green:#7bd88f;
+  --blue:#6fb3ff;
+  --line: rgba(94,230,214,0.4);
+  --modal-overlay: rgba(5, 10, 15, 0.85);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',Arial,sans-serif;overflow:hidden;height:100%;}
+body{
+  background-image:
+    linear-gradient(var(--bg-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+  background-size: 38px 38px;
+}
+#title-bar{
+  position:fixed; top:0; left:0; right:0; z-index:20;
+  padding:18px 28px 12px 28px;
+  display:flex; align-items:baseline; justify-content:space-between;
+  background:linear-gradient(180deg, rgba(10,16,24,0.95) 60%, rgba(10,16,24,0));
+  pointer-events:none;
+}
+#title-bar h1{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:17px; letter-spacing:0.03em; font-weight:600; margin:0; color:var(--ink);
+  text-transform:uppercase;
+  pointer-events: auto;
+}
+#title-bar h1 span{color:var(--amber);}
+#title-bar .sub{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-dim); letter-spacing:0.03em;}
+
+#legend{
+  position:fixed; left:24px; bottom:22px; z-index:20;
+  font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-dim);
+  background:rgba(15,27,41,0.88); border:1px solid var(--panel-edge); border-radius:4px;
+  padding:12px 14px; backdrop-filter: blur(4px); max-height:46vh; overflow-y:auto;
+}
+#legend .row{display:flex; align-items:center; gap:8px; margin:4px 0;}
+#legend .dot{width:9px;height:9px;border-radius:50%;display:inline-block; flex:0 0 auto;}
+#legend .ln{display:inline-block; width:22px; height:0; border-top:2px dashed var(--ink-dim); margin-right:8px;}
+#legend .hr{border-top:1px solid var(--panel-edge); margin:8px 0;}
+
+.phase-rail-wrapper {
+  position: fixed;
+  top: 86px;
+  left: 0;
+  right: 0;
+  height: auto;
+  pointer-events: none;
+  z-index: 2;
+  padding: 0 40px;
+}
+.phase-section-title {
+  font-family:'IBM Plex Mono',monospace; font-size:9px; font-weight:700;
+  color: var(--amber); text-transform: uppercase; letter-spacing: 0.1em;
+  margin-bottom: 6px; margin-left: 2px;
+}
+.phase-container {
+  display: flex;
+  justify-content: space-between;
+}
+.phase-label{
+  font-family:'IBM Plex Sans',sans-serif; font-size:10px; font-weight:500;
+  color: var(--ink-dim); border-left:1px solid var(--panel-edge); padding-left:7px;
+  width: 155px; line-height:1.4; pointer-events: none;
+}
+.phase-num{font-family:'IBM Plex Mono',monospace; color:var(--cyan); margin-right:4px; font-weight:600;}
+
+#controls-wrap{
+  position:fixed; top:18px; right:28px; z-index:25;
+  display: flex; gap: 10px; align-items: center;
+}
+#search{
+  font-family:'IBM Plex Mono',monospace; font-size:12px;
+  background:rgba(15,27,41,0.9); border:1px solid var(--panel-edge); color:var(--ink);
+  padding:7px 10px; border-radius:4px; width:160px; outline:none;
+}
+#search::placeholder{color:var(--ink-dim);}
+#search:focus{border-color:var(--cyan);}
+
+.btn-ctrl {
+  font-family:'IBM Plex Mono',monospace; font-size:11px;
+  background:rgba(15,27,41,0.9); border:1px solid var(--panel-edge); color:var(--ink);
+  padding:7px 12px; border-radius:4px; cursor:pointer; transition: all 0.15s ease;
+}
+.btn-ctrl:hover {
+  border-color: var(--amber); color: #fff;
+}
+.btn-ctrl.active {
+  background: var(--amber); color: #0a1018; border-color: var(--amber); font-weight: bold;
+}
+#btn-about {
+  border-color: var(--cyan); color: var(--cyan);
+}
+#btn-about:hover {
+  background: rgba(94,230,214,0.1); color: #fff;
+}
+
+svg{display:block; width:100vw; height:100vh; cursor:grab;}
+svg:active{cursor:grabbing;}
+
+.link{ fill:none; stroke:var(--line); stroke-width:1.5px; }
+.link.path-foundation{ stroke:var(--cyan); }
+.link.path-tool{ stroke-dasharray:3,3; stroke:var(--violet); opacity:0.65;}
+.link.path-ref{ stroke-dasharray:1,4; stroke:var(--ink-dim); opacity:0.55;}
+.link.path-ops{ stroke:var(--green); opacity:0.7; }
+.link-arrow{ fill:rgba(94,230,214,0.7); }
+.edge-label{
+  font-family:'IBM Plex Mono',monospace; font-size:7.6px; fill:var(--ink-dim);
+  text-anchor:middle; pointer-events:none; opacity:0.65; paint-order:stroke;
+  stroke:#0a1018; stroke-width:2.6px; stroke-linejoin:round;
+  transition: opacity 0.2s ease;
+}
+.edge-label.hidden {
+  opacity: 0 !important;
+}
+
+.node-group{ cursor:pointer; }
+.node-card{ transition: filter 0.15s ease; }
+.node-group:hover .node-card{ filter: drop-shadow(0 0 10px rgba(94,230,214,0.5)); }
+.node-group.dimmed{ opacity:0.15; }
+.node-group.active .node-card{ filter: drop-shadow(0 0 14px rgba(242,169,59,0.7)); }
+.node-group.dimmed .edge-label { opacity:0.02; }
+
+.node-title{ font-family:'IBM Plex Mono',monospace; font-weight:600; fill:#0a1018; pointer-events:none; }
+.node-sub{ font-family:'IBM Plex Mono',monospace; fill:#0a1018; opacity:0.75; pointer-events:none; font-weight: bold; }
+.seq-badge-bg{ fill:#0a1018; stroke:#fff; stroke-width:0.6; }
+.seq-badge-txt{ font-family:'IBM Plex Mono',monospace; font-weight:700; fill:var(--amber); text-anchor:middle; pointer-events:none; }
+
+#panel{
+  position:fixed; top:0; right:0; height:100%; width:390px; max-width:92vw;
+  background:var(--panel); border-left:1px solid var(--panel-edge);
+  transform:translateX(100%); transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+  z-index:30; overflow-y:auto; padding:0;
+}
+#panel.open{ transform:translateX(0); }
+#panel-inner{ padding:26px 26px 40px 26px; }
+#panel-close{
+  position:absolute; top:18px; right:18px; background:none; border:none; color:var(--ink-dim);
+  font-size:20px; cursor:pointer; font-family:monospace; line-height:1;
+}
+#panel-close:hover{ color:var(--ink); }
+.panel-eyebrow{
+  font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase;
+  padding:3px 8px; border-radius:3px; display:inline-block; margin-bottom:14px; font-weight:600;
+}
+.step-chip{
+  font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--amber); float:right;
+  border:1px solid #f2a93b55; padding:3px 8px; border-radius:3px; margin-bottom:14px;
+}
+#panel h2{ font-size:21px; line-height:1.3; margin:0 0 6px 0; font-weight:700; color:var(--ink); clear:both; }
+#panel .org{ font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-dim); margin-bottom:20px; }
+.meta-grid{
+  display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin:18px 0 22px 0;
+  border-top:1px solid var(--panel-edge); border-bottom:1px solid var(--panel-edge); padding:16px 0;
+}
+.meta-item .k{ font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:3px;}
+.meta-item .v{ font-size:13.5px; color:var(--ink); font-weight:600; line-height:1.35;}
+#panel p.desc{ font-size:14px; line-height:1.65; color:#c4d0dc; margin:0 0 18px 0;}
+.panel-section-label{
+  font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.1em;
+  margin-bottom:8px; margin-top:22px;
+}
+#panel ul.outbound, #panel ul.inbound{ list-style:none; margin:0; padding:0; }
+#panel ul.outbound li, #panel ul.inbound li{
+  font-size:12.5px; padding:8px 10px; margin-bottom:6px; background:rgba(255,255,255,0.03);
+  border-left:2px solid var(--cyan); border-radius:0 3px 3px 0; cursor:pointer; line-height:1.45;
+}
+#panel ul.inbound li{ border-left-color: var(--amber); }
+#panel ul.outbound li:hover, #panel ul.inbound li:hover{ background:rgba(255,255,255,0.07); }
+#panel ul.outbound li b, #panel ul.inbound li b{ color:var(--ink); font-weight:600; }
+#panel ul.outbound li .yields, #panel ul.inbound li .yields{ display:block; color:var(--ink-dim); margin-top:3px; font-style:italic; }
+#panel a.go-link{
+  display:inline-block; margin-top:6px; font-family:'IBM Plex Mono',monospace; font-size:11.5px;
+  color:var(--amber); text-decoration:none; border-bottom:1px dotted var(--amber); padding-bottom:1px;
+}
+#panel a.go-link:hover{ color:#fff; }
+
+#intro-note{
+  position:fixed; bottom:22px; right:28px; z-index:20; max-width:300px;
+  font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-dim);
+  background:rgba(15,27,41,0.85); border:1px solid var(--panel-edge); border-radius:4px;
+  padding:12px 14px; line-height:1.6;
+}
+#intro-note b{ color:var(--ink); }
+
+#about-modal {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: var(--modal-overlay); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+#about-modal.show {
+  opacity: 1; pointer-events: auto;
+}
+.modal-content {
+  background: var(--panel); border: 1px solid var(--panel-edge);
+  width: 640px; max-width: 90vw; max-height: 85vh; overflow-y: auto;
+  border-radius: 8px; padding: 32px; position: relative;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+.modal-close-btn {
+  position: absolute; top: 20px; right: 22px; background: none; border: none;
+  color: var(--ink-dim); font-size: 22px; cursor: pointer; font-family: monospace;
+}
+.modal-close-btn:hover { color: #fff; }
+.modal-content h3 {
+  font-family: 'IBM Plex Mono', monospace; font-size: 18px; margin: 0 0 16px 0;
+  color: var(--cyan); text-transform: uppercase; letter-spacing: 0.05em;
+}
+.modal-content h4 {
+  font-family: 'IBM Plex Mono', monospace; font-size: 13px; margin: 20px 0 8px 0;
+  color: var(--amber); text-transform: uppercase;
+}
+.modal-content p {
+  font-size: 14px; line-height: 1.6; color: #c4d0dc; margin: 0 0 12px 0;
+}
+.modal-content ul {
+  margin: 0 0 16px 0; padding-left: 20px;
+}
+.modal-content li {
+  font-size: 13.5px; line-height: 1.55; color: #c4d0dc; margin-bottom: 6px;
+}
+.modal-content b { color: #fff; }
+
+@media (max-width: 1024px){
+  .phase-container { padding: 0 10px; gap: 4px; }
+  .phase-label { width: auto; font-size: 8px; }
+}
+@media (max-width: 760px){
+  #legend, #intro-note, .phase-rail-wrapper{ display:none; }
+  #panel{ width:100%; }
+}
+</style>
+</head>
+<body>
+
+<div id="title-bar">
+  <h1>SDD <span>&amp; Harness Engineering</span> :: Mastery Map</h1>
+  <div class="sub">Concepts → Tooling → Enterprise SDLC Integration</div>
+</div>
+
+<div id="controls-wrap">
+  <button id="btn-about" class="btn-ctrl">What is this all about?</button>
+  <button id="btn-toggle-labels" class="btn-ctrl active">Labels: ON</button>
+  <input id="search" type="text" placeholder="filter nodes..."/>
+</div>
+
+<div class="phase-rail-wrapper">
+  <div class="phase-section-title">Learning Phases</div>
+  <div class="phase-container" id="phases-horizontal-rail"></div>
+</div>
+
+<svg id="graph"></svg>
+
+<div id="legend">
+  <div class="row"><span class="dot" style="background:var(--cyan)"></span> Foundational course</div>
+  <div class="row"><span class="dot" style="background:var(--violet)"></span> Tool / framework</div>
+  <div class="row"><span class="dot" style="background:var(--amber)"></span> Enterprise / workshop</div>
+  <div class="row"><span class="dot" style="background:var(--rose)"></span> Concept / notation</div>
+  <div class="row"><span class="dot" style="background:var(--green)"></span> Operational / evaluation</div>
+  <div class="row"><span class="dot" style="background:#9aa7b5"></span> Book / reference</div>
+  <div class="hr"></div>
+  <div class="row"><span class="ln" style="border-top:2px solid var(--cyan)"></span> learning path →</div>
+  <div class="row"><span class="ln" style="border-top:2px dashed var(--violet)"></span> tool dependency →</div>
+  <div class="row"><span class="ln" style="border-top:2px solid var(--green)"></span> AI-SDLC operations →</div>
+  <div class="row"><span class="ln" style="border-top:1px dotted var(--ink-dim)"></span> reference link →</div>
+</div>
+
+<div id="intro-note">Drag nodes to rearrange · scroll to zoom · </b> · click any node for details.</div>
+
+<div id="panel">
+  <button id="panel-close">✕</button>
+  <div id="panel-inner"></div>
+</div>
+
+<div id="about-modal">
+  <div class="modal-content">
+    <button class="modal-close-btn" id="modal-close">✕</button>
+    <h3>Learning Aid for SDD &amp; Harness Engineering</h3>
+    
+    <p>Welcome to your interactive curriculum dashboard. This application is a <b>dedicated learning resource aid</b> designed specifically for developers, architects, and technical leaders who want to master the paradigms of <b>Spec-Driven Development (SDD)</b> and <b>Harness Engineering</b>.</p>
+    
+    <h4>Why this Aid is Relevant</h4>
+    <p>As autonomous software development loops replace manual text edits, traditional "vibe coding" (ad-hoc conversational prompting) triggers severe context decay and undocumented, fragile design assumptions. This map structures your upskilling around the industry's two most dependable engineering responses:</p>
+    <ul>
+      <li><b>Spec-Driven Development:</b> Elevating your engineering workflow upstream. You master authoring clear, machine-readable specifications (using precise rulesets like EARS syntax) which act as version-controlled contracts. The agent then handles syntactic assembly as a compilable build artifact.</li>
+      <li><b>Harness Engineering:</b> Structuring the scaffolding (Guides like AGENTS.md, and Sensors like automated evaluators and code-graph linters) surrounding a model to achieve production reliability.</li>
+    </ul>
+
+    <h4>How to Navigate Your Learning Path</h4>
+    <ul>
+      <li><b>Phase Trajectory:</b> The curriculum flows horizontally through 7 distinct development segments, connecting conceptual foundations and local CLI tooling directly to enterprise scaling matrices, supply-chain provenance, and evaluation pipelines.</li>
+      <li><b>Modular Discovery:</b> Click on any curriculum node to check its core parameters—including complete resource descriptions, duration, accessibility, cost structures, and directional logic. Drag modules to personalize your layout, or search modules dynamically using the text bar above.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const COLORS = {
+  foundation: '#5ee6d6',
+  tool: '#b98eff',
+  enterprise: '#f2a93b',
+  concept: '#ff6b6b',
+  operational: '#7bd88f',
+  reference: '#9aa7b5',
+  practice: '#5ee6d6'
+};
+
+const PHASES = [
+  {id:0, label:'Concepts, Notation & Harness Engineering Origins'},
+  {id:1, label:'Foundational Courses'},
+  {id:2, label:'Tooling & Practice'},
+  {id:3, label:'Enterprise Depth'},
+  {id:4, label:'AI-Native SDLC Operations'},
+  {id:5, label:'Evaluation-Driven Development'},
+  {id:6, label:'Reference Library'}
+];
+
+const nodes = [
+  {
+    id:'ears', seq:1, name:'EARS Notation', type:'concept', phase:0,
+    org:'Alistair Mavin, Philip Wilkinson, Adrian Harwood, Mark Novak — Rolls-Royce plc',
+    description:"The Easy Approach to Requirements Syntax. A peer-reviewed (IEEE RE'09) ruleset of five sentence templates — Ubiquitous, Event-driven, State-driven, Unwanted-behaviour, and Optional-feature — that convert ambiguous natural-language requirements into precise, testable statements. Validated on Rolls-Royce aero-engine FADEC control-system requirements. Now the de-facto requirements grammar inside Kiro's requirements.md and recommended for Spec Kit acceptance criteria.",
+    accessibility:'Free — open academic paper (IEEE RE\'09, 2009) and alistairmavin.com',
+    duration:'1–2 hrs to learn the 5 templates; lifetime skill',
+    rating:'Peer-reviewed, industry-adopted (Airbus, Bosch, NASA, Intel, Honeywell, Siemens)',
+    cost:'Free', url:'https://alistairmavin.com/ears/'
+  },
+  {
+    id:'arxiv-contract', seq:2, name:'"From Code to Contract" (arXiv)', type:'reference', phase:0,
+    org:'arXiv preprint, Feb 2026',
+    description:'Academic taxonomy of Spec-Driven Development distinguishing three maturity levels: spec-first (spec informs code once), spec-anchored (spec persists and is checked against), and spec-as-source (spec is the executable artifact, code is a build output). The conceptual map to read before tool training begins.',
+    accessibility:'Free, open access', duration:'~40 min read',
+    rating:'Pre-print, not yet peer-reviewed', cost:'Free',
+    url:'https://arxiv.org/html/2601.03878v1'
+  },
+  {
+    id:'fowler-critique', seq:3, name:'Fowler: "Exploring SDD Tools"', type:'reference', phase:0,
+    org:'Martin Fowler (martinfowler.com)',
+    description:'Critical essay comparing Kiro, GitHub Spec Kit and Tessl. Documents the central risk of SDD: rigid pipelines can inflate a one-line bug fix into multiple user stories and dozens of acceptance-criteria files. Essential reading before mandating SDD for *all* tasks.',
+    accessibility:'Free, public blog', duration:'~20 min read',
+    rating:'Widely cited industry critique', cost:'Free',
+    url:'https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html'
+  },
+  {
+    id:'harness-def', seq:4, name:'"Agent = Model + Harness" Origin', type:'concept', phase:0,
+    org:'Mitchell Hashimoto (Feb 5, 2026) + OpenAI "Harness engineering" (Ryan Lopopolo, Feb 11, 2026)',
+    description:'The founding texts of Harness Engineering, the 2026 discipline of designing the scaffolding around an AI agent — not the model itself — to make it reliable in production. Hashimoto coined the habit of "engineering a permanent fix into the harness" every time an agent errs. OpenAI\'s companion post documents Codex producing ~1M lines of code across ~1,500 PRs with zero manually written code, concluding the discipline lives in the scaffolding, not the prompts. Tagline: "Humans steer. Agents execute."',
+    accessibility:'Free — both are public blog posts',
+    duration:'~30 min combined read',
+    rating:'Foundational, widely cited across the field within weeks of publication',
+    cost:'Free', url:'https://openai.com/index/harness-engineering/'
+  },
+  {
+    id:'anthropic-harness', seq:5, name:'Anthropic: Effective Harnesses for Long-Running Agents', type:'concept', phase:0,
+    org:'Anthropic Engineering (Nov 2025) + "Harness design for long-running app development"',
+    description:'Anthropic\'s applied harness patterns: the initializer + coding-agent pattern, claude-progress.txt and feature-list.json state files, init.sh bootstrap scripts, and deliberate context resets. A companion piece covers the Planner/Generator/Evaluator harness with Playwright-based verification, and the principle that harnesses should simplify as the underlying model improves.',
+    accessibility:'Free — Anthropic Engineering blog',
+    duration:'~45 min combined read',
+    rating:'Primary-source guidance from the model maker', cost:'Free',
+    url:'https://www.anthropic.com/engineering'
+  },
+  {
+    id:'fowler-harness', seq:6, name:'Fowler/Böckeler: Harness Engineering for Coding Agent Users', type:'reference', phase:0,
+    org:'Martin Fowler & Birgitta Böckeler, Thoughtworks (Apr 2, 2026)',
+    description:'The cleanest conceptual taxonomy in the field: guides (feedforward controls — system prompts, AGENTS.md, constraint docs) and sensors (feedback controls — evals, validation loops, drift detectors), each either computational (deterministic: linters, type checkers, tests) or inferential (LLM-as-judge, AI review). Explicitly flags the open problem: harnesses enforce *how* code is written, not whether it does what users actually need — which is precisely where SDD and harness engineering become complementary.',
+    accessibility:'Free, public article',
+    duration:'~25 min read',
+    rating:'Considered the canonical synthesis of the discipline', cost:'Free',
+    url:'https://martinfowler.com/articles/harness-engineering.html'
+  },
+  {
+    id:'context-eng-anthropic', seq:7, name:'Anthropic: Effective Context Engineering for AI Agents', type:'concept', phase:0,
+    org:'Anthropic Engineering',
+    description:'The reference definition of context engineering as distinct from prompt engineering and harness engineering: curating exactly what enters the model\'s context window via just-in-time retrieval, compaction, and structured note-taking, rather than how the surrounding system is built or how the prompt is phrased.',
+    accessibility:'Free, public blog', duration:'~25 min read',
+    rating:'Primary-source guidance from the model maker', cost:'Free',
+    url:'https://www.anthropic.com/engineering'
+  },
+  {
+    id:'context-eng-langchain', seq:8, name:'LangChain: Context Engineering for Agents', type:'reference', phase:0,
+    org:'LangChain (Lance Martin)',
+    description:'Extends Anthropic\'s framing into a practical taxonomy: write / select / compress / isolate. Also the source of the clean derivation "Agent = Model + Harness" (Viv Trivedy, "The Anatomy of an Agent Harness") that ties context engineering directly into harness design.',
+    accessibility:'Free, public blog', duration:'~25 min read',
+    rating:'Widely referenced in agent-engineering circles', cost:'Free',
+    url:'https://www.langchain.com/blog'
+  },
+  {
+    id:'agents-md', seq:9, name:'AGENTS.md Standard', type:'tool', phase:0,
+    org:'Originated at OpenAI (Aug 2025); now stewarded by the Linux Foundation Agentic AI Foundation (AAIF)',
+    description:'An open, portable convention for instruction files that travel with a repository and are honored across 25+ tools — Codex, GitHub Copilot, Cursor, Windsurf, Jules, Aider, Zed and more. Adopted by 20,000+ repos. One of three founding projects of the AAIF (alongside Anthropic\'s MCP and Block\'s goose), announced December 2025. The practical, file-based implementation of "guides" in the Fowler/Böckeler harness taxonomy.',
+    accessibility:'Free, open standard', duration:'~15 min to read the spec and add one to a repo',
+    rating:'20,000+ adopting repositories', cost:'Free',
+    url:'https://agents.md'
+  },
+  {
+    id:'awesome-harness', seq:10, name:'awesome-harness-engineering (GitHub)', type:'reference', phase:0,
+    org:'Community-maintained (ai-boost)',
+    description:'Curated list spanning harness patterns, evals, memory systems, MCP, permission models, observability and orchestration frameworks. The single best jumping-off point once the foundational concepts above are understood, before specializing into a specific SDD tool.',
+    accessibility:'Free, open source', duration:'Browsing reference, ongoing',
+    rating:'Community-curated GitHub list', cost:'Free',
+    url:'https://github.com/ai-boost/awesome-harness-engineering'
+  },
+  {
+    id:'dla-sdd', seq:11, name:'Spec-Driven Development with Coding Agents', type:'foundation', phase:1,
+    org:'DeepLearning.AI, with JetBrains · taught by Paul Everitt',
+    description:'The premier conceptual entry point. 15 lessons + graded assessment: why vibe-coding fails as complexity grows; the plan-implement-verify loop; writing a project "constitution"; feature specification, implementation and validation with a human-in-the-loop; mid-cycle replanning; brownfield/legacy integration; and packaging custom workflows into portable, IDE-agnostic "agent skills."',
+    accessibility:'Free to audit; certificate + quiz requires DeepLearning.AI Pro (~$50/mo) or a Team plan (10–150 seats, custom quote)',
+    duration:'~1.25 hours of video across 15 lessons',
+    rating:'No public star rating; DeepLearning.AI courses are widely regarded as high-trust',
+    cost:'Free to audit · Pro ≈ $50/mo · Team: custom quote',
+    url:'https://www.deeplearning.ai/courses/spec-driven-development-with-coding-agents'
+  },
+  {
+    id:'ms-learn-greenfield', seq:12, name:'Get Started with SDD & GitHub Spec Kit', type:'foundation', phase:1,
+    org:'Microsoft Learn & GitHub',
+    description:'Beginner-level, 11-unit self-paced module covering the mechanics of the Spec Kit CLI: scaffolding a new project directory, writing specification markdown, and guiding GitHub Copilot in VS Code to implement a brand-new ("greenfield") application end to end.',
+    accessibility:'100% free — requires a free GitHub account + Copilot free tier',
+    duration:'≈1 hour 32 minutes across 11 units',
+    rating:'Official Microsoft Learn module with built-in knowledge checks', cost:'Free',
+    url:'https://learn.microsoft.com/en-us/training/modules/spec-driven-development-github-spec-kit-greenfield-intro/'
+  },
+  {
+    id:'anthropic-academy', seq:13, name:'Anthropic Academy', type:'foundation', phase:1,
+    org:'Anthropic (launched Mar 2, 2026)',
+    description:'Anthropic\'s own free learning platform — 18 courses including "Building with the Claude API" (~8 hrs/84 lectures), MCP, Subagents, Claude Code 101 / Claude Code in Action, and Cowork. The most authoritative free curriculum for the agentic-coding fundamentals that sit underneath both SDD and harness engineering. Higher-Ed advisory board chaired by Rick Levin.',
+    accessibility:'Free, with completion certificates', duration:'Varies per course, ~1–8 hrs each',
+    rating:'Official Anthropic platform; no third-party aggregate rating yet', cost:'Free',
+    url:'https://www.anthropic.com/learn'
+  },
+  {
+    id:'claude-code-dla', seq:14, name:'Claude Code: A Highly Agentic Coding Assistant', type:'foundation', phase:1,
+    org:'DeepLearning.AI + Anthropic (Elie Schoppik)',
+    description:'Short, focused course on using Claude Code as an agentic pair-programmer — the practical complement to Anthropic Academy\'s broader API curriculum, with hands-on use of the agent loop, permissions, and tool use that the harness-engineering articles describe conceptually.',
+    accessibility:'Free to audit', duration:'~1–2 hours',
+    rating:'No public star rating; DeepLearning.AI/Anthropic co-produced', cost:'Free',
+    url:'https://www.deeplearning.ai/'
+  },
+  {
+    id:'coursera-claude-swe', seq:15, name:'Claude Code: Software Engineering with Generative AI Agents', type:'foundation', phase:1,
+    org:'Coursera / Vanderbilt University',
+    description:'University-backed, multi-module course situating Claude Code inside a full software-engineering workflow — a more academically structured alternative to the shorter vendor courses, good for engineers who want graded assignments and a university credential.',
+    accessibility:'Free to audit; certificate requires Coursera subscription/payment',
+    duration:'Multi-module, several hours total',
+    rating:'Coursera-hosted; check live course page for current learner ratings',
+    cost:'Free to audit · Coursera Plus subscription for certificate',
+    url:'https://www.coursera.org/'
+  },
+  {
+    id:'netninja-speckit', seq:16, name:'Up & Running with Spec Kit', type:'practice', phase:2,
+    org:'Net Ninja Pro (instructor "Shaun")',
+    description:'Fast, tactical 9-lesson masterclass that installs Spec Kit inside a real Next.js application and walks through a complete cycle: installing specify-cli, creating a project constitution, and executing /speckit.specify, /speckit.clarify, /speckit.plan, /speckit.tasks inside an active Claude Code chat.',
+    accessibility:'Requires a Net Ninja Pro subscription',
+    duration:'9 video lessons, ≈90 minutes total',
+    rating:'No public aggregate rating redistribution; Net Ninja is a well-regarded dev-education channel',
+    cost:'$3 one-time per course or $9/month Net Ninja Pro seat',
+    url:'https://netninja.dev/p/up-running-with-spec-kit'
+  },
+  {
+    id:'speckit', seq:17, name:'GitHub Spec Kit', type:'tool', phase:2,
+    org:'GitHub / Microsoft (open source)',
+    description:'The reference open-source, model-agnostic CLI toolkit for SDD. Enforces a strict phase-gated pipeline — Initialize → Constitution → Specify → Clarify → Plan → Tasks → Analyze → Implement — with explicit human approval required at every boundary. Integrates with 30+ coding agents. 111k★ / 9.8k forks as of June 2026, with 55+ releases shipped since late February.',
+    accessibility:'Free, open source, MIT license', duration:'Ongoing tool — not a fixed course',
+    rating:'111k★ / 9.8k forks on GitHub (June 2026)', cost:'Free',
+    url:'https://github.com/github/spec-kit'
+  },
+  {
+    id:'kiro', seq:18, name:'AWS Kiro', type:'tool', phase:2,
+    org:'Amazon Web Services',
+    description:'Amazon\'s agentic IDE (VS Code fork) built for spec-driven workflows under a Requirements → Design → Tasks model, using EARS-formatted requirements.md, agent hooks, and SMT-solver requirements analysis. Free tier (50 credits/mo), Pro $20/mo, Pro+ $40, Power $200, Enterprise.',
+    accessibility:'Docs and AWS Skill Builder course free; IDE requires AWS account',
+    duration:'AWS Skill Builder course: self-paced, a few hours',
+    rating:'Official AWS product, demoed at re:Invent 2025 (session DEV314)',
+    cost:'Free tier · Pro $20/mo · Pro+ $40/mo · Power $200/mo · Enterprise: quote',
+    url:'https://kiro.dev/docs/getting-started/first-project/'
+  },
+  {
+    id:'claude-code-plan', seq:19, name:'Claude Code Plan Mode', type:'tool', phase:2,
+    org:'Anthropic',
+    description:'The official Claude Code workflow: Explore → Plan → Implement → Commit. Plans live as cascading CLAUDE.md memory files plus transient plan-mode state — lighter-weight than Spec Kit or Kiro, well suited to micro-changes, but lacking persistent on-disk spec artifacts unless paired with an external framework.',
+    accessibility:'Free CLI tool; usage billed via Claude API/Pro/Max plans',
+    duration:'Ongoing tool — official docs read in ~30–45 min',
+    rating:'Official Anthropic documentation', cost:'Free CLI; usage-based billing applies',
+    url:'https://code.claude.com/docs'
+  },
+  {
+    id:'bmad', seq:20, name:'BMAD Method', type:'tool', phase:2,
+    org:'Brian Madison (open source)',
+    description:'Multi-agent orchestration framework mapping the full SDLC onto 12+ specialized agent roles (Analyst, PM, Architect, Product Owner, Scrum Master, Developer, QA) communicating purely through file-based handoffs (PRD.md, sharded story files). ~46,700+ GitHub stars, v6.x stable. High cognitive overhead — can create conflicting rule states with CLAUDE.md.',
+    accessibility:'Free, open source (MIT)', duration:'Ongoing framework — multi-hour docs read for full mastery',
+    rating:'~46,700+ stars on GitHub', cost:'Free',
+    url:'https://docs.bmad-method.org/'
+  },
+  {
+    id:'cursor-mdc', seq:21, name:'Cursor Rules & MDC', type:'tool', phase:2,
+    org:'Cursor (Anysphere)',
+    description:'Commercial IDE feature using scoped .mdc rule files to inject team conventions into context. Rules are suggestions, not hard gates — best suited to lightweight, solo-developer workflows rather than full enterprise SDD.',
+    accessibility:'Commercial IDE — requires a Cursor subscription',
+    duration:'Feature, not a course; ~15 min to configure',
+    rating:'No public rating cited', cost:'Commercial (Cursor subscription tiers)',
+    url:'https://www.augmentcode.com/guides/cursor-spec-driven-development'
+  },
+  {
+    id:'tessl', seq:22, name:'Tessl Framework', type:'tool', phase:2,
+    org:'Tessl',
+    description:'Commercial "spec-as-source" platform aimed at regulated industries: a dedicated CLI and MCP server maintaining a strict 1:1 mapping between specification and implemented code, with audit trails and compliance templates built in.',
+    accessibility:'Commercial — contact vendor', duration:'N/A — platform, not a fixed course',
+    rating:'Early-stage adoption; not yet broadly reviewed', cost:'Paid / enterprise',
+    url:'https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html'
+  },
+  {
+    id:'openspec', seq:23, name:'OpenSpec', type:'tool', phase:2,
+    org:'Open source community project',
+    description:'A lighter-weight, open-source alternative to BMAD: proposal-first, delta-marker change management, CLI-agnostic across 20+ AI assistants. A good fit when token/API spend is the binding constraint, since it runs cheaper than full multi-agent frameworks.',
+    accessibility:'Free, open source', duration:'Ongoing tool — docs read in under an hour',
+    rating:'Active living registry of community specs', cost:'Free',
+    url:'https://github.com/'
+  },
+  {
+    id:'antigravity', seq:24, name:'Google Antigravity', type:'tool', phase:2,
+    org:'Google',
+    description:'An agent-first IDE (built on Gemini 3 plus third-party models) with a built-in plan-then-implement SDD loop and inspectable artifacts. Currently in preview; free for individuals. Google Codelabs offers a free hands-on lab pairing it with Spec Kit.',
+    accessibility:'Free for individuals (preview)', duration:'Google Codelabs lab: ~1–2 hours hands-on',
+    rating:'Preview-stage; no broad public rating yet', cost:'Free (preview)',
+    url:'https://codelabs.developers.google.com/'
+  },
+  {
+    id:'tamagotchi-challenge', seq:25, name:'"Tiny Tamagotchi" Sandbox Challenge', type:'practice', phase:2,
+    org:'DeepLearning.AI Community (7-Day Learner Challenge)',
+    description:'A structured group practice exercise: teams of 2–3 build a simulated real-time game using full SDD methodology. Grading deliberately ignores visual polish — the rubric scores internal consistency, testability and traceability of the spec.md, plan.md, and validation.md documents themselves. The recommended capstone to confirm spec discipline has actually been internalized.',
+    accessibility:'Free — community-run challenge', duration:'7 days, part-time alongside other work',
+    rating:'Community-run, internally rubric-scored', cost:'Free',
+    url:'https://community.deeplearning.ai/t/7-day-learner-challenge-tiny-tamagotchi-mvp-with-spec-driven-development/891489'
+  },
+  {
+    id:'ms-learn-enterprise', seq:26, name:'Implement SDD using GitHub Spec Kit (Enterprise)', type:'enterprise', phase:3,
+    org:'Microsoft Learn & GitHub',
+    description:'Intermediate, 13-unit module for enterprise developers on "brownfield" codebases: living specifications, encoding security/compliance/performance rules into a team-shared constitution, multi-agent collaborative workflows, spec versioning across shared branches, and CI/CD validation (Azure DevOps-integrated).',
+    accessibility:'100% free — Microsoft Learn', duration:'13 structured self-paced units (≈2 hours)',
+    rating:'Official Microsoft Learn module with built-in knowledge checks', cost:'Free',
+    url:'https://learn.microsoft.com/en-us/training/modules/spec-driven-development-github-spec-kit-enterprise-developers/'
+  },
+  {
+    id:'martinelli-workshop', seq:27, name:'SDD with AI Unified Process & Claude Code', type:'enterprise', phase:3,
+    org:'Simon Martinelli (Martinelli LLC)',
+    description:'Live, interactive cohort workshop built around the AI Unified Process (AIUP): Business Use Cases → Domain Entity Models → System Use Cases → Claude Code Execution. Stakeholder-centric rather than developer-task-centric — the strongest option for teaching engineers to structure domain knowledge and resolve stakeholder ambiguity.',
+    accessibility:'Custom enterprise booking — contact Martinelli LLC directly',
+    duration:'Custom — typically a multi-hour or full-day live workshop',
+    rating:'No public star rating; reputation built on public technical writing (martinelli.ch)',
+    cost:'Custom group/enterprise pricing (quote required)',
+    url:'https://martinelli.ch/training/spec-driven-development/'
+  },
+  {
+    id:'codesignal-sdd', seq:28, name:'Foundations of SDD with Claude Code', type:'foundation', phase:3,
+    org:'CodeSignal',
+    description:'Structured, interactive learning path (5 lessons, 18 hands-on practices, ≈4 hours) teaching SDD principles directly inside Claude Code, leading into a companion path on Task Decomposition & Execution.',
+    accessibility:'Requires a CodeSignal Learn account/subscription', duration:'≈4 hours (5 lessons + 18 practices)',
+    rating:'No public aggregate rating cited', cost:'Subscription-based',
+    url:'https://codesignal.com/learn/courses/foundations-of-spec-driven-development'
+  },
+  {
+    id:'udemy-vibe-to-eng', seq:29, name:'Udemy: From Vibe-Coding to AI Engineering', type:'foundation', phase:3,
+    org:'Independent instructor, Udemy',
+    description:'Self-paced (~3h45m) course covering EARS notation, project constitutions, three-tier agent permission boundaries, verification gates, multi-agent orchestration, and ROI/rollout planning.',
+    accessibility:'Open enrollment on Udemy', duration:'≈3 hours 45 minutes',
+    rating:'Typically discounted to ~$10–13; check current Udemy listing for live rating',
+    cost:'~$10–13 typical sale price; Udemy Business = custom enterprise quote',
+    url:'https://www.udemy.com/course/spec-driven-development-sdd-from-vibe-coding-to-reliable/'
+  },
+  {
+    id:'udemy-deterministic', seq:30, name:'Udemy: Designing Deterministic AI Systems', type:'foundation', phase:3,
+    org:'Independent instructor, Udemy',
+    description:'Covers Spec Kit, Agent OS, Kiro, MCP, and legacy-modernization patterns for building deterministic AI-assisted systems — a tool-comparison companion to the vibe-coding-to-engineering course above.',
+    accessibility:'Open enrollment on Udemy', duration:'Self-paced, several hours',
+    rating:'Check current Udemy listing for live rating/price', cost:'~$10–13 typical sale price',
+    url:'https://www.udemy.com/course/spec-driven-development-designing-deterministic-ai-systems/'
+  },
+  {
+    id:'oreilly-claude-sdd', seq:31, name:'O\'Reilly: SDD with Claude Code', type:'enterprise', phase:3,
+    org:'Harshit Tyagi, via O\'Reilly Live Events',
+    description:'Live/recorded O\'Reilly event with a hands-on walkthrough of building with Claude Code under full SDD discipline. Efficient if the org already holds an O\'Reilly enterprise license.',
+    accessibility:'O\'Reilly individual ($499/yr) or Team/Enterprise license', duration:'Live event, typically 2–4 hours',
+    rating:'No public star rating cited', cost:'$499/yr individual · Enterprise: custom quote',
+    url:'https://www.oreilly.com/live-events/spec-driven-development-with-claude-code/0642572319915/'
+  },
+  {
+    id:'oreilly-vibe-vs-sdd', seq:32, name:'O\'Reilly: Vibe Coding vs SDD', type:'enterprise', phase:3,
+    org:'Sergio Pereira, via O\'Reilly Live Events',
+    description:'Comparative live session contrasting unstructured vibe-coding against disciplined spec-driven workflows — a good orientation session for skeptical senior engineers.',
+    accessibility:'O\'Reilly individual or Team/Enterprise license', duration:'Live event, typically 1–2 hours',
+    rating:'No public star rating cited', cost:'$499/yr individual · Enterprise: custom quote',
+    url:'https://www.oreilly.com/live-events/vibe-coding-vs-spec-driven-development/0642572353889/0642572353872/'
+  },
+  {
+    id:'linkedin-learning-sdd', seq:33, name:'LinkedIn Learning: SDD with GitHub Spec Kit', type:'foundation', phase:3,
+    org:'LinkedIn Learning',
+    description:'Dedicated, vendor-hosted course with a public companion GitHub repo, covering Spec Kit with GitHub Copilot, Claude Code, and Gemini CLI.',
+    accessibility:'Included with LinkedIn Learning subscription', duration:'Self-paced video, a few hours',
+    rating:'No public star rating in source material',
+    cost:'$239.88/yr individual · Team ~$379.88/seat',
+    url:'https://github.com/LinkedInLearning/spec-driven-development-with-github-spec-kit-4641001'
+  },
+  {
+    id:'maven-elite-coding', seq:34, name:'Maven: Elite AI Assisted Coding', type:'enterprise', phase:3,
+    org:'Eleanor Berger & Mitja Martini, via Maven',
+    description:'Premium, instructor-led cohort going deep on context management and SDD across the full SDLC at enterprise scale. Curriculum revised quarterly, lifetime access. The recommended "train-the-trainer" investment.',
+    accessibility:'Cohort-based via Maven, live + lifetime access', duration:'Multi-week cohort',
+    rating:'No public aggregate rating cited',
+    cost:'$1,500/seat · 20%+ team discounts, private cohorts available',
+    url:'https://maven.com/agentic-ventures/ai-coding'
+  },
+  {
+    id:'maven-prototype-production', seq:35, name:'Maven: Prototype to Production (Mastering SDD)', type:'enterprise', phase:3,
+    org:'Madhav Malhotra, via Maven',
+    description:'1-day intensive cohort covering Claude Code + OpenSpec, focused on taking spec-driven prototypes to production-grade delivery. Cheaper entry point into the Maven cohort ecosystem.',
+    accessibility:'Cohort-based via Maven', duration:'1 day, intensive',
+    rating:'No public aggregate rating cited', cost:'$799/seat',
+    url:'https://maven.com/qurioskill/from-prototype-to-production'
+  },
+  {
+    id:'ascendient-openspec', seq:36, name:'Ascendient: SDD with OpenSpec', type:'enterprise', phase:3,
+    org:'Ascendient Learning',
+    description:'Vendor-certified, instructor-led corporate training (private or scheduled public delivery) with hands-on labs around the OpenSpec framework — a turnkey outsourced option.',
+    accessibility:'Instructor-led, private or scheduled', duration:'Typically 1-day instructor-led',
+    rating:'No public rating cited', cost:'Custom corporate-training quote',
+    url:'https://www.ascendientlearning.com/it-training/generative-ai/openspec-development-74056-detail.html'
+  },
+  {
+    id:'pluralsight-copilot', seq:37, name:'Pluralsight: GitHub Copilot Agent Paths', type:'foundation', phase:3,
+    org:'Pluralsight',
+    description:'Adjacent (not pure-SDD) paths covering agent-ready repos, custom instructions, context engineering, and CI governance enforcement. Useful for skills-tracking dashboards at scale.',
+    accessibility:'Pluralsight individual or Business plan', duration:'Multiple paths, several hours each',
+    rating:'No public rating cited',
+    cost:'$299–499/yr individual · Business $399–779/seat/yr',
+    url:'https://www.pluralsight.com/resources/blog/software-development/spec-driven-development-with-AI-SDD'
+  },
+  {
+    id:'coderabbit', seq:38, name:'CodeRabbit', type:'operational', phase:4,
+    org:'CodeRabbit',
+    description:'The most widely installed agentic code-review tool (2M+ repos, 13M+ PRs reviewed). Covers GitHub/GitLab/Bitbucket/Azure DevOps plus a VS Code extension, 40+ integrated linters/SAST tools, and low false-positive rates (~2 FPs/run). Scored a 44% catch rate in a July 2025 50-bug benchmark.',
+    accessibility:'Free tier (PR summaries); Pro tier for full review',
+    duration:'Setup: <30 min; runs continuously on every PR',
+    rating:'44% bug-catch rate in third-party 50-bug benchmark (July 2025)',
+    cost:'Free tier · Pro ~$24–30/user/mo · self-hosted Enterprise (500+ seats)',
+    url:'https://www.coderabbit.ai/'
+  },
+  {
+    id:'greptile', seq:39, name:'Greptile', type:'operational', phase:4,
+    org:'Greptile',
+    description:'Full-codebase indexing/code-graph reviewer with the highest published bug-catch rate (82% in Greptile\'s own benchmark vs. Bugbot 58%, Copilot ~54%, CodeRabbit 44%, Graphite 6%) at the cost of more false positives (~11/run). Supports custom plain-language review rules, self-hosting, and an API.',
+    accessibility:'Free trial; custom/enterprise pricing thereafter',
+    duration:'Setup: ~1 hour for full codebase indexing',
+    rating:'82% catch rate in vendor-run benchmark — note: self-reported',
+    cost:'Free trial · custom/enterprise pricing',
+    url:'https://www.greptile.com/'
+  },
+  {
+    id:'graphite', seq:40, name:'Graphite', type:'operational', phase:4,
+    org:'Graphite',
+    description:'Stacked-PR workflow + merge queue + AI review, GitHub-native, used by 65,000+ developers. Optimized for low noise (<5% negative-feedback comments) rather than maximum recall — its 6% catch rate in the same benchmark reflects a deliberately conservative, low-noise design philosophy, not weak detection per se.',
+    accessibility:'Free for first 30 days, then paid tiers',
+    duration:'Setup: <30 min; fits naturally into a stacked-diff workflow',
+    rating:'<5% negative-feedback rate on review comments (vendor-reported)',
+    cost:'Free trial (30 days) · paid tiers thereafter',
+    url:'https://graphite.dev/'
+  },
+  {
+    id:'cisa-sbom', seq:41, name:'CISA/G7 AI-BOM Minimum Elements', type:'reference', phase:4,
+    org:'CISA + G7 (Nov 2025)',
+    description:'Official guidance defining the minimum elements of an AI Bill of Materials across seven clusters: Metadata, Models, Dataset Properties, System-Level Properties, KPIs, Security Properties, and Infrastructure. Builds on the G7\'s June 2025 shared vision for AI supply-chain transparency.',
+    accessibility:'Free, official government/multilateral publication',
+    duration:'~1 hour read for the core framework',
+    rating:'Official multilateral (G7) standard', cost:'Free',
+    url:'https://www.cisa.gov/'
+  },
+  {
+    id:'owasp-aibom', seq:42, name:'OWASP AIBOM Generator', type:'tool', phase:4,
+    org:'OWASP AI SBOM Initiative (introduced at RSAC 2025)',
+    description:'Free, open-source tool that automatically generates an AI Bill of Materials conforming to standards like SPDX/CycloneDX, operationalizing the CISA/G7 minimum-elements framework rather than requiring manual documentation.',
+    accessibility:'Free, open source', duration:'~30 min setup per project',
+    rating:'OWASP-stewarded open-source project', cost:'Free',
+    url:'https://genai.owasp.org/'
+  },
+  {
+    id:'platform-eng-ai', seq:43, name:'AI-Native Platform Engineering', type:'enterprise', phase:4,
+    org:'CNCF Platform Engineering Maturity Model + platformengineering.org + Backstage',
+    description:'Treats AI agents as a new first-class platform "consumer persona": discoverable tool schemas, golden paths, and guardrails layered onto an internal developer platform (most commonly Backstage, ~89% IDP market share) with internal MCP servers exposing the org\'s catalog as agent context. Cloudflare\'s public internal-AI-engineering-stack post is a strong free real-world case study.',
+    accessibility:'Free community resources (CNCF white papers, platformengineering.org); paid blueprints/courses also exist',
+    duration:'Multi-week implementation effort; reading the white papers takes a few hours',
+    rating:'CNCF-backed; platformengineering.org is the leading community for this practice',
+    cost:'Free community tier · paid templates/courses for deeper guidance',
+    url:'https://platformengineering.org/'
+  },
+  {
+    id:'dora-2025', seq:44, name:'DORA 2025 AI Report & AI Capabilities Model', type:'operational', phase:4,
+    org:'DORA / Google Cloud',
+    description:'The 2025 "State of AI-assisted Software Development" report (≈5,000 professionals surveyed, 142 pages) plus the December 2025 AI Capabilities Model — seven foundational capabilities (clear AI stance, healthy data ecosystems, user-centric focus, Value Stream Management, small-batch work, quality internal platforms, strong version control). Central finding: AI is an amplifier — it magnifies the strengths of high performers and the dysfunctions of strugglers; 30% of respondents report little or no trust in AI-generated code.',
+    accessibility:'Free, official report and companion guide',
+    duration:'~2–3 hours to read both documents thoroughly',
+    rating:'Industry-standard reference; ~5,000-respondent survey base', cost:'Free',
+    url:'https://dora.dev/'
+  },
+  {
+    id:'udemy-ai-qa', seq:45, name:'Udemy: AI-Driven Software Testing for QA Engineers', type:'operational', phase:4,
+    org:'Various instructors, Udemy',
+    description:'A cluster of courses (GenAI & AI Agents for QA Automation, Gen AI for QA with Claude & Copilot, AI-Driven Software Testing) directly addressing DORA\'s flagged gap — trust in AI-generated code — by teaching AI-assisted test generation and quality engineering practices.',
+    accessibility:'Open enrollment on Udemy, lifetime access', duration:'Self-paced, several hours per course',
+    rating:'~4+/5 typical on well-reviewed listings; verify current course',
+    cost:'~$15–130 per course, frequent discounts',
+    url:'https://www.udemy.com/'
+  },
+  {
+    id:'maven-edd', seq:46, name:'Maven: Evaluation Driven Development for Agentic AI Systems', type:'operational', phase:5,
+    org:'SwirlAI & Maven',
+    description:'Live online cohort with interactive Q&A focused on testing the non-deterministic trajectories of agentic AI systems — using MLflow, Llama Stack, DeepEval and Promptfoo. The direct operational follow-on to SDD: once specs drive code generation reliably, EDD prevents silent regressions in production.',
+    accessibility:'Cohort-based via Maven', duration:'Multi-session live cohort',
+    rating:'No public aggregate rating cited', cost:'Cohort-dependent enrollment fee',
+    url:'https://maven.com/p/063cd6/evaluation-driven-development-for-agentic-ai-systems'
+  },
+  {
+    id:'packt-edd', seq:47, name:'Packt: Eval Driven Development for Engineers', type:'operational', phase:5,
+    org:'Packt Publishing (live workshop, via Eventbrite)',
+    description:'Live workshop teaching engineers to build the "Golden Dataset" regression-test discipline: capturing real production traces and failure modes, converting every production bug into a permanent automated test case, and wiring semantic LLM-as-a-judge evaluation into CI/CD.',
+    accessibility:'Live, ticketed workshop', duration:'Single live session',
+    rating:'No public rating cited', cost:'Ticketed — see current Eventbrite listing',
+    url:'https://www.eventbrite.co.uk/e/eval-driven-development-for-engineers-tickets-1987673491921'
+  },
+  {
+    id:'observability-stack', seq:48, name:'Observability Stack (LangSmith / Braintrust / MLflow)', type:'operational', phase:5,
+    org:'Various — integrated as internal tooling',
+    description:'The operational tooling layer EDD training prepares engineers to configure: tracing platforms capturing tool-call latency, token cost, and full execution traces, feeding the CI/CD "green-red regression loop" where every production failure becomes a permanent Golden Dataset test case.',
+    accessibility:'MLflow open source/free; LangSmith/Braintrust commercial SaaS',
+    duration:'Ongoing operational practice, not a fixed course',
+    rating:'N/A — infrastructure, not training',
+    cost:'MLflow: free · LangSmith/Braintrust: usage-based pricing',
+    url:'https://mlflow.org/blog/structured-ai-eval/'
+  },
+  {
+    id:'book-martinelli', seq:49, name:'Spec-Driven Development: From Specs to Code with AI Agents', type:'reference', phase:6,
+    org:'Simon Martinelli — Apress / Springer',
+    description:'The most directly on-topic book in the field. Introduces the "AI Unified Process," spec-first principles, situates Kiro and Spec Kit in context, and walks through a full hands-on case study.',
+    accessibility:'Purchase via Apress/Springer or major booksellers', duration:'Full-length book, ~6–10 hrs reading',
+    rating:'New release; no broad aggregate rating yet available',
+    cost:'Standard technical book pricing, typically $40–60',
+    url:'https://martinelli.ch/'
+  },
+  {
+    id:'book-ryan', seq:50, name:'Spec Driven Development — AI Native Software Engineering', type:'reference', phase:6,
+    org:'Kevin Ryan — sddbook.com',
+    description:'Practitioner book ships an installable agent "skill" on the Tessl Registry, letting any coding agent follow the book\'s exact workflow directly.',
+    accessibility:'Purchase via sddbook.com', duration:'Full-length book, ~6–8 hrs reading',
+    rating:'No aggregate public rating cited', cost:'See sddbook.com for current price',
+    url:'https://sddbook.com'
+  },
+  {
+    id:'book-osmani', seq:51, name:'Beyond Vibe Coding: From Coder to AI-Era Developer', type:'reference', phase:6,
+    org:'Addy Osmani — O\'Reilly',
+    description:'Broader AI-era software development book covering structured/spec-informed workflows as part of a wider argument about the evolving developer role. Osmani also wrote the widely-read "Agent Harness Engineering" synthesis article republished on O\'Reilly Radar.',
+    accessibility:'O\'Reilly platform or standard book purchase', duration:'Full-length book, ~6–8 hrs reading',
+    rating:'Well-regarded author; no single aggregate score cited here',
+    cost:'O\'Reilly subscription (~$49/mo) or standard book price',
+    url:'https://www.oreilly.com/'
+  },
+  {
+    id:'book-taulli', seq:52, name:'AI-Assisted Programming', type:'reference', phase:6,
+    org:'Tom Taulli — O\'Reilly',
+    description:'Foundational (less SDD-specific) book covering PRD/SRS-style requirements documents and test-driven development practices in an AI-assisted context.',
+    accessibility:'O\'Reilly platform or standard book purchase', duration:'Full-length book, ~5–7 hrs reading',
+    rating:'No aggregate rating cited in source material',
+    cost:'O\'Reilly subscription or standard book price',
+    url:'https://www.oreilly.com/'
+  },
+  {
+    id:'book-vibe-coding', seq:53, name:'Vibe Coding: Building Production-Grade Software With GenAI, Chat, Agents, and Beyond', type:'reference', phase:6,
+    org:'Gene Kim & Steve Yegge',
+    description:'A practitioner narrative cited as a DORA reference, making the production-grade case for disciplined AI-assisted development — pairs naturally with the DORA 2025 report\'s industry data.',
+    accessibility:'Standard book purchase', duration:'Full-length book, ~6–8 hrs reading',
+    rating:'Well-regarded among DevOps/SRE practitioners', cost:'Standard book pricing',
+    url:'https://www.oreilly.com/'
+  }
+];
+
+const links = [
+  {source:'ears', target:'dla-sdd', kind:'path-foundation', label:'vocabulary for writing testable specs'},
+  {source:'ears', target:'ms-learn-greenfield', kind:'path-foundation', label:'precise acceptance criteria for Spec Kit'},
+  {source:'ears', target:'martinelli-workshop', kind:'path-ref', label:'shared requirements grammar for AIUP'},
+  {source:'arxiv-contract', target:'dla-sdd', kind:'path-ref', label:'maturity model: spec-first → spec-as-source'},
+  {source:'fowler-critique', target:'ms-learn-enterprise', kind:'path-ref', label:'guardrails against pipeline over-engineering'},
+
+  {source:'harness-def', target:'anthropic-harness', kind:'path-ref', label:'definition → applied harness patterns'},
+  {source:'harness-def', target:'context-eng-anthropic', kind:'path-ref', label:'scaffolding needs curated context too'},
+  {source:'anthropic-harness', target:'fowler-harness', kind:'path-ref', label:'case study generalized into guides/sensors taxonomy'},
+  {source:'fowler-harness', target:'agents-md', kind:'path-tool', label:'taxonomy implemented as a portable instruction file'},
+  {source:'agents-md', target:'awesome-harness', kind:'path-ref', label:'standard cross-referenced against the full pattern catalog'},
+  {source:'context-eng-anthropic', target:'context-eng-langchain', kind:'path-ref', label:'extended into write / select / compress / isolate'},
+  {source:'context-eng-langchain', target:'claude-code-plan', kind:'path-tool', label:'context discipline applied inside a real agent loop'},
+  {source:'harness-def', target:'claude-code-plan', kind:'path-tool', label:'default harness you then customize'},
+  {source:'harness-def', target:'anthropic-academy', kind:'path-foundation', label:'discipline named — now learn it from the model maker'},
+  {source:'agents-md', target:'kiro', kind:'path-tool', label:'open standard → a full agent-native IDE'},
+  {source:'awesome-harness', target:'bmad', kind:'path-tool', label:'pattern catalog → a concrete multi-agent implementation'},
+
+  {source:'dla-sdd', target:'ms-learn-greenfield', kind:'path-foundation', label:'concept fluency — now run real CLI commands'},
+  {source:'dla-sdd', target:'anthropic-academy', kind:'path-foundation', label:'vendor-neutral concepts → the model maker\'s curriculum'},
+  {source:'anthropic-academy', target:'claude-code-dla', kind:'path-foundation', label:'broad API curriculum → focused agentic-coding course'},
+  {source:'anthropic-academy', target:'claude-code-plan', kind:'path-tool', label:'platform fundamentals → the actual Plan Mode workflow'},
+  {source:'claude-code-dla', target:'coursera-claude-swe', kind:'path-foundation', label:'short course → full university-backed module'},
+  {source:'coursera-claude-swe', target:'ms-learn-greenfield', kind:'path-foundation', label:'SWE-with-agents theory → hands-on Spec Kit tooling'},
+
+  {source:'ms-learn-greenfield', target:'netninja-speckit', kind:'path-foundation', label:'greenfield basics → command-by-command depth'},
+  {source:'ms-learn-greenfield', target:'speckit', kind:'path-tool', label:'install and run the actual toolkit'},
+  {source:'netninja-speckit', target:'speckit', kind:'path-tool', label:'tutorial maps directly onto this tool'},
+  {source:'netninja-speckit', target:'tamagotchi-challenge', kind:'path-foundation', label:'practice the full command suite on a real build'},
+  {source:'speckit', target:'tamagotchi-challenge', kind:'path-foundation', label:'graded capstone exercise using this tool'},
+  {source:'speckit', target:'bmad', kind:'path-tool', label:'compare single-agent vs multi-agent orchestration'},
+  {source:'speckit', target:'kiro', kind:'path-tool', label:'compare CLI-first vs IDE-first SDD'},
+  {source:'speckit', target:'tessl', kind:'path-tool', label:'compare git-based specs vs spec-as-source'},
+  {source:'speckit', target:'openspec', kind:'path-tool', label:'lighter-weight alternative for smaller teams'},
+  {source:'claude-code-plan', target:'speckit', kind:'path-tool', label:'add persistent, version-controlled specs to the loop'},
+  {source:'claude-code-plan', target:'bmad', kind:'path-tool', label:'scale one agent into a simulated product team'},
+  {source:'claude-code-plan', target:'antigravity', kind:'path-tool', label:'same loop, inside an agent-first IDE'},
+  {source:'cursor-mdc', target:'speckit', kind:'path-ref', label:'graduate from suggestion-only rules to gated pipelines'},
+
+  {source:'tamagotchi-challenge', target:'ms-learn-enterprise', kind:'path-foundation', label:'sandbox mastery → brownfield/enterprise application'},
+  {source:'speckit', target:'ms-learn-enterprise', kind:'path-tool', label:'same tool, enterprise-scale constitution & CI/CD'},
+  {source:'kiro', target:'ms-learn-enterprise', kind:'path-tool', label:'same discipline, enterprise governance layer'},
+  {source:'ms-learn-enterprise', target:'martinelli-workshop', kind:'path-foundation', label:'tooling mastered → align stakeholders & domain model'},
+  {source:'dla-sdd', target:'codesignal-sdd', kind:'path-ref', label:'alternative interactive practice track'},
+  {source:'dla-sdd', target:'udemy-vibe-to-eng', kind:'path-ref', label:'alternative self-paced breadth course'},
+  {source:'udemy-vibe-to-eng', target:'udemy-deterministic', kind:'path-ref', label:'constitutions & gates → compare tool ecosystems'},
+  {source:'claude-code-plan', target:'oreilly-claude-sdd', kind:'path-ref', label:'guided, live walkthrough of the same workflow'},
+  {source:'oreilly-claude-sdd', target:'oreilly-vibe-vs-sdd', kind:'path-ref', label:'see the discipline contrasted against unstructured prompting'},
+  {source:'speckit', target:'linkedin-learning-sdd', kind:'path-tool', label:'bundled refresher across Copilot/Claude/Gemini'},
+  {source:'martinelli-workshop', target:'maven-elite-coding', kind:'path-foundation', label:'train-the-trainer depth for leads'},
+  {source:'maven-elite-coding', target:'maven-prototype-production', kind:'path-ref', label:'condensed 1-day production-hardening follow-up'},
+  {source:'ms-learn-enterprise', target:'ascendient-openspec', kind:'path-ref', label:'turnkey outsourced corporate delivery option'},
+  {source:'claude-code-plan', target:'pluralsight-copilot', kind:'path-ref', label:'skills-tracking dashboards at scale'},
+
+  {source:'claude-code-plan', target:'coderabbit', kind:'path-ops', label:'agent writes code → now gate it with automated review'},
+  {source:'speckit', target:'greptile', kind:'path-ops', label:'spec compliance checked → now catch what slipped through'},
+  {source:'bmad', target:'graphite', kind:'path-ops', label:'multi-agent PRs → manage as a stacked review queue'},
+  {source:'coderabbit', target:'greptile', kind:'path-ops', label:'compare precision-tuned vs maximum-recall review'},
+  {source:'greptile', target:'graphite', kind:'path-ops', label:'compare raw bug-catch rate vs low-noise workflow'},
+  {source:'anthropic-harness', target:'coderabbit', kind:'path-ops', label:'harness "sensors" realized as an automated reviewer'},
+  {source:'fowler-harness', target:'greptile', kind:'path-ops', label:'guides/sensors taxonomy applied to full-codebase review'},
+  {source:'ms-learn-enterprise', target:'cisa-sbom', kind:'path-ops', label:'CI/CD governance → extend to AI supply-chain provenance'},
+  {source:'cisa-sbom', target:'owasp-aibom', kind:'path-ops', label:'minimum-elements standard → generate one automatically'},
+  {source:'ms-learn-enterprise', target:'platform-eng-ai', kind:'path-ops', label:'team-level governance → platform-wide self-service for agents'},
+  {source:'platform-eng-ai', target:'dora-2025', kind:'path-ops', label:'platform maturity → measured against DORA\'s AI metrics'},
+  {source:'dora-2025', target:'udemy-ai-qa', kind:'path-ops', label:'DORA flags trust-in-AI-code as the gap → close it with QA training'},
+  {source:'observability-stack', target:'dora-2025', kind:'path-ops', label:'tracing in place → now benchmark org performance'},
+
+  {source:'martinelli-workshop', target:'maven-edd', kind:'path-foundation', label:'specs are reliable → now make outputs evaluable'},
+  {source:'maven-elite-coding', target:'maven-edd', kind:'path-foundation', label:'production coding depth → add eval gates'},
+  {source:'maven-edd', target:'packt-edd', kind:'path-ref', label:'cohort training → build the Golden Dataset workflow'},
+  {source:'maven-edd', target:'observability-stack', kind:'path-foundation', label:'evaluation theory wired into real tracing infrastructure'},
+  {source:'packt-edd', target:'observability-stack', kind:'path-foundation', label:'Golden Dataset gates → operationalized in CI/CD'},
+
+  {source:'martinelli-workshop', target:'book-martinelli', kind:'path-ref', label:'workshop instructor\'s own reference text'},
+  {source:'speckit', target:'book-ryan', kind:'path-ref', label:'tool mastery → an installable book-as-agent-skill'},
+  {source:'dla-sdd', target:'book-osmani', kind:'path-ref', label:'course concepts → broader AI-era developer-role context'},
+  {source:'ms-learn-greenfield', target:'book-taulli', kind:'path-ref', label:'first formal grounding in requirements docs & TDD'},
+  {source:'context-eng-langchain', target:'book-vibe-coding', kind:'path-ref', label:'context discipline → the production-grade case for it'},
+  {source:'dora-2025', target:'book-vibe-coding', kind:'path-ref', label:'industry data, paired with the practitioner narrative'},
+];
+
+/* ============================================================
+   RENDER & PHYSICS ENGINE MANAGEMENT
+   ============================================================ */
+const svg = d3.select('#graph');
+const g = svg.append('g');
+
+let width = window.innerWidth, height = window.innerHeight;
+
+svg.append('defs').append('marker')
+  .attr('id','arrow')
+  .attr('viewBox','0 -5 10 10')
+  .attr('refX', 20) 
+  .attr('refY', 0)
+  .attr('markerWidth', 6)
+  .attr('markerHeight', 6)
+  .attr('orient','auto')
+  .append('path')
+  .attr('d','M0,-4L9,0L0,4Z')
+  .style('fill', 'rgba(94,230,214,0.7)');
+
+const nodeById = new Map(nodes.map(d => [d.id, d]));
+
+const phaseX = d3.scaleLinear()
+  .domain([0, 6])
+  .range([100, width - 420]); 
+
+const rail = d3.select('#phases-horizontal-rail');
+PHASES.forEach(p => {
+  rail.append('div')
+    .attr('class', 'phase-label')
+    .html(`<span class="phase-num">${p.id}</span>${p.label}`);
+});
+
+nodes.forEach(d => {
+  d.x = phaseX(d.phase);
+  d.y = height / 3 + (d.seq % 3) * (height / 4) + (Math.random() - 0.5) * 20; 
+  d.fx = null;
+  d.fy = null;
+});
+
+const linkSel = links.map(l => ({source:l.source, target:l.target, kind:l.kind, label:l.label}));
+
+const simulation = d3.forceSimulation(nodes)
+  .force('link', d3.forceLink(linkSel).id(d => d.id).distance(140).strength(0.05))
+  .force('charge', d3.forceManyBody().strength(-200))
+  .force('collide', d3.forceCollide(72).strength(0.8))
+  .force('x', d3.forceX(d => phaseX(d.phase)).strength(0.5))
+  .force('y', d3.forceY(height / 2).strength(0.1))
+  .on('tick', ticked);
+
+const linkG = g.append('g').attr('class','links');
+const linkPath = linkG.selectAll('path')
+  .data(linkSel)
+  .join('path')
+  .attr('class', d => 'link ' + d.kind)
+  .attr('marker-end', 'url(#arrow)');
+
+const labelG = g.append('g').attr('class','edge-labels');
+const linkLabel = labelG.selectAll('text')
+  .data(linkSel)
+  .join('text')
+  .attr('class','edge-label')
+  .text(d => d.label);
+
+function nodeColor(d){ return COLORS[d.type] || '#999'; }
+
+function nodeSize(d) {
+  if (d.type === 'tool' || d.type === 'concept' || d.type === 'reference') return { w: 140, h: 54 };
+  return { w: 155, h: 58 };
+}
+
+const nodeG = g.append('g').attr('class','nodes')
+  .selectAll('g')
+  .data(nodes)
+  .join('g')
+  .attr('class','node-group')
+  .attr('id', d => 'n-'+d.id)
+  .call(d3.drag()
+    .on('start', dragstarted)
+    .on('drag', dragged)
+    .on('end', dragended));
+
+nodeG.each(function(d){
+  const sel = d3.select(this);
+  const sz = nodeSize(d);
+  d._sz = sz;
+  sel.append('rect')
+    .attr('class','node-card')
+    .attr('x', -sz.w/2).attr('y', -sz.h/2)
+    .attr('width', sz.w).attr('height', sz.h)
+    .attr('rx', 6)
+    .attr('fill', nodeColor(d))
+    .attr('stroke', '#0a1018')
+    .attr('stroke-width', 1.2);
+
+  sel.append('circle')
+    .attr('class','seq-badge-bg')
+    .attr('cx', -sz.w/2 + 2).attr('cy', -sz.h/2 + 2).attr('r', 9);
+  sel.append('text')
+    .attr('class','seq-badge-txt')
+    .attr('x', -sz.w/2 + 2).attr('y', -sz.h/2 + 5.5)
+    .attr('font-size', 9)
+    .text(d.seq);
+
+  const lines = wrapText(d.name, 16);
+  const lineHeight = 12.5;
+  const startY = -((lines.length-1)*lineHeight)/2 - 3;
+  lines.forEach((ln,i) => {
+    sel.append('text')
+      .attr('class','node-title')
+      .attr('text-anchor','middle')
+      .attr('font-size', 11) 
+      .attr('y', startY + i*lineHeight)
+      .text(ln);
+  });
+  sel.append('text')
+    .attr('class','node-sub')
+    .attr('text-anchor','middle')
+    .attr('font-size', 9) 
+    .attr('y', sz.h/2 - 6)
+    .text(typeLabel(d.type));
+});
+
+function typeLabel(t){
+  return ({
+    foundation:'COURSE', tool:'TOOL', enterprise:'ENTERPRISE',
+    concept:'CONCEPT', operational:'OPERATIONAL', reference:'REFERENCE',
+    practice:'PRACTICE'
+  })[t] || t.toUpperCase();
+}
+
+function wrapText(text, maxChars){
+  const words = text.split(' ');
+  let lines = [], cur = '';
+  words.forEach(w => {
+    if((cur+' '+w).trim().length > maxChars){
+      lines.push(cur.trim()); cur = w;
+    } else { cur = (cur+' '+w).trim(); }
+  });
+  if(cur) lines.push(cur);
+  return lines.slice(0,3);
+}
+
+nodeG.on('click', (event, d) => {
+  event.stopPropagation();
+  openPanel(d);
+  nodeG.classed('active', n => n.id === d.id);
+});
+
+function ticked(){
+  linkPath.attr('d', d => {
+    const s = nodeById.get(d.source.id || d.source);
+    const t = nodeById.get(d.target.id || d.target);
+    return `M${s.x},${s.y}A${Math.sqrt((t.x-s.x)**2+(t.y-s.y)**2)*1.4},${Math.sqrt((t.x-s.x)**2+(t.y-s.y)**2)*1.4} 0 0,1 ${t.x},${t.y}`;
+  });
+
+  const pathNodes = linkPath.nodes();
+  linkLabel.attr('transform', (d,i) => {
+    const p = pathNodes[i];
+    let pt = {x:0,y:0};
+    try{ pt = p.getPointAtLength(p.getTotalLength()/2); }catch(e){}
+    return `translate(${pt.x},${pt.y - 6})`; 
+  });
+
+  nodeG.attr('transform', d => `translate(${d.x},${d.y})`);
+}
+
+function dragstarted(event, d){
+  if(!event.active) simulation.alphaTarget(0.05).restart();
+  d.fx = d.x; d.fy = d.y;
+}
+function dragged(event, d){ 
+  d.fx = event.x; d.fy = event.y; 
+  d.x = event.x; d.y = event.y;
+}
+function dragended(event, d){
+  if(!event.active) simulation.alphaTarget(0);
+  d.fx = d.x; 
+  d.fy = d.y;
+}
+
+const zoom = d3.zoom().scaleExtent([0.15, 2.0]).on('zoom', (event) => {
+  g.attr('transform', event.transform);
+});
+svg.call(zoom);
+svg.on('click', () => { closePanel(); nodeG.classed('active', false); });
+
+svg.call(zoom.transform, d3.zoomIdentity.scale(0.72).translate(60, height * 0.08));
+
+/* ============================================================
+   DRAWER INTERFACE MANAGEMENT
+   ============================================================ */
+const panel = document.getElementById('panel');
+const panelInner = document.getElementById('panel-inner');
+document.getElementById('panel-close').addEventListener('click', () => { closePanel(); nodeG.classed('active', false); });
+
+function outboundOf(id){ return links.filter(l => l.source === id); }
+function inboundOf(id){ return links.filter(l => l.target === id); }
+
+function openPanel(d){
+  const out = outboundOf(d.id).map(l => ({n:nodeById.get(l.target), label:l.label}));
+  const inb = inboundOf(d.id).map(l => ({n:nodeById.get(l.source), label:l.label}));
+  const color = nodeColor(d);
+
+  panelInner.innerHTML = `
+    <span class="step-chip">STEP ${d.seq} / ${nodes.length}</span>
+    <span class="panel-eyebrow" style="background:${color}22; color:${color}; border:1px solid ${color}55;">${typeLabel(d.type)} · PHASE ${d.phase}</span>
+    <h2>${d.name}</h2>
+    <div class="org">${d.org}</div>
+    <p class="desc">${d.description}</p>
+    <div class="meta-grid">
+      <div class="meta-item"><div class="k">Accessibility</div><div class="v">${d.accessibility}</div></div>
+      <div class="meta-item"><div class="k">Duration</div><div class="v">${d.duration}</div></div>
+      <div class="meta-item"><div class="k">Rating</div><div class="v">${d.rating}</div></div>
+      <div class="meta-item"><div class="k">Cost</div><div class="v">${d.cost}</div></div>
+    </div>
+    ${d.url ? `<a class="go-link" href="${d.url}" target="_blank" rel="noopener">↗ Open Source Resource</a>` : ''}
+    ${out.length ? `<div class="panel-section-label">Leads to (${out.length})</div><ul class="outbound">${out.map(o=>`<li data-id="${o.n.id}"><b>#${o.n.seq} ${o.n.name}</b><span class="yields">→ ${o.label}</span></li>`).join('')}</ul>` : ''}
+    ${inb.length ? `<div class="panel-section-label">Builds on (${inb.length})</div><ul class="inbound">${inb.map(o=>`<li data-id="${o.n.id}"><b>#${o.n.seq} ${o.n.name}</b><span class="yields">→ ${o.label}</span></li>`).join('')}</ul>` : ''}
+  `;
+  panel.classList.add('open');
+
+  panelInner.querySelectorAll('li[data-id]').forEach(li => {
+    li.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const target = nodeById.get(li.getAttribute('data-id'));
+      openPanel(target);
+      nodeG.classed('active', n => n.id === target.id);
+      focusNode(target);
+    });
+  });
+
+  highlightNeighbors(d.id);
+}
+function closePanel(){
+  panel.classList.remove('open');
+  nodeG.classed('dimmed', false);
+  linkPath.style('opacity', null);
+  linkLabel.style('opacity', null);
+}
+function highlightNeighbors(id){
+  const connected = new Set([id]);
+  links.forEach(l => {
+    if(l.source===id) connected.add(typeof l.target==='object'?l.target.id:l.target);
+    if(l.target===id) connected.add(typeof l.source==='object'?l.source.id:l.source);
+  });
+  nodeG.classed('dimmed', d => !connected.has(d.id));
+  linkPath.style('opacity', l => {
+    const s = l.source.id || l.source, t = l.target.id || l.target;
+    return (s===id || t===id) ? 1 : 0.06;
+  });
+  linkLabel.style('opacity', l => {
+    const s = l.source.id || l.source, t = l.target.id || l.target;
+    return (s===id || t===id) ? 0.95 : 0.04;
+  });
+}
+function focusNode(d){
+  const transform = d3.zoomTransform(svg.node());
+  svg.transition().duration(500).call(
+    zoom.transform,
+    d3.zoomIdentity.translate(width/2 - d.x*transform.k, height/2 - d.y*transform.k).scale(transform.k)
+  );
+}
+
+/* ============================================================
+   CONTROLS & ACTION GATES
+   ============================================================ */
+const aboutModal = document.getElementById('about-modal');
+const btnAbout = document.getElementById('btn-about');
+const modalClose = document.getElementById('modal-close');
+
+function openModal() { aboutModal.classList.add('show'); }
+function closeModal() { aboutModal.classList.remove('show'); }
+
+btnAbout.addEventListener('click', openModal);
+modalClose.addEventListener('click', closeModal);
+
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(openModal, 400);
+});
+
+const btnToggleLabels = document.getElementById('btn-toggle-labels');
+btnToggleLabels.addEventListener('click', () => {
+  const labelsHidden = linkLabel.classed('hidden');
+  linkLabel.classed('hidden', !labelsHidden);
+  if (labelsHidden) {
+    btnToggleLabels.innerText = "Labels: ON";
+    btnToggleLabels.classList.add('active');
+  } else {
+    btnToggleLabels.innerText = "Labels: OFF";
+    btnToggleLabels.classList.remove('active');
+  }
+});
+
+document.getElementById('search').addEventListener('input', (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  if(!q){
+    nodeG.classed('dimmed', false);
+    linkPath.style('opacity', null);
+    linkLabel.style('opacity', null);
+    return;
+  }
+  nodeG.classed('dimmed', d => {
+    return !(d.name+' '+d.org+' '+d.description+' '+d.type+' '+d.cost+' '+d.accessibility).toLowerCase().includes(q);
+  });
+  linkPath.style('opacity', 0.05);
+  linkLabel.style('opacity', 0.04);
+});
+
+window.addEventListener('resize', () => {
+  width = window.innerWidth; height = window.innerHeight;
+});
+</script>
+</body>
+</html>
